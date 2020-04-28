@@ -1,0 +1,19 @@
+.topimg {
+	background-image: none;
+	background-color: blue;
+    margin: 0 0 0.1em 0;
+    text-align: center;
+	font-size: 3em;
+	color: white;
+	font-weight: bolder;
+	}
+
+html
+{
+
+}
+
+.userPageContent
+{
+     background : url('../../../img/snowfall.gif');
+}

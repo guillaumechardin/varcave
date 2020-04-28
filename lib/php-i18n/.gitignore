@@ -1,0 +1,3 @@
+langcache/*
+!langcache/README.md
+/vendor

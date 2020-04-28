@@ -1,0 +1,1198 @@
+html {
+    height: 100%;
+    font-size: 1em;
+	font-family: verdana, Helvetica, sans-serif;
+}
+
+body {
+  background-color: whitesmoke;
+  height: 100%;
+}
+
+h1 {
+	margin: 0.4em 0 ;
+}
+
+h2 {
+	margin: 0.1em 0 ;
+}
+
+#footer {
+	background-color: #333;
+	padding: 0.2em;
+    border: 0.1em solid;
+	color: white;
+	flex-direction: row;
+	display:flex;
+	
+	justify-content: space-between;
+	align-items: : center;
+}
+
+#footer a {
+	color:white;
+}
+
+.genFlexContainer,
+.genFlexContainerNowrap
+{
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+
+.genFlexContainerWrap
+{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+
+.home-colContainer {
+  /*border: 0.1em solid black;*/
+  padding: 0.3em;
+}
+
+.flexContainer {
+	/*border-radius: 1em;*/
+  border: 0.1em solid black;
+  padding: 0.3em;
+  flex-direction: row;
+  display: flex;
+  flex-wrap: nowrap;
+  /*justify-content: space-evenly;*/
+}
+
+.genFlexContainerNowrap div[class^="home-col-"]
+{
+	width: 50%;
+	margin: 0 0.3em 0 0;
+}
+
+.genFlexContainerNowrap div[class^="home-col-"] > h1
+{
+	text-align:center;
+}
+
+.flexContainer div[class^="flexColDisplay-"]
+{
+	width:32%;
+	margin: 0 0.3em 0 0;
+
+}
+
+.flexWrap
+{
+	flex-wrap: wrap;
+}
+
+.center-txt
+{
+	text-align:center;
+}
+
+.italic
+{
+	font-style: italic;
+}
+
+.red
+{
+	color:red;
+}
+
+.required
+{
+	border: solid red 0.1em;
+	padding: 0.5em;
+}
+.inline-block
+{
+	display:inline-block;
+}
+
+.flexSpaceAround
+{
+	justify-content	: space-around;
+	max-width: 520px;
+}
+
+.flexSpaceBetween
+{
+	justify-content:space-between;
+	
+}
+
+.footer_text_box{
+	
+	
+}
+
+.footer_text_box > a > img{
+	
+	margin:0 0.3em 0 0.3em ;
+}
+
+.topimg {
+	background-image: url("/img/karst2.jpg");
+    margin: 0 0 0.1em 0;
+    text-align: center;
+	font-size: 3em;
+	color: white;
+	font-weight: bolder;
+}
+
+.userPageContent
+{
+	padding: 0.5em 0em;
+	min-height: 70%;
+
+	
+}
+
+#userpwdform {
+	text-align: center;
+	margin : auto;
+}
+
+.topmenu > .rigthy 	
+{
+	float:right;
+}
+
+.login::before
+{
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	content: "\f007";
+	
+}
+
+.topmenu {
+  overflow: hidden;
+  background-color: #333;
+  padding: 0.2em 0.5em;
+}
+
+.topmenu a {
+  float: left;
+  /*font-size: em;*/
+  color: white;
+  text-align: center;
+  padding: 0.5em 0.5em;
+  text-decoration: none;
+}
+
+.dbStat 
+{
+  font-size: 1em;  
+  background-color: #333;
+  padding: 0.2em;
+  margin-top: 0.4em;
+  border-radius: 1em 1em 0.5em 0.5em;
+}
+
+.dbStat > span
+{
+	
+	padding: 0.5em 0.5em;
+	color: white;
+}
+
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+.dropdown .dropbtn {
+  font-size: 1.4em;  
+  border: none;
+  outline: none;
+  color: white;
+  padding:  0.5em  0.5em;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+
+.topmenu a:hover, .dropdown:hover .dropbtn {
+  background-color: red;
+}
+
+.dropdown-content {
+  font-size: 1.4em;  
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 0.5em;
+  box-shadow: 0px  0.5em 0.7em 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding:  0.5em  0.5em;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#connectBtn:hover {
+	cursor:pointer;
+}
+
+.home_newsblock,
+.home-recentChg
+{
+	border-radius: 1em;
+	background-color: #e1e1e1;
+	/*999 -> ccc -> fff */
+	padding : 0.5em 0.3em 0.3em 0.5em;
+	margin: 0 0 0.3em 0;
+	color :#000000;
+}
+
+.home_newsblock {
+  padding: 0.3em;
+}
+
+.home-recentChg:hover
+{
+	background-color:#999999;
+}
+
+.home_newsblock h2,
+.home-recentChg h2
+{
+	margin: 0;
+}
+
+.newsSubTitle, .newsFooter	 {
+	font-size: 0.7em;
+	font-style:italic;
+	padding : 0.3em;
+
+}
+
+.newsContent,
+home-caveChgtContent {
+	font-size:1em;
+	padding : 0 0 0 1em;
+
+}
+
+.changelog {
+  margin: 0.3em 3em;	
+}
+
+.changelogItem
+{
+	margin:0.2em;
+}
+
+.changelogItem:hover
+{
+	color:red;
+}
+
+.searchColLocalName
+{
+	vertical-align:bottom;
+}
+
+.search-btnDoSearch
+{
+    margin : 0.5em;
+}
+
+.displayItem
+{
+	display:block;
+	font-style:italic;
+	font-weight: bold;
+}
+
+.displayItemValue
+{
+	margin: 0.1em 0.3em;
+}
+
+.displayItemValue:hover
+{
+	background:silver;
+}
+
+#displayCaveAccess
+{
+	width:100%;
+	margin : 0.5em;
+	display: flex;
+}
+
+#displayOpenMap {
+	display:block;
+	margin: 0.2em;
+	text-align:center;
+	background-color: #333;
+	color:white;
+	padding: 0.7em 0.3em;
+}
+
+
+.displayCaveAccessImg
+{
+	max-width: 35%;
+	min-width: 20em;
+	float:left;
+	margin: 0 1em 0 0 ;
+}
+
+.displaySketchAccessImg
+{
+	display: block;
+	margin: auto;
+	max-width: 380px;
+}
+
+.displayShortDescription > p
+{
+	margin : 0.5em;
+}
+
+.displayCaveMaps
+{
+	border: 0.1em solid black;
+	padding: 0.3em;
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.displayCaveMapsImg
+{
+	max-width: 425px;
+	max-height: 240px;
+}
+
+.displayCaveMap
+{
+	margin: 1em;
+}
+.displaySciData, .displayChangeLog
+{
+	display:flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	border: 0.1em solid black;
+	padding: 0.3em;
+}
+
+div [class|="displaySciDataCol"] > ul > li
+{
+	margin: 0.45em;
+}
+
+div [class|="displaySciDataCol"]
+{
+	width:50%;
+	margin:0.5em;
+}
+
+/* no more used
+#displayActionMenu
+{
+	margin : 0 1em 0 ;
+}
+*/
+
+#returnToList
+{
+    margin: 0 0 0 0.5em;
+    padding: 0.1em;
+}
+
+#returnToList > i
+{
+	color:black;
+}
+
+#returnToList:hover,
+#display-adminBar:hover,
+.displayTitleWrapper > span:hover
+{
+    color:white;
+    background:grey;
+}
+
+#display-dummynext:hover
+{
+	/*Prevent hover background*/
+	background:none;
+}
+
+#returnToList:visited,
+#display-adminBar:visited,
+#display-adminBar
+{
+	color:black;
+	text-decoration: none;
+	
+}
+
+
+#display-adminBar
+{
+	margin: 0 0.5em 0 0.2em;
+	padding: 0.1em;	
+}
+
+.displayTitleWrapper > span
+{
+	margin: 0 0.5em 0;
+	padding: 0.1em;	
+	border-radius: 0.7em;
+}
+
+#tableSearch tr td {
+    height: 2.1em;
+}
+
+
+#tableSearch
+{
+    width: 100% !Important;
+}
+
+#resultTableDiv
+{
+    margin:1em;
+}
+
+
+.searchStatFooter
+{
+	text-align: right;
+}
+
+.showCaveDetails
+{
+	margin: 1.5em 0 1.5em;
+	
+}
+
+
+#miniMap{
+    /*width:95%*/;
+	height:250px;
+}
+
+.quickSearch
+{
+	float:right;
+	transform: translateY(50%);
+}
+
+.quickSearch > .quickSearchBtn
+{
+	padding: 0.3em;
+	margin: 0 0.5em 0 0.5em;
+	border-radius: 0.5em;
+	
+}
+
+#quickSearchInput
+{
+	width: 18em;
+    border-radius: 0.5em;
+    padding: 0.2em;
+
+}
+
+div[class^="search-flexCol"] > div 
+{
+    margin: 0.4em;
+}
+
+.displayPhotos
+{
+	border: 0.1em solid black;
+	padding: 0.3em;
+	align-items: center;
+}
+
+.cavePhoto
+{
+    margin: 1em;
+}
+
+.displayCavePhotos
+{
+	max-width: 425px;
+	max-height: 240px;
+}
+
+/*
+.flexItem
+{
+	flex: 1 0 45%;
+	margin: 0.2em;
+}
+*/
+
+.editDisplayName-Title
+{
+	display: inline-block;
+	width: 20em;
+}
+
+input[class^="editDisplayName"],
+.edit-changelog-input-text
+{
+	display: inline-block;
+	width: 25em;
+    padding: 0.3em;
+
+}
+
+textarea[class^="editDisplayName-textArea"]
+{
+	display: inline-block;
+	width: 40em;
+	height: 25em;
+    padding: 0.5em;
+    border: solid grey 0.2em;
+
+}
+.editCoords
+{
+	margin:0.5em 0 0.5em 1.5em;
+}
+
+#addDelCoords
+{
+   margin: 0 0 0 5	%;	
+}
+
+select[name="coordDisplayProj"]
+{
+	margin:0 0 0 1em;
+}
+
+.documentItem
+{
+	margin:0.1em 1em;
+}
+
+.documentList div:nth-child(odd)
+{
+	background-color:grey;
+}
+
+.documentList div:nth-child(even)
+{
+	background-color:silver;
+}
+
+.edit-sketchMini, .edit-CaveMini
+{
+	max-width: 90px;
+	padding: 0 0 0.8em 0;
+}
+
+.sketchItem
+{
+	margin: 1em;
+}
+
+div[class^="edit-MapItem"]
+{
+	margin: 0.7em 0.3em 0.7em 1em;
+}
+
+div[class^="edit-MapItem"]:hover
+{
+	background-color: grey;
+}
+
+.evenOdd:nth-child(even)
+{
+	background-color:silver;
+}
+
+	
+.evenOdd:nth-child(odd)
+{
+	background-color:grey;
+}
+
+span[id^="edit-addItem"]
+{
+	display:block;
+	margin: 0.5em;
+	
+}
+
+span[id^="edit-addItem"] > i
+{
+	padding: 0.5em;
+}
+
+span[id^="edit-addItem"] > i:hover
+{
+	background-color: grey;
+}
+
+span[id^="edit-trash"],
+span[id^="edit-delCoordSet"],
+.edit-add-changelog,
+.addnewcave-btn,
+.spacearound-s
+{
+	padding: 0.3em 1em 0.3em 1em;
+	
+}
+
+span[id^="edit-trash"]:hover,
+span[id^="edit-delCoordSet"]:hover,
+.edit-add-changelog:hover,
+.backgrndcolor-hover:hover
+{
+	background-color: grey;
+}
+
+i[id^="edit-rot"] 
+{
+	padding:0.5em;
+}
+
+
+i[id^="edit-rot"]:hover
+{
+	background-color: grey;
+}
+
+div[id^="edit-imgEl"] 
+{
+	margin:1em 0 0 0.5em;
+	vertical-align: bottom;
+}
+
+.edit-flexItem
+{
+	flex: 1 0 45%;
+	margin: 0.2em;
+}
+
+#edit-mapsList
+{
+	display: flex;
+    align-items: flex-end;
+}
+
+.edit-addItem
+{
+	margin:0.5em 0 0.5em 1.5em;
+}
+
+
+.edit-changelogInputText
+{
+  width:25em;	
+
+}
+.editDisplayName-Title
+{
+	margin: 0.5em 0 0.2em 0;
+}
+
+.changeloginput
+{
+	margin:0.5em;
+	
+}
+
+.edit-changelog-input-text
+{
+	width:25em;
+	
+}
+
+.edit-changelog-input-cbx
+{
+	margin-left:1.5em;
+	
+}
+
+.edit-add-changelog
+{
+	margin-left: 2em;
+	
+}
+
+/* Absolute Center Spinner */
+.loadingSpiner {
+  position: fixed;
+  z-index: 999;
+  height: 2em;
+  width: 2em;
+  overflow: visible;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display:none;
+}
+
+/* Transparent Overlay */
+.loadingSpiner:before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0);
+}
+
+#newcave-newcavename
+{
+	width:27em;
+	margin:1em;
+	
+}
+
+.newcave-savebtn
+{
+	margin: 1.5em;	
+}
+
+#copycave
+{
+	width: 25em;
+	
+}
+
+.copycave-src-cavename
+{
+	margin : 0.5em;
+	
+}
+#copycave-input-new-name
+{
+	margin:0.5em;
+
+}
+ 
+#copyCaveBtn
+{
+	margin: 0 0 0 1em;
+}
+ 
+#copycave-input-new-name > input
+{
+	width: 25em;
+	 
+}
+ 
+.siteconfig-row
+{
+	margin:0.5em;
+}
+ 
+.siteconfig-row  .siteconfig-input-short
+{
+	width: 10em;
+}
+ 
+.siteconfig-row  .siteconfig-input-mid
+{
+	width: 30em;
+}
+ 
+.siteconfig-row  .siteconfig-input-long
+{
+	width: 75em;
+}
+ 
+.siteconfig-csstooltip {
+  position: relative;
+ display: inline-block;
+  border-bottom: 0.1em dotted black;
+}
+
+.siteconfig-csstooltip .siteconfig-csstooltiptxt
+{
+  visibility: hidden;
+  width: 25em;;
+  bottom: 1.5em;
+  left: auto; 
+  background-color: grey;
+  color: #fff;
+  text-align: center;
+  border-radius: 0.5em;
+  padding: 0.5em  0;
+  font-size:0.8em;
+
+  /* Position the tooltip */
+  position: absolute;
+  margin: 0 0 0 2em;
+  z-index: 1;
+}
+
+.siteconfig-csstooltip:hover .siteconfig-csstooltiptxt
+{
+  visibility: visible;
+}
+
+.siteconfig-row
+{
+	margin : 0.75em 0.75em 0.75em 1.5em ;
+	
+}
+
+#siteconfig-modeswitch
+{
+	margin: 0 2em 0 0;
+	padding : 0.5em;
+	float : right;
+	border-radius: 0.5em;
+	background-color: silver;
+}
+
+#usermgmt-userEditPage
+{
+	display:none;
+}
+
+#usermgmt-dialogFormUser > fieldset input[name="password"]
+{
+	width: 60%	
+}
+
+#usermgmt-dialogFormUser > fieldset input[id="changepwd"]
+{
+	width: 5%
+}
+
+
+#usermgmt-dialogFormUser > fieldset input[id="disabled"]
+{
+	width: 1em;
+    display: block;
+}
+
+.usermgmt-showguid
+{
+    margin: 0.5em 0.5em 0.7em 1em;
+}
+
+#usermgmt-dialogFormUser > fieldset input,
+#usermgmt-dialogFormUser > fieldset select,
+#usermgmt-dialogFormUser > fieldset textarea,
+#usermgmt-dialogFormAddUser > fieldset input,
+#usermgmt-dialogFormGroup > fieldset input,
+#usermgmt-dialogFormAddGroup > fieldset input,
+#ressources-uploadform > input, #ressources-uploadform > textarea
+
+{
+	margin: 0.5em;
+	width: 100%;
+	padding: 0.5em;
+	display: inline-block;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+
+#usermgmt-container-addUser
+{
+	margin:0.5em;
+}
+
+#usermgmt-container-addGroup
+{
+	margin:0.5em;
+}
+
+.smallLeft
+{
+	/*top:0.5em;*/
+	right:-4.5em;
+}
+.zzzzz
+{
+	border-radius:0.2em;
+}
+
+#usermgmt-addGroup
+{
+	height: 1em;
+}
+
+#newsmgmt-addnews,
+#usermgmt-addUser,
+#usermgmt-addGroup
+{
+	/*margin:0.3em 0 0.3em 0.5em;*/
+	padding: 0.2em;
+	border-radius:0.2em;
+}
+
+#newsmgmt-addnews:hover,
+#usermgmt-addUser:hover,
+#usermgmt-addGroup:hover,
+.hoverGrey:hover
+{
+	background-color: grey;
+}
+
+.usermgmt-delete-container
+{
+	display:flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.usermgmt-delete-container > span
+{
+	/*margin:0.3em 0 0.3em 0.5em;*/
+	padding: 0.2em;
+	border-radius:0.2em;
+}
+
+.usermgmt-delete-container > span:hover
+{
+	background-color: grey;
+}
+
+
+.ressources-displayGroup-title
+{
+	margin: 1em 0 0 1em;
+	
+	
+}
+
+.ressources-displayGroup
+{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	margin: 0 0 0 1.5em;
+	
+}
+
+.ressources-fileitem
+{
+	background-color:#e1e1e1;
+	margin:0.3em;
+	flex-basis: 20em;
+}
+
+.ressources-fileitem:hover,
+
+{
+	background-color:grey;
+}
+
+div[id^="ressources-filelink"]
+{
+	margin: 0.5em;
+	text-align: center;
+}
+
+.ressources-item
+{
+	margin:0.5em;
+}
+
+.ressources-filegroup
+{
+	margin:0.5em;
+	max-width: 25em;
+}
+
+.ressources-deletefile:hover
+{
+	background-color:grey;
+}
+
+.ressources-deletefile
+{
+	padding:0.3em;
+}
+
+#ressources-uploadform
+{
+	display:none;
+	max-width: 30em;
+}
+
+#ressources-savefile
+{
+	max-width:max-content;
+}
+
+.ressources-upload
+{
+	margin-bottom:1em;
+}
+
+#stats-table-container
+{
+	width: 40%;
+}
+
+.display-gpxicon
+{
+	background-color: rgba(255, 255, 255, 0.8);
+	font-weight: bold;
+	color: black;
+}
+
+
+.display-gpx-dwnld:hover,
+.display-pdf-dwnld:hover,
+.display-send-msg:hover
+{
+	cursor:pointer;
+	background-color:grey;
+}
+
+.display-gpx-dwnld,
+.display-pdf-dwnld,
+.display-send-msg
+{
+	margin: 0 0.2em 0 0.2em;
+	padding: 0 0.2em ;
+}
+
+#newsmgmt-form-title
+{
+	width: 95%;
+	border: none;
+	background:#f7f7f7;
+	padding: 1em;
+}
+
+#newsmgmt-form-content
+{
+	width:90%;
+	height: 20em;
+}
+
+
+.newsmgmt-fieldset-delundel
+{
+	width:40%;
+}
+
+.newsmgmt-container-addnews
+{
+	margin:0.5em;
+}
+
+
+.display-emailform-field > label
+{
+	width:auto;
+	display:block;
+	margin :0.5em 0 0.2em 0;
+
+}
+.display-emailform-field > input
+{
+	width:95%;
+	padding-right : 1.5em;
+}
+
+.display-emailform-field > textarea
+{
+		height:12em;
+		width:99%
+}
+
+#mail-usermail
+{
+	width: 96%;
+}
+#mail-subject
+{
+	width: 92%;
+}
+
+#display-email-inputwrapper:before,
+#display-email-inputwrapper:after{
+  position:absolute;
+  right:1.5em;
+  font-family: 'Font Awesome\ 5 Free';
+  z-index:1;
+  display:none;
+}
+
+#display-email-inputwrapper:before{
+   content:'\f058';
+   color: green;
+   font-size:2em;
+   font-size: 1.7em;
+ }
+
+#display-email-inputwrapper:after{
+   content:'\f057';
+   color: red;
+   font-size: 1.7em;
+}
+
+.valid-email:before{
+  display:inline !important;
+}
+
+.invalid-email:after{
+  display:inline !important;
+}
+
+#contact-contactform
+{
+	width:65%;
+	margin:auto;
+}
+
+#contact-sendmail
+{
+	margin: 0.5em auto 0.5em 50%;
+}
+
+#contact-fileserror
+{
+    margin: 0.5em;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.2em;
+    
+}
+
+#contact-fileserror > div
+{
+    border: red solid 0.1em;
+}
+
+.invalidCaptcha
+{
+    border: red solid 0.1em;
+}

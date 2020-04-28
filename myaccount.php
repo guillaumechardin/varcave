@@ -1,0 +1,262 @@
+<?php
+
+require_once ('lib/varcave/varcaveHtml.class.php');
+require_once ('lib/varcave/varcaveAuth.class.php');
+require_once ('lib/varcave/varcaveUsers.class.php');
+
+
+$auth = new varcaveAuth();
+$users = new varcaveUsers();
+$logger = $auth->logger;
+
+if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
+{
+	$redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	header('HTTP/1.1 301 Moved Permanently');
+	header('Location: ' . $redirect);
+	//echo 'vous allez être redirigé vers une connexion sécurisée :<br>'. $redirect; 
+	exit();
+}
+
+if ( !$auth->isSessionValid() || $_SESSION['username'] == 'anonymous')
+{
+	header('HTTP/1.0 403 Forbidden ');
+	$htmlstr = '';
+	$html = new VarcaveHtml(L::pagename_myaccount);
+	$htmlstr .= '<h2 style="margin:0.2em;">' . L::errors_ERROR . '</h2>';
+	$htmlstr .= '<div style="margin: 0.5em 0 0 1em;">' . L::myaccount_authfirst . ' <a href="login.php">login.php</a></div>';
+	
+	
+	$html->insert($htmlstr,true);
+	echo $html->save();
+	exit('403 FORBIDDEN : please authenticate first.');
+	//header('Location: index.php');
+}
+
+/*
+ * Change user password ONLY
+ */
+if ( !empty($_POST) && isset($_POST['passwd']) && $_POST['passwd'] != '' )
+{
+	$authState = true;
+	
+	//check is sha256 as been sent
+	//sha256 is 64char long
+	if ( strlen($_POST['passwd']) != 64  )
+	{
+		$authState = false;
+	}
+	
+	if ($authState === false)
+	{
+		$return = array (
+			'title' => L::myaccount_updatePwdTitle,
+			'stateStr' => L::myaccount_updateFailBadData,
+			'state' => 0,
+ 		);
+		$httpError = 400;
+		$httpErrorStr = ' Bad Request';
+	}
+	else
+	{
+		$users = new varcaveUsers();
+		
+		if ($users->changeUserPwd($_POST['passwd'], $_SESSION['uid']) )
+		{
+			$return = array (	
+				'title' => L::myaccount_updatePwdTitle,
+				'stateStr' => L::myaccount_successPwdChg,
+				'state' => 1,
+			);
+			$httpError = 200;
+			$httpErrorStr = 'OK';
+		}
+		else
+		{
+			$return = array (
+				'title' => L::myaccount_updatePwdTitle,
+				'stateStr' => L::myaccount_failedPwdChg,
+				'state' => 0,
+			);
+			$httpError = 400;
+			$httpErrorStr = ' Bad Request';
+		}
+	}
+	
+	//send back to browser
+	header('HTTP/1.1 ' . $httpError . $httpErrorStr);
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode($return);
+	exit();
+	
+}
+elseif ( !empty($_POST) && isset($_POST['update'])   && isset($_POST['value']) )
+{
+	$logger->debug('request preference update' . $_POST['update']);
+	$result = $users->changeUserPref($_POST['update'], $_POST['value'], $_SESSION['uid']);
+	
+	if($result === true)
+	{
+		$return = array (	
+			'title' => L::myaccount_updatePrefTitle,
+			'stateStr' => L::myaccount_successPrefChg,
+			'state' => 1,
+		);
+		$httpCode = 200;
+		$httpCodeStr = 'OK';
+	}
+	else
+	{
+		$return = array (
+			'title' => L::myaccount_updatePrefTitle,
+			'stateStr' => L::myaccount_failedPrefChg . ' : ' . $_POST['update'] ,
+			'state' => 0,
+		);
+		$httpCode = 500;
+		$httpCodeStr = ' Internal Server Error';
+	}
+	$json = json_encode($return);
+	jsonWrite($json, $httpCode, $httpCodeStr);
+	exit();
+
+}
+else
+{
+
+	$htmlstr = '';
+	$html = new VarcaveHtml(L::pagename_myaccount);
+	$htmlstr .= '<div id="jqUiDialog" ><div id="jqUiDialogContent">  </div></div>';	
+	$htmlstr .= '<h1 class="userWelcome">';
+	$htmlstr .= '    Bonjour ' . $_SESSION['firstname'] . ' ' . strtoupper($_SESSION['lastname']);
+	$htmlstr .= '</h1> ';
+	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_userSessionInfo .' </h2>';
+	$htmlstr .= '<p><ul>';
+	$htmlstr .= '<li>' . L::myaccount_yourSessionExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['sessionend']) . '. </li>';
+	$htmlstr .= '<li>' . L::myaccount_yourAccountExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['expire']) .'. </li>';
+	$htmlstr .= '<li>' . L::myaccount_groupList . ' : ' . $_SESSION['groups'] . '</li>';
+	$htmlstr .= '</ul></p>';     
+	
+	/*
+	 * CHANGE PASSWORD
+	 */
+	$htmlstr .=  '<h2>' . '<i class="fas fa-key"></i> ' . L::myaccount_changePwd . '</h2>';
+	$htmlstr .= '<p>';
+	$htmlstr .= '<form id="chgtPasswd">';
+	$htmlstr .=	'<input type="password"   placeholder="' . L::myaccount_enterPwdHint .'" id="pass1" size="30" maxlength="25" autocomplete="off" value="" />';
+	$htmlstr .= ' ';
+	$htmlstr .= '<input type="password" placeholder="' . L::myaccount_confirmPwdHint .'" id="pass2" size="30" maxlength="25" autoc5omplete="off" value=""/>';
+	$htmlstr .= '<p><input type="submit" value=OK></p>';
+	$htmlstr .= '</form>';
+	$htmlstr .= '</p>';     
+	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
+	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
+	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
+
+	/*
+	 * CHANGE THEME
+	 */
+	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_customInterfaces .' </h2>';
+	
+	/*
+	 * get any folder list from "css/custom" dir
+	 * and dysplay a list a selectable entry to user
+	 */
+	$customCssFolders = __DIR__ . '/css/custom/';
+	$availableCustomCss = array();
+	if ($handle = opendir($customCssFolders)) 
+	{
+    
+		/*
+		 * parsing dir to find settings
+		 */
+		while (false !== ($entry = readdir($handle) ) )
+		{
+			if ( $entry != '.' || $entry != '..' || $entry != 'README.TXT' )
+			{
+				if (file_exists($customCssFolders . '/' . $entry . '/custom.css') )
+				{
+					$availableCustomCss[] = $entry;
+				}
+			}
+		}
+		closedir($handle);
+	}
+	else
+	{
+		$htmlstr .= '<b>' . L::myaccount_CssFolderFailOpen . '</b>';
+	}
+	
+	
+	$currentTheme = $users->getUserTheme($_SESSION['uid']);
+	//add an empty value to reset to default
+	$availableCustomCss[] = '';
+	if ( !isNullOrEmptyArray($availableCustomCss) )
+	{
+		$htmlstr .= '<select id="themeChange">';
+		
+		
+		foreach($availableCustomCss as $cssFolder)
+		{
+			$selected ='';
+			if ($cssFolder == $currentTheme)
+			{
+				$selected = 'selected';
+			}
+			$htmlstr .='<option value="' . $cssFolder . '"' . $selected . '>'. $cssFolder . '</option>';
+		}
+		$htmlstr .= '</select>';
+
+	}
+	else
+	{
+		$htmlstr .= L::myaccount_noThemeAvail;
+	}
+	
+	/*
+	 * CHANGE GEOAPI
+	 * Fetch db to get a list of available geoAPI to offer to users
+	 */
+	$qGeoApi = 'SELECT name FROM ' . $users->getTablePrefix() . 'list_geo_api WHERE 1';
+	$qGeoStmt = $users->PDO->query($qGeoApi);
+	$geoAPIs = $qGeoStmt->fetchall(PDO::FETCH_ASSOC);
+	
+	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_userGeoApi .' </h2>';
+	$htmlstr .= '<select id="geo_api">';
+		
+	//print_r($geoAPIs);
+	foreach($geoAPIs as $key => $API)
+	{
+		
+		$selected ='';
+		if ($_SESSION['userGeoApi'] == $API['name'])
+		{
+			$selected = 'selected';
+		}
+		$htmlstr .='<option value="' . $API['name'] . '"' . $selected . '>'. $API['name'] . '</option>';
+	}
+	$htmlstr .= '</select>';
+    
+    /*
+     * CHANGE Max items for datatables items (ie : search table)
+     */
+    $htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_maxItemsTables .' </h2>';
+    $htmlstr .= '<select id="datatablesMaxItems">';
+    $itemMaxList = array(5,10,20,40,50,100,150,200,500);
+    foreach($itemMaxList as $key => $value)
+    {
+        $selected ='';
+        if ( $_SESSION['datatablesMaxItems'] == $value ) 
+        {
+            $selected = 'selected';
+        }
+        $htmlstr .= '  <option value="' . $value . '" ' . $selected . '>' .  $value .'</option>';
+    }
+    $htmlstr .= '</select>';
+}
+
+$html->insert($htmlstr,true);
+echo $html->save();
+
+
+
+?>

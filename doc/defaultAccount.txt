@@ -1,0 +1,2 @@
+default user name is admin
+default password is 1password

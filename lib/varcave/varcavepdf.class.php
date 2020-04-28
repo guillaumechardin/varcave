@@ -1,0 +1,457 @@
+<?php
+
+require_once (__DIR__ . '/varcave.class.php');
+require_once (__DIR__ . '/varcaveCave.class.php');
+require_once(__DIR__ . '/../tcpdf/tcpdf.php');
+
+//set init of i18n without htmlentities
+$i18n = new varcavei18n(__DIR__ . '/../../lang/lang_{LANGUAGE}.ini',  __DIR__ . '/../../langcache/');
+$i18n->setPrefix('LNE');
+$i18n->setFallbackLang(); //set fallback lang to default one specified in config(by using no args)
+$i18n->setMergeFallback(true); 
+$i18n->setHtmlEntities(false);
+$i18n->init();
+
+class VarcavePdf extends TCPDF {
+	
+	/**
+	 * Some static var to handle text size easily
+	 */
+	 
+	const sizeXS = 6;
+	const sizeS = 8;
+	const sizeM = 10;
+	const sizeL = 12;
+	const sizeXL = 14;
+	const sizeXXL = 18;
+	
+	/**
+	 * Default font
+	 */
+	protected $defaultFont = 'dejavusans';
+	
+	/**
+	 * Font used in document. Can be change by setFont()
+	 */
+	protected $font = '';
+	
+	/**
+	 * path to the header image file
+	 */
+	protected $headerImg = __DIR__ . '/../../img/pdfheader.png';
+	
+	/**
+	 * enable/disable default header on top of page
+	 */
+	protected $noheader = false;
+	
+	/**
+	 * Show footer on bottom of page
+	 */
+	protected $addFooterOnPage = true;
+ 
+    /**
+	 * Cave data given by user
+	 */
+	protected $cavedata = null;
+	
+	/**
+	 * Handle page numbering on cave 1st page.
+	 * If false a global pdf page number is used. Can be set by setpagegroup().
+	 */
+	protected $pagegroups = true;
+	
+	
+	/**
+	 * margins top margin in mm
+	 */
+	protected $margintop   = 18;
+	protected $marginleft  = 7;
+	protected $marginright = 7;
+	protected $marginbottom = 7;
+	
+    //varcave object
+    private $varcave = null;
+	
+	//some constants to process mm to px convertion
+	// 1px = 0.264583333 mm
+	// 1mm = 3.779527559 px
+	const PXTOMM = 0.264583333;
+	const MMTOPX = 3.779527559;
+	
+	// Page footer
+	public function Footer() {
+	}
+	
+	
+	function __construct($cavedata, $font = false)
+	{	
+		parent::__construct();
+		
+        //varcaveObj for log and so on
+        $this->varcave = new varcave();
+        $this->varcave->logger->debug('Build new PDF env');
+        
+		//storing cave data
+		$this->cavedata = $cavedata;
+			
+		//default doc margins
+		$this->SetMargins($this->marginleft, $this->margintop, $this->marginright);
+		
+		//set page autobreak
+		$this->SetAutoPageBreak(TRUE, $this->marginbottom);
+		
+		//start new default pagegroup on init
+		$this->startPageGroup();
+		
+		//start a new page
+		$this->addpage();
+		
+		//set font
+		if( $font == false ){
+			$this->font = $this->defaultFont;	
+		}
+		else{
+			$this->font = $font ;
+		}
+        
+	}
+	
+	/**
+	 * add automatic default header to new page
+	 */
+    public function Header() 
+    {
+        $this->varcave->logger->debug('Create PDF top header');
+		if ($this->noheader){
+			return true;
+		}
+        // Logo
+		$this->setFont($this->font, 'BI', 8, '', 'false');
+		$this->Image($this->headerImg,4,4,170);
+		
+		//text box after header image
+		$this->RoundedRect(172,4,35,10,3.5,'D');
+		$this->SetXY(173,5);
+		$this->cell(0,3, LNE::pdf_caveRef . ': ' . $this->cavedata['caveRef'],0);
+		$this->SetXY(173,9);
+		//If pagegroup is on set group page number, or set a global PDF page number 
+		if ( $this->pagegroups == false )
+		{
+			$this->cell(0,3,LNE::pdf_page. ': '. $this->getAliasNumPage() . '/' .  $this->getAliasNbPages(),0);
+		}
+		else
+		{
+			$this->cell(0,3,LNE::pdf_page .': '. $this->getPageGroupAlias(). '-'.$this->getPageNumGroupAlias() ,0);
+		}
+		
+    }
+
+	public 	function caveinfo()
+	{
+        $this->varcave->logger->debug('Create PDF cave info');
+		//get i18n fields name
+		$cave = new varcavecave();
+		$i18nfields = $cave->getI18nCaveFieldsName('ONDISPLAY');
+		
+		$last =  end($i18nfields);
+		//reset($i18nfields);
+		
+		// iterate throught all i18n fields informations and get
+		// corresponding data from the cave obj ()
+		$this->SetFont('helvetica', 'B', self::sizeM);
+		$this->write(0,LNE::display_caveSpeleometry);
+		$this->ln();
+		$startPos = $this->getY();
+		
+		$tbl = '<table cellspacing="0" cellpadding="1" border="0">';
+		$tr = true;
+		$i = 0;
+		
+		foreach($i18nfields as $field)
+		{
+			if($tr)
+			{
+				$tbl .= '<tr>';
+				$tr = false;
+			}
+			
+			if( empty( $this->cavedata[ $field['field'] ] ) )
+			{ 
+				//skip empty fields
+				continue;
+			}
+
+			//show only 3 item/row
+			if ($i < 2)
+			{
+				if ( strstr( $field['type'] , 'bool') )
+				{
+					if ( $this->cavedata[ $field['field'] ] == 1 ){
+						$this->cavedata[ $field['field'] ]  = LNE::_yes;
+					}else{
+						$this->cavedata[ $field['field'] ]  = LNE::_no;
+					}
+				}
+				
+				$tbl .= '<td><i>' . $field['display_name'] . '</i>: ' .$this->cavedata[ $field['field'] ] . '</td>';
+				if ($i == 1 || $last['field'] == $field['field'] ) //if at end of 3rd row or if at end of i18n array
+				{
+					$tbl .='</tr>';
+					$tr = true;
+					$i = 0;
+					continue;
+				}
+				$i++;
+			}
+			
+			
+		}
+		
+		//last </tr> tag not added. adding one
+		if ($tr == false)
+		{
+			$tbl .='</tr>';
+		}
+		$tbl .= '</table>';
+		
+		//echo $tbl;
+		$this->SetFont('dejavusans', '',self::sizeS);
+		$this->writeHTML($tbl, true, false, false, false, '');
+		
+		$endPos = $this->getY();
+		//$this->RoundedRect(172,4,35,10,3.5,'D');
+		$this->RoundedRect(5,$startPos,202,$endPos - $startPos,3.5,'D');
+		//$this->RoundedRectXY( 5, $startPos, 150, $endPos-$startPos , 0.5, 0.5, $round_corner = '1111');
+		
+	}
+	
+	public 	function caveaccess()
+	{
+        $this->varcave->logger->debug('Add cave access part');
+		$cave = new varcavecave();
+		
+		$this->SetFont('helvetica', 'B', self::sizeM);
+		$this->write(0,LNE::display_caveAccessTitle);
+		//get start Y position to a later border
+		
+        $this->ln(4);
+		$startPos = $this->getY();
+		$this->SetFont('dejavusans', '', self::sizeS);
+        
+		$sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'sketch_access');
+
+        // add an image if one exists or if Google maps api can be used
+        // user images have priority over gMaps API. You need to enable the 'Google static MAPS API'
+        $maxImgWidth = 70; // resiz img to to 7cm width
+        $maxImgHeigth = 50; // 5cm img heigth because of aspect ratio
+        if( !empty($sketchAccessArr) )
+		{
+            $this->varcave->logger->debug('Add access sketch image from user file');
+            $this->Image($sketchAccessArr[0],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
+
+		}
+        elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) )
+        {
+            $this->varcave->logger->debug('Add access sketch image from gAPI');
+            //get coords to display on img
+            $coordsObj = json_decode($this->cavedata['json_coords']);
+            $coordList = $coordsObj->features[0]->geometry->coordinates;
+            
+            //build strings for url
+            $colors=array('dummy','green', 'blue', 'purple','red', 'white', 'yellow', 'gray', 'orange','black','brown');
+            $markers = '';
+            $i=1;
+            foreach($coordList as $coords)
+            {
+                $markers .= 'markers=color:' . $colors[$i] . '|label:'. $i . '|' . $coords[1] . ',' . $coords[0] . '&';
+                
+                //harcoded limit of 10 markers on small map
+                if($i==5)
+                {
+                    break;
+                }
+                $i++;
+            }
+            
+            $center = 'center=' . $coordList[0][1] . ',' . $coordList[0][0];
+            $zoom = 'zoom=' . $cave->getConfigElement('gApi_zoom_lvl');
+            $mapType = 'maptype=satellite';
+            $key = 'key=' . $cave->getConfigElement('googlemaps_api_key');
+            $size = 'size=370x265'; //   an approximate size of 97x70mm //previously 420*300
+            
+            $url = 'https://maps.googleapis.com/maps/api/staticmap?' . $center  . '&' . $zoom . '&' . $mapType . '&' . $key . '&' . $size . '&' . $markers;
+            //insert the google maps API image
+            
+			
+			$this->varcave->logger->debug('check if static google api cache img exists');
+			$imgStaticName = $this->cavedata['guidv4'] . '_gAPI.jpg';
+			$cachedir = $cave->getConfigElement('cache_dir');
+			$imgStaticFilePath = __DIR__ . '/../../' . $cachedir . '/' . $imgStaticName ;
+			if( !file_exists( $imgStaticFilePath ) )
+			{
+				$this->varcave->logger->debug('inexistent file cache [ '. $imgStaticFilePath . '], creating one from url:[' . $url . ']');
+				
+				if( ! $cave->createCacheFile('url',$url,$imgStaticFilePath) )
+				{
+					//fail with error message !
+					echo 'Fail to create google cache file';
+				}
+				
+			}
+			else{
+				$this->varcave->logger->debug('file cache exists');
+			}
+			
+            $this->Image($imgStaticFilePath,$this->marginleft,$this->gety() +1,$maxImgWidth);
+        }
+        else
+        {
+            $this->varcave->logger->debug('No access sketch image added');
+            //no image added
+        }
+			
+		//display sketch access text
+        $this->ln(1);
+        $this->setx($this->marginleft + $maxImgWidth +1);
+        //$remWidth = 210 - $this->marginleft - $this->marginright - $maxImgWidth ; //210- marginleft - marginright - imagewidth - imgmargins = 
+		$remWidth = 126;
+        //access text can be long, we use the longest value either height of img or size of txt
+        
+        $startAccessSketchY = $this->gety();
+		$this->multicell($remWidth, 0, $this->cavedata['accessSketchText'],0,'L');
+        $textSize = $this->gety() - $startAccessSketchY;
+        if( $textSize > $maxImgHeigth)
+        {
+            $this->sety($textSize);  //last know Y pos + 50mm size  img
+        }
+        else
+        {
+            $this->sety($startAccessSketchY + $maxImgHeigth);  //last know Y pos + 50mm size  img
+        }
+        
+        $endPos = $this->gety() + 3;
+        
+		$this->RoundedRect(5,$startPos,202,$endPos - $startPos,3.5,'D');
+		
+		//insert cave description
+		$this->ln(3);
+		$this->SetFont('helvetica', 'B', self::sizeM);
+		$this->write(0,LNE::display_caveDescription);
+		//get start Y position to a later border
+		
+        $this->ln(4);
+		$startPosCaveDescr = $this->getY();
+		$this->SetFont('dejavusans', '', self::sizeS);
+		$borders = array('TLRB' => array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+		$this->multicell(216 - $this->marginleft - $this->marginright, 0, $this->cavedata['shortDescription'] . $this->cavedata['annex'],$borders,'L', false,1,$this->marginleft - 2);
+		//$this->multicell(215 - $this->marginleft - $this->marginright, 0, $this->cavedata['annex'],1,'L', false,1,$this->marginleft - 1);
+		$endPosCaveDescr = $this->gety() + 3;
+		//$this->RoundedRect(5,$startPosCaveDescr,202,$endPosCaveDescr - $startPosCaveDescr,3.5,'D');
+	}
+	
+    public 	function addcavemaps()
+    {
+        // This function add pages for cave maps as needed
+        $cave = new varcavecave();
+        $sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'cave_maps');
+        
+		
+		if (!empty(sketchAccessArr) )
+		{
+			foreach($sketchAccessArr as $index=>$imgFile)
+			{
+				
+				//adapt rotate im to fit into page
+				$imgInfo = getimagesize($imgFile);
+			
+				//w to h ratio : 
+				$imgRatio = $imgInfo[0]/$imgInfo[1];
+				
+				//if img width > img heigth we use a landscape format for the page
+				if($imgInfo[0]  > $imgInfo[1]  )
+				{
+					$this->addpage('L');
+				}
+				else
+				{
+					$this->addpage();
+				}
+				
+				//img left over space
+				$imgLeftOverMm = array(
+								$this->getPageHeight() - $this->margintop - $this->marginbottom - 2 ,// 2mm for space over img
+								$imgLeftOver = $this->getPageWidth() - $this->marginleft - $this->marginright - 2 // 2mm for space over img
+								);
+				//convert to px
+				$imgLeftOverPx = array(
+									$this->convMmToPx($imgLeftOverMm[0]),
+									$this->convMmToPx($imgLeftOverMm[1])
+								);
+				
+				//compute resize
+				if ($imgInfo[0] > $imgLeftOverPx[0] || $imgInfo[1] > $imgLeftOverPx[1] )
+				{
+					//echo 'img to big: '.$imgInfo[0].'x'.$imgInfo[1]. '(max='.$imgLeftOverPx[0].'x'.$imgLeftOverPx[1].')<hr>';
+					
+					//try to resize img on width
+					$resizeRatio = $imgLeftOverPx[0] / $imgInfo[0] ;
+					
+					//check if computed resized img is to big in this case we resize from height
+					if($imgInfo[1] * $resizeRatio < $imgLeftOverPx[1] )
+					{
+						//resize on width is ok
+						$x = $imgLeftOverPx[0];
+						$y = $imgInfo[1] * $resizeRatio;
+					}
+					else
+					{
+						//resize by heigth
+						$resizeRatio = $imgLeftOverPx[1] / $imgInfo[1] ;
+						$x = $imgInfo[0] * $resizeRatio;
+						$y = $imgLeftOverPx[1];
+					}
+					
+					
+					
+				}
+				else
+				{
+					echo 'img ok';
+					$x = $imgInfo[0];				
+					$y = $imgInfo[1];				
+				}
+				
+				//#######echo 'max size :' .$imgLeftOverPx[0].'x'.$imgLeftOverPx[1].'<br>';
+				//#######echo 'new size ;' .$x.'x'.$y.'<br><br>';
+				
+				//$this->Image($imgFile,$this->marginleft,$this->margintop,  $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = array());
+				$this->Image($imgFile,$this->marginleft,$this->margintop, $x, $y,  '',  '', '', '', '', '', false,  false, 0,  false,  false, /*fit on page*/ true,  false,  array());
+			}
+		}
+    }
+	
+	/* convPxToMm
+	 * this function convert n px to mm
+	 * @param    $px  : int number of px to convert  in mm
+     *           
+	 * @return   : int number of mm
+	 */
+	public function convPxToMm($px)
+	{
+		
+		return $px * self::PXTOMM;
+	}
+	
+	/* convMmToPx
+	 * this function convert n mm to px
+	 * @param    $mm  : int number of mm to convert  in px
+     *           
+	 * @return   : int number of px
+	 */
+	public function convMmToPx($mm)
+	{
+		return $mm * self::MMTOPX;
+	}
+}	
+?>
