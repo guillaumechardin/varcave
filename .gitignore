@@ -1,0 +1,15 @@
+cache/*
+!cache/readme.md
+caves/*
+!caves/readme.md
+img/cavites
+include/localconfig.php
+langcache/*
+!langcache/readme.md
+ressources/*
+!ressources/readme.md
+sessions/*
+!sessions/readme.md
+upgradeTools
+logs/*
+!logs/readme.md

@@ -166,19 +166,15 @@ class VarcaveCave extends Varcave
 		$this->logger->info('trying to add row [' . $guid . '] to changelog with visibility : [' . $isVisible . ']');
 		try
 		{
-			$searchInput = array( array(
-							'field' => 'guidv4',
-							'type' => '=',
-							'value' => $guid,
-							));
-			//searching corresponding indexid to provided guid
-			$searchResult = $this->search($searchInput, 'indexid', array('indexid'), $ascDesc = 'ASC', 0, 10,true);
-	
-			$result = $searchResult[0]->fetch(PDO::FETCH_ASSOC);
-			$this->logger->debug('cave indexid is :' . $result['indexid']);
-			$req = 'INSERT INTO  ' . $this->dbtableprefix . 'changelog ';
-			$req .= '(indexid_caves,chgLogTxt,isVisible) ';
-			$req .= 'VALUES (' . $result['indexid']  . ',' . $this->PDO->quote($msg) . ',' . $this->PDO->quote($isVisible) . ')';
+            $result = $this->selectByGUID($guid);
+            $this->logger->debug('cave indexid is :' . $result['indexid']);
+			$req = 'INSERT INTO  ' . $this->dbtableprefix . 'changelog ' .
+                   '  (indexid_caves, chgLogTxt, isVisible) ' .
+			       '  VALUES (' . 
+                               $result['indexid']  . ',' . 
+                               $this->PDO->quote($msg) . ',' . 
+                               $this->PDO->quote($isVisible) . 
+                             ')';
 			$pdoStatement = $this->PDO->query( $req );
 			$this->logger->debug ('request : ' . $req);
 			$this->logger->info('Insert succeed');

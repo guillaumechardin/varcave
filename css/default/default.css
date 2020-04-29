@@ -352,7 +352,7 @@ home-caveChgtContent {
 .displayCaveAccessImg
 {
 	max-width: 35%;
-	min-width: 20em;
+	/*min-width: 20em; */
 	float:left;
 	margin: 0 1em 0 0 ;
 }
