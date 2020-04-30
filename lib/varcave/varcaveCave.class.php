@@ -548,7 +548,7 @@ class VarcaveCave extends Varcave
 	 *         on failure to find cave : false
 	 * 		   on error   : throw exception
 	 **/
-	function selectByGUID($guid, $forceRandomCoords = 0, $skipCoords=true)
+	function selectByGUID($guid, $forceRandomCoords = false, $skipCoords=true)
     {
 		$this->logger->debug( __METHOD__ . ' : selecting cave  with guid [' . $guid . ']');
        
@@ -579,7 +579,13 @@ class VarcaveCave extends Varcave
             $this->logger->debug('check for  coordinate obfuscation : ');
             if($skipCoords == false)
             {
-                if (  $result['random_coordinates']  ||   !$auth->isSessionValid() ||  !$auth->isMember('admin'))
+                //!$auth->isMember('admin'))
+                // disable coords obfuscation if user is admin
+                if ( !$auth->isMember('admin') )
+                {
+                    //nothing to do
+                }
+                elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) &&  )
                 {	
                     $this->logger->debug('*YES* Request coordinate obfuscation');
                     $coordsObj = json_decode($result['json_coords']);		
@@ -602,7 +608,7 @@ class VarcaveCave extends Varcave
             }
             else
             {
-                $this->logger->debug('no coordinates obfuscation check required');
+                $this->logger->debug('*NO* coordinates obfuscation check required');
                 $result['json_coords'] = '';
             }
 			return $result;			

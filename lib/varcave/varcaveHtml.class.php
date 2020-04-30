@@ -64,7 +64,7 @@ class VarcaveHtml extends Varcave {
 		$this->html .= '<script defer src="/lib/fontawesome-free/5.6.3/web/js/all.js" data-auto-replace-svg="nest"></script>';
 		//script for fontawesome special features
 		
-        $this->html .= '<script src="/lib/jquery/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>';
+        $this->html .= '<script src="/lib/jquery/jquery-3.3.1.min.js"></script>';
 		$this->html .= '<script src="/lib/varcave/common.js"></script>';
         /*
          * handling javascript payload for login
