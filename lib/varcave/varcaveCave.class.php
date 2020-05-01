@@ -583,12 +583,18 @@ class VarcaveCave extends Varcave
             {
                 //!$auth->isMember('admin'))
                 // disable coords obfuscation if user is admin
-                if ( $auth->isMember('admin') )
+                if ( $auth->isMember('admin') || $auth->isMember('editors') )
                 {
                     $obfuscateCoords = false;
                 }
+                elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) )
+                {
+                    $this->logger->debug('  cave is set with random_coordinates or function called with `forceRandomCoords`');
+                    $obfuscateCoords = true;
+                }
                 elseif( !isset($_SESSION['isauth']) )
                 {
+                    $this->logger->debug('  anon user, check if global config is set for obfuscation');
                     if( $this->getconfigelement('anon_get_obfsuc_coords') )
                     {
                         $obfuscateCoords = true ;
@@ -597,15 +603,10 @@ class VarcaveCave extends Varcave
                     {
                         $obfuscateCoords = false ;
                     }
-                    
-                }
-                elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) )
-                {
-                    $obfuscateCoords = true;
                 }
                 else
                 {
-                    $obfuscateCoords = true;
+                    $obfuscateCoords = false;
                 }
                 
                 if( $obfuscateCoords )
