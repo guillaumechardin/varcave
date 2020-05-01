@@ -13,3 +13,4 @@ sessions/*
 upgradeTools
 logs/*
 !logs/readme.md
+include/localconfig.php
