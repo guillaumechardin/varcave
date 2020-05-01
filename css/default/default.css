@@ -169,6 +169,7 @@ h2 {
 	
 }
 
+
 .topmenu {
   overflow: hidden;
   background-color: #333;
@@ -1195,4 +1196,9 @@ div[id^="ressources-filelink"]
 .invalidCaptcha
 {
     border: red solid 0.1em;
+}
+
+#login-doLogin
+{
+    margin: 1em;
 }

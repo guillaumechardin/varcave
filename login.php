@@ -41,7 +41,7 @@ if ( isNullOrEmptyArray($_POST) )
 	$htmlstr .=    L::login_userPassword . '<br />';
 	$htmlstr .= '  <input type="password" name="password" id="password"/>';
 	$htmlstr .= '  <br />';
-	$htmlstr .= '  <button id="doLogin"> OK </button>';
+	$htmlstr .= '  <button id="login-doLogin"> OK </button>';
 	$htmlstr .= '</div>';
 	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
 	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
