@@ -543,6 +543,8 @@ class VarcaveCave extends Varcave
 	 * Get caves informations by using cave GUID
 	 * 
 	 * @param    $guidv4 : the cave guid
+     * @param    $forceRandomCoords force obfuscation of cave coors
+     * @param    $skipCoords disable processing of coords. Remove coords from result set
      *           
 	 * @return on success  : assoc array
 	 *         on failure to find cave : false
@@ -581,12 +583,33 @@ class VarcaveCave extends Varcave
             {
                 //!$auth->isMember('admin'))
                 // disable coords obfuscation if user is admin
-                if ( !$auth->isMember('admin') )
+                if ( $auth->isMember('admin') )
                 {
-                    //nothing to do
+                    $obfuscateCoords = false;
                 }
-                elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) &&  )
-                {	
+                elseif( !isset($_SESSION['isauth']) )
+                {
+                    if( $this->getconfigelement('anon_get_obfsuc_coords') )
+                    {
+                        $obfuscateCoords = true ;
+                    }
+                    else
+                    {
+                        $obfuscateCoords = false ;
+                    }
+                    
+                }
+                elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) )
+                {
+                    $obfuscateCoords = true;
+                }
+                else
+                {
+                    $obfuscateCoords = true;
+                }
+                
+                if( $obfuscateCoords )
+                {
                     $this->logger->debug('*YES* Request coordinate obfuscation');
                     $coordsObj = json_decode($result['json_coords']);		
                     //geoJson store multipoint coord in this namespace
@@ -598,17 +621,14 @@ class VarcaveCave extends Varcave
                         $coordSet[1] = round($coordSet[1],2);
                         $this->logger->debug('new coords are : ' . $coordSet[1] . ' ' . $coordSet[0]);
                     }
+                    
                     //insert new coords in json object
                     $result['json_coords'] = json_encode((array)$coordsObj);
-                    
-                }
-                else{
-                     $this->logger->debug('*NO* obfuscation');
                 }
             }
             else
             {
-                $this->logger->debug('*NO* coordinates obfuscation check required');
+                $this->logger->debug('Erase coords data from result set');
                 $result['json_coords'] = '';
             }
 			return $result;			
