@@ -32,7 +32,7 @@ if( isset($_GET['guid']) ){
 	//display editing form
     try
     {
-        $cave = $caveObj->selectByGuid($_GET['guid']);
+        $cave = $caveObj->selectByGuid($_GET['guid'], false, false);
         if ($cave === false)
         {
             throw new exception(L::errors_badGuid);
