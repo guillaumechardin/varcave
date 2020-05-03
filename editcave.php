@@ -108,11 +108,20 @@ if( isset($_GET['guid']) ){
                 . $fieldInfo['display_name'] . ':</span>';
                 $coordsHtml .= '<div>';
                 $coordsHtml .=    L::editcave_showCoordsAs;
-                $coordsHtml .= '  <select name="coordDisplayProj" class=""  disabled>';
-                $coordsHtml .= '     <option value="" selected>&nbsp;&nbsp;</option>';
-                $coordsHtml .= '     <option value="UTM" selected>UTM</option> ';
-                $coordsHtml .= '     <option value="LAMBERT3">LAMBERT3</option>';
-                $coordsHtml .= '  </select>';
+                
+                
+                $availCoordSyst = $caveObj->getCoordsSysList();
+		
+                $coordsHtml .= ' <select id="coordSystem">';
+                foreach($availCoordSyst as $key => $value)
+                {
+                    $coordsHtml .= '<option id="' . $value['name'] . '" value="' . $value['name'] . '">' . $value['display_name'] .'</option>';
+                    $coordsHtml .= '<script src="/lib/varcave/' . $value['js_lib_filename'] . '"></script>';
+                }
+                $coordsHtml .= '</select>';
+               
+
+
                 $coordsHtml .= '</div>';
                 
                 if ( !empty ($cave['json_coords']) )

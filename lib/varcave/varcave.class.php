@@ -414,20 +414,31 @@ class Varcave {
 	 * get a list of available coordinate systems
 	 * list is store in db `cooordinate_systems`
 	 */
-	public function getSysCoordsList()
+	public function getCoordsSysList()
 	{
 		try
 		{
 			$this->logger->debug(__METHOD__ . ' :get a list of coordinate systems');
-			$q = 'SELECT display_name,code,name FROM ' . $this->dbtableprefix . 'list_coordinates_systems WHERE 1';
+			$q = 'SELECT * FROM ' . $this->dbtableprefix . 'list_coordinates_systems WHERE 1';
 			$qPdostmt = $this->PDO->query($q);
-			return $qPdostmt->fetchall(PDO::FETCH_ASSOC);
+            $datas = $qPdostmt->fetchall(PDO::FETCH_ASSOC);
+            foreach ($datas as $key => &$data)
+            {
+                //add the localized name  if available
+                if ( defined('L::coordsSystems_' . $data['name']) ){
+					$data['display_name'] = constant('L::coordsSystems_' . $data['name']);
+				}else{
+					$data['display_name'] = $data['name'];
+				}
+                
+            }
+            return $datas;
 		}
 		catch(exception $e)
 		{
 			//on failure we send back default data
-			$this->logger->debug('Fetch failed :' . $e->getmessage() . '. Send default one');
-			return array('name'=>'GEOGRAPHIC', 'display_name'=>'Geographic','code'=>9999);
+			$this->logger->error('Fetch failed :' . $e->getmessage() );
+			return false;
 		}
 	}
 	

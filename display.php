@@ -263,12 +263,16 @@ if (isset($_GET['guid']) )
 		$htmlstr .= '    <h3 class="inline-block">'.  L::display_caveCoords. '</h3>';
 		
 		// show options to change coordinates system
-		$availCoordSyst = $cave->getSysCoordsList();
-		$htmlstr .= ' <select id="coordSystem">';
+        $htmlstr .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
+		
+        $availCoordSyst = $cave->getCoordsSysList();
+		
+        $htmlstr .= ' <select id="coordSystem">';
 		foreach($availCoordSyst as $key => $value)
 		{
 			$htmlstr .= '<option id="' . $value['name'] . '" value="' . $value['name'] . '">' . $value['display_name'] .'</option>';
-		}
+            $htmlstr .= '<script src="/lib/varcave/' . $value['js_lib_filename'] . '"></script>';
+        }
 		$htmlstr .= '</select>';
 		
 		if ($caveData['random_coordinates'])
@@ -280,15 +284,20 @@ if (isset($_GET['guid']) )
 		{
 			$htmlstr .= '<div class="disclaimCoordsNotChecked">' . L::disclaimCoordsNotChecked . '</div>';
 		}
-		$htmlstr .= '<script src="lib/proj4js/2.5.0/dist/proj4.js"></script>';
+		
 		
 		//print_r($coordList);
-		$htmlstr .= '<ol id="coordList">';
+        $htmlstr .= '<script>';
+        $htmlstr .= 'var coordinatesList = ' . $caveData['json_coords'] . ';';
+        $htmlstr .= '</script>';
 		
+        $htmlstr .= '<ol id="coordList">';
 		foreach ($coordList as $key=>$coord)
 		{
-			$htmlstr .= '<li data-id="' . $key . '" data-defaultx="' . $coord[0] . '" data-defaulty="' . $coord[1] . '">';
-			$htmlstr .= '<span id="display-utmzone-' . $key .  '"></span> X:<span id="x-' . $key . '">' . $coord[0] . '</span> Y:<span id="y-' . $key . '">' . $coord[1] . '</span> Z:<span id="z-' . $key . '">' . $coord[2] . '</span>';
+			$htmlstr .= '<li data-id="' . $key . '">';
+			$htmlstr .= '<span id="x-' . $key . '">X:' . $coord[0] . '</span> '.
+                        '<span id="y-' . $key . '">Y:' . $coord[1] . '</span> '.
+                        '<span id="z-' . $key . '">Z:' . $coord[2] . '</span>m';
 			$htmlstr .= '</li>';
 			
 		}
