@@ -26,8 +26,8 @@ const DATATABLES_JS_CSS = '
 	<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>
 	<script type="text/javascript" src="lib/Datatables/Select-1.2.6/js/dataTables.select.min.js"></script>
 	
-	<script src="lib/trumbowyg/dist/trumbowyg.min.js"></script>
-	<link rel="stylesheet" href="lib/trumbowyg/dist/ui/trumbowyg.min.css">
+	<script src="/lib/trumbowyg/2.20/trumbowyg.min.js"></script>
+	<link rel="stylesheet" href="lib/trumbowyg/2.20/trumbowyg.min.css">
 	';
 
 if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
