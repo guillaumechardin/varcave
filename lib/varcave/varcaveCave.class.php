@@ -913,10 +913,11 @@ class VarcaveCave extends Varcave
      * This function update json `files->Element` properties
      * 
      * @param     guid = hex format like   dbe6f8e0a-2323-4986-b79d-d5ec5e46a1c3
-     * @param     varObject : final json object
+     * @param     varObject : final json object name identifier
 	 * @return on success : (int) item number in the list
 	 * 		   on error  :  throw exception
      * 
+     * @exemple addDataToCaveFileList(myguid, "picture_file", "path/to/pic" )
      */
 	function addDataToCaveFileList($guidv4, $varObject, $data )
 	{
@@ -1010,7 +1011,7 @@ class VarcaveCave extends Varcave
 		$filesJson = json_encode($files, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 		
 		//writing to db
-		$this->logger->debug('Updating db with new elements.\n' . print_r($filesJson, true) );
+		$this->logger->debug('Updating db with removed elements.\n' . print_r($filesJson, true) );
 		if (! $this->updateCaveProperty($guidv4, 'files', $filesJson) )
 		{
 			throw new exception(L::varcaveCave_failToAddFileList);

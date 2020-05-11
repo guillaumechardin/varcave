@@ -61,8 +61,10 @@ if( isset($_GET['guid']) ){
 		$filesHTML = '';
         $sketchAccessHtml = '';
 		$coordsHtml = '';
-		//set needles to permit edit items from a form.
-        $needles = ['biologyDocuments', 'cave_maps', 'documents','photos'];
+		
+        //set needles to permit edit items from a form.
+        $listOfFilesInput = ['biologyDocuments', 'cave_maps', 'documents', 'photos'];
+        
         //build cave `files` from json
 		if(!empty($cave['files']) )
 		{
@@ -158,8 +160,8 @@ if( isset($_GET['guid']) ){
                 $coordsHtml .= '</div>'; //flexItem
                 
             }
-			//process bioDocs or cave_maps or documents and so on depending on $needles
-            elseif( strstr_from_arr($needles, $fieldInfo['field'] ) ) 
+			//process bioDocs or cave_maps or documents and so on depending on $listOfFilesInput
+            elseif( strstr_from_arr($listOfFilesInput, $fieldInfo['field'] ) ) 
             {   
 
                 $currentField = $fieldInfo['field'];
@@ -499,7 +501,7 @@ elseif( isset($_POST['update'] ) )
 			}
 			
 		}
-		elseif( isset($_FILES['file']) ) //file input inf form like documents or cave_maps
+		elseif( isset($_FILES['file']) ) //file input form like documents or cave_maps
         {
             $caveInfo = $caveObj->selectByGuid($_POST['guid']);
             //we want to upload some files
@@ -585,7 +587,7 @@ elseif( isset($_POST['update'] ) )
 				//update json info in field `files`
 				$lastInsertItem = $caveObj->addDataToCaveFileList($_POST['guid'], $_POST['item'], $dstFullPath );
 				
-				if( $lastInsertItem == false )
+				if( $lastInsertItem === false )
                 {
                     throw new exception('update json fail on file upload inscription');
                 }
