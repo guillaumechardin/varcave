@@ -97,51 +97,59 @@ else //try to create new cave with user supplied infos
 			throw new exception (L::errors_badArgs);
 		}
 	
-	$logger->debug('Trying to add new cave : `' . $_POST['cavename'] . '` with changelog data :' . $_POST['changelogEntry'] );
+        $logger->debug('Trying to add new cave : `' . $_POST['cavename'] . '` with changelog data :' . $_POST['changelogEntry'] );
 	
 	
-	$newguid = $cave->createNewCave($_POST['cavename']);
-	$cave->AddLastModificationsLog($newguid, $_POST['changelogEntry'],  $_POST['changelogEntryVisibility']);
+        $newguid = $cave->createNewCave($_POST['cavename']);
+        $cave->AddLastModificationsLog($newguid, $_POST['changelogEntry'],  $_POST['changelogEntryVisibility']);
 	
-	//copy cave data from user specified cave guid to new cave
-	if( isset($_POST['srccaveguid']) && !empty($_POST['srccaveguid']) )
-	{
-		$logger->info('starting cave copy process from : [' . $_POST['srccaveguid'] . ']');
-		$caveSrc = $cave->selectByGuid($_POST['srccaveguid']);
+        //copy cave data from user specified cave guid to new cave
+        if( isset($_POST['srccaveguid']) && !empty($_POST['srccaveguid']) )
+        {
+            $logger->info('newcave.php : starting cave copy process from : [' . $_POST['srccaveguid'] . ']');
+            $caveSrc = $cave->selectByGuid($_POST['srccaveguid']);
 
-		//get excluded fields to copy on new cave
-		$excluded = $cave->getConfigElement('excludedcopyfields');
-		$logger->debug('excluded copy fields:'.$cave->getConfigElement('excludedcopyfields') );
-
-		//convert csv to array
-		$excluded = explode(',', $excluded);
-		
-		//start copy process 
-		foreach($caveSrc as $key => $value)
-		{
-			//skip current if excluded from field copy
-			$logger->debug('update cave field :' . $key  . print_r($excluded, true) );
-			if( in_array($key, $excluded) )
-			{
-				$logger->debug('skip field: [' . $key . '] from cave copy');
-				continue;
-			}
-			$cave->updateCaveProperty($newguid, $key, $caveSrc[$key]);
-		}
-		$logger->info('Cave Copy done');
-	}
+            //get excluded fields to copy on new cave
+            $excluded = $cave->getConfigElement('excludedcopyfields');
+            
+            //convert csv to array
+            $excluded = array_map('trim', explode(',', $excluded ));
+            $logger->debug('excluded copy fields:' . print_r($excluded,true) );
+            
+            
+            //start copy process 
+            foreach($caveSrc as $key => $value)
+            {
+                //skip current if excluded from field copy
+                $logger->debug('update cave field :' . $key  . ' ' . print_r($excluded, true) );
+                if( in_array($key, $excluded) )
+                {
+                    $logger->debug('skip field: [' . $key . '] from cave copy');
+                    continue;
+                }
+                //else we copy data from the originating cave
+                try {
+                    $logger->debug( 'copy data [' . $key . '] with value [' . substr($caveSrc[$key],0,15) .']' );
+                    $cave->updateCaveProperty( $newguid, $key, $caveSrc[$key] );
+                }
+                catch (exception $e){
+                    //updating new cave fail
+                    throw new exception( $e->getmessage() );
+                }
+            }
+            $logger->info('Cave Copy done');
+        }
 	
-	//setting up ajax return
-	$return = array(
-			'title' => L::edit,
-			'stateStr'=> L::newcave_creationSucceed,
-			'guid' => $newguid,
-			);
-	$httpError = 200;
-	$httpErrorStr = ' OK';
-	
-	$logger->info('Cave creation success');
-	
+        //setting up ajax return
+        $return = array(
+                'title' => L::edit,
+                'stateStr'=> L::newcave_creationSucceed,
+                'guid' => $newguid,
+                );
+        $httpError = 200;
+        $httpErrorStr = ' OK';
+        
+        $logger->info('Cave creation success');
 	}
 	catch (exception $e)
 	{

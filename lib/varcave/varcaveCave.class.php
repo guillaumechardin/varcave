@@ -657,7 +657,7 @@ class VarcaveCave extends Varcave
      */
     function updateCaveProperty($guid, $colname, $value)
     {
-         $this->logger->info('caveClass: try to update cave : ' . $guid);
+         $this->logger->info(__METHOD__ . ': try to update cave : ' . $guid);
          if( $this->selectByGUID($guid) == false)
          {
              $this->logger->error('Update fail, cave not found');
@@ -1088,6 +1088,8 @@ class VarcaveCave extends Varcave
 			//creating unique informations for cave
 			$newGuid = GUIDv4();
 			
+            $this->logger->debug('Generate new guid : [' . $newGuid .']');
+            
 			//building mysql query insert
 			$req = 'INSERT INTO ' . $this->dbtableprefix . 'caves ';
 			$req .= '(name,guidv4)';
