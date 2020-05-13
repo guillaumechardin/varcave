@@ -105,7 +105,7 @@ class VarcaveHtml extends Varcave {
         $this->html .= '    </a>';
         $this->html .= '  </div>';
 		$this->html .= '  <div class="footer_text_box">';
-		$this->html .= '    <a href="about.php#contact">' . L::contactus . '</a>';
+		$this->html .= '    <a href="contact.php">' . L::contactus . '</a>';
 		$this->html .= '  </div>';
 		$this->html .= '</div>';
 		//debug info
