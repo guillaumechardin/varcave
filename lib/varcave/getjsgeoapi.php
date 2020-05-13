@@ -54,7 +54,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail')
 	$js .= '        mapTypeControlOptions : {
 	                                       position: google.maps.ControlPosition.TOP_RIGHT, 
 	                                       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-	                                       mapTypeIds: ["satellite","terrain","roadmap"]
+	                                       mapTypeIds: ["satellite","terrain"]
 	                                       },'; // terrain, roadmap and satellite are a default bundle of GM
 	$js .= '        mapTypeControl: false,';
 

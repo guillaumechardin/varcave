@@ -1163,21 +1163,38 @@ class VarcaveCave extends Varcave
 	 */ 
 	function updateStats($caveid)
 	{
-		try
-		{
-			$q = 'UPDATE ' . $this->dbtableprefix . 'stats 
-			      SET view_count = view_count + 1
-				  WHERE cave_id = ' . $this->PDO->quote($caveid);
-			$this->PDO->query($q);
-			return true;
-		}
-		catch (exception $e)
-		{
-			$this->logger->error('Fail to update stats for cave : ' .$caveid . $e->getMessage() );
-			$this->logger->debug('full query : ' . $q);
+		$this->logger->debug(__METHOD__ . ': Updating stats for cave : ' . $caveid );
+		$auth = new varcaveAuth();
+		
+		//set an array from the ip listing located in ocal config
+		$adminIpList  = array_map('trim', explode(',', $this->getConfigElement('adminIP') ));
+		
+		//a very simple way to check if remote administrative ip address is used
+		$noStatsAdded = 'No stats added';
+		if ( in_array($_SERVER['REMOTE_ADDR'], $adminIpList) ) {
+			$this->logger->debug($noStatsAdded . ': special IP detected');
 			return false;
 		}
-		
+		elseif( $auth->isMember('admin') ){
+			$this->logger->debug($noStatsAdded. ': user admin') ;
+			return false;
+		}
+		else {
+			try
+			{
+				$q = 'UPDATE ' . $this->dbtableprefix . 'stats 
+					  SET view_count = view_count + 1
+					  WHERE cave_id = ' . $this->PDO->quote($caveid);
+				$this->PDO->query($q);
+				return true;
+			}
+			catch (exception $e)
+			{
+				$this->logger->error('Fail to update stats for cave : ' .$caveid . $e->getMessage() );
+				$this->logger->debug('full query : ' . $q);
+				return false;
+			}
+		}
 	}
 	
 	/*
