@@ -18,13 +18,18 @@ if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
 
 $cave = new varcaveCave();
 
-if(isset($_GET['guid']) && !empty($_GET['guid']) && isset($_GET['gpx']) )
-{
-	//fetch and start download of gpx file
+if(isset($_GET['guid']) && !empty($_GET['guid']) && isset($_GET['gpx']) ) {
+    $cave->logger->debug('getgpxkml.php : start collecting data for file creation');
+    
+    //fetch and start download of gpx file
 	$GPXdata = $cave->createGPX($_GET['guid']);
-	$caveData = $cave->selectByGUID($_GET['guid']);
+    $cave->logger->debug('GPXdata :' . print_r($GPXdata, true) );
+    $caveData = $cave->selectByGUID( $_GET['guid'], false, false );
 	if ($caveData == false)
 	{
+        $cave->logger->error('No data or fail to get data');
+        header('HTTP/1.1 400' . L::errors_badArgs);
+        echo L::errors_ERROR . ' : ' . L::errors_badArgs;
 		exit();
 	}
 
@@ -33,7 +38,12 @@ if(isset($_GET['guid']) && !empty($_GET['guid']) && isset($_GET['gpx']) )
 	$filename = substr(cleanStringFilename($caveData['name'].'.dummy'), 0,-6);
 	//$filename = substr($filename,0,10);
 	header('Content-Disposition: attachment; filename=' . $filename . '.gpx');
-	echo $GPXdata;
+	echo $GPXdata ;
+}
+else {
+    header('HTTP/1.1 400' . L::errors_badArgs);
+    echo L::errors_ERROR . ' : ' . L::errors_badArgs;
+    exit();
 }
 
 ?>

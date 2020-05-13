@@ -1237,7 +1237,7 @@ class VarcaveCave extends Varcave
 
 
 		$this->logger->debug(__METHOD__ . ' : build gpx data from :' . $caveid);
-		$cavedata = $this->selectByGUID($caveid);
+		$cavedata = $this->selectByGUID($caveid,false,false);
 		
 		$coords = json_decode($cavedata['json_coords']);
 		$this->logger->debug('json data :  '. print_r($coords, true) );
