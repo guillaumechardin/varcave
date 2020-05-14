@@ -120,8 +120,7 @@ class VarcavePdf extends TCPDF {
 	/**
 	 * add automatic default header to new page
 	 */
-    public function Header() 
-    {
+    public function Header() {
         $this->varcave->logger->debug('Create PDF top header');
 		if ($this->noheader){
 			return true;
@@ -147,8 +146,7 @@ class VarcavePdf extends TCPDF {
 		
     }
 
-	public 	function caveinfo()
-	{
+	public 	function caveinfo() {
         $this->varcave->logger->debug('Create PDF cave info');
 		//get i18n fields name
 		$cave = new varcavecave();
@@ -245,14 +243,11 @@ class VarcavePdf extends TCPDF {
         // user images have priority over gMaps API. You need to enable the 'Google static MAPS API'
         $maxImgWidth = 70; // resiz img to to 7cm width
         $maxImgHeigth = 50; // 5cm img heigth because of aspect ratio
-        if( !empty($sketchAccessArr) )
-		{
+        if( !empty($sketchAccessArr) ) {
             $this->varcave->logger->debug('Add access sketch image from user file');
             $this->Image($sketchAccessArr[0],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
-
 		}
-        elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) )
-        {
+        elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) ) {
             $this->varcave->logger->debug('Add access sketch image from gAPI');
             //get coords to display on img
             $coordsObj = json_decode($this->cavedata['json_coords']);
@@ -321,6 +316,12 @@ class VarcavePdf extends TCPDF {
         
         $startAccessSketchY = $this->gety();
 		$this->multicell($remWidth, 0, $this->cavedata['accessSketchText'],0,'L');
+        
+        // show coordinates
+        $this->ln(1);
+        $this->multicell($remWidth, 0, 'coordonnées:',0,'L');
+        $this->multicell($remWidth, 0, '31C T 35.25552255  85.8dddads88D:',0,'L');
+        
         $textSize = $this->gety() - $startAccessSketchY;
         if( $textSize > $maxImgHeigth)
         {
@@ -358,7 +359,7 @@ class VarcavePdf extends TCPDF {
         $sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'cave_maps');
         
 		
-		if (!empty(sketchAccessArr) )
+		if (!empty($sketchAccessArr) )
 		{
 			foreach($sketchAccessArr as $index=>$imgFile)
 			{
