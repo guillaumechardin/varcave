@@ -319,8 +319,12 @@ class VarcavePdf extends TCPDF {
         
         // show coordinates
         $this->ln(1);
-        $this->multicell($remWidth, 0, 'coordonnées:',0,'L');
-        $this->multicell($remWidth, 0, '31C T 35.25552255  85.8dddads88D:',0,'L');
+        $xCoords = $this->marginleft + $maxImgWidth +1;
+        $this->setx($xCoords);
+        // select the right coordinates system and write coords
+        $coordSystem = $cave->getConfigElement('pdfCoordSystem');
+        $this->multicell($remWidth, 0, 'Coordonnées:',0,'L');
+        $this->multicell($remWidth, 0, '31C T 35.25552255  85.8dddads88D:', 0, 'L', false, 1, $xCoords + 3);
         
         $textSize = $this->gety() - $startAccessSketchY;
         if( $textSize > $maxImgHeigth)
