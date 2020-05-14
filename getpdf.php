@@ -15,7 +15,7 @@ if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
 
 $cave = new varcaveCave();
 
-$_cave = $cave->selectByguid($_GET['guid']);
+$_cave = $cave->selectByguid($_GET['guid'], false, $false);
 
 $vPdf = new Varcavepdf($_cave) ;
 

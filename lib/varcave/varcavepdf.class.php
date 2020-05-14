@@ -6,7 +6,7 @@ require_once(__DIR__ . '/../tcpdf/tcpdf.php');
 
 //set init of i18n without htmlentities
 $i18n = new varcavei18n(__DIR__ . '/../../lang/lang_{LANGUAGE}.ini',  __DIR__ . '/../../langcache/');
-$i18n->setPrefix('LNE');
+$i18n->setPrefix('LNE'); //Lanf Not Escaped
 $i18n->setFallbackLang(); //set fallback lang to default one specified in config(by using no args)
 $i18n->setMergeFallback(true); 
 $i18n->setHtmlEntities(false);
@@ -280,9 +280,10 @@ class VarcavePdf extends TCPDF {
             $key = 'key=' . $cave->getConfigElement('googlemaps_api_key');
             $size = 'size=370x265'; //   an approximate size of 97x70mm //previously 420*300
             
-            $url = 'https://maps.googleapis.com/maps/api/staticmap?' . $center  . '&' . $zoom . '&' . $mapType . '&' . $key . '&' . $size . '&' . $markers;
-            //insert the google maps API image
+            $url = 'https://maps.googleapis.com/maps/api/staticmap?' . $center  . '&' . $zoom . '&' . $mapType . '&' . $key . '&' . $size . '&' . $markers .'&v=3';
             
+            //insert the google maps API image
+            $this->varcave->logger->debug( 'gmapApi static url : [' . $url . ']' );
 			
 			$this->varcave->logger->debug('check if static google api cache img exists');
 			$imgStaticName = $this->cavedata['guidv4'] . '_gAPI.jpg';
