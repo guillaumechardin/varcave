@@ -339,6 +339,7 @@ class VarcavePdf extends TCPDF {
                     {
                         //convert from longlat (geographical is the default stored in geoJson) to desired coordinate system
                         $funcName = 'convert2' . $system['name'];
+                        $cave->logger->debug('start converting coords on target coordSystem');
                         $convCoords = $funcName( $coordsObj->features[0]->geometry->coordinates);
                     }
                 }
@@ -352,6 +353,7 @@ class VarcavePdf extends TCPDF {
         //show coords in the right system
         $this->multicell($remWidth, 0, LNE::display_caveCoords . ':',0,'L');
         
+        $cave->logger->debug('display coords');
         foreach($convCoords as $coords)  {
             $this->multicell($remWidth, 0, $coords['string'] , 0, 'L', false, 1, $xCoords + 3);
         }
