@@ -63,7 +63,7 @@ if( isset($_GET['guid']) ){
 		$coordsHtml = '';
 		
         //set needles to permit edit items from a form.
-        $listOfFilesInput = ['biologyDocuments', 'cave_maps', 'documents', 'photos'];
+        $listOfFilesInput = ['biologyDocuments', 'cave_maps', 'documents', 'photos', 'sketch_access'];
         
         //build cave `files` from json
 		if(!empty($cave['files']) )
