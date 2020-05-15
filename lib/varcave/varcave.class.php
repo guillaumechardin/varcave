@@ -413,6 +413,8 @@ class Varcave {
 	/*
 	 * get a list of available coordinate systems
 	 * list is store in db `cooordinate_systems`
+     * Common display name should be inserted in coordsSystems_SYSTEMNAME
+     * lang_XX.ini to get a correct display name
 	 */
 	public function getCoordsSysList()
 	{
