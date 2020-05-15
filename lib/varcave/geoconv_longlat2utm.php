@@ -1,44 +1,110 @@
 <?php
 require_once("./lib/proj4php/vendor/autoload.php");
-//require_once("./lib/proj4php/src/Proj4php.php");
-//require_once("./lib/proj4php/src/Proj.php");
-//require_once("./lib/proj4php/src/Point.php");
 
 use proj4php\Proj4php;
 use proj4php\Proj;
 use proj4php\Point;
 
-/*$projL3    = new Proj('EPSG:27573', $proj4); //lambertIII carto 
-$projWGS84  = new Proj('EPSG:4326', $proj4);  //WGS84
-$projUTM31  = new Proj('EPSG:32631', $proj4); // Zone UTM31
-$projUTM32  = new Proj('EPSG:32632', $proj4); // Zone UTM32
-*/
 
 
-    $proj4     = new Proj4php();
+/* 
+ * Function convert2utm handle the process to convert long/lat in decimal
+ * format to UTM notation
+ * @param $coords is an array of coords from a geojson object
+ *        $coords is defined : { 
+ *                                  [0] = x,y,z,
+ *                                  [1] = x1,y1,z1,
+ *                              }
+ * @return an array containing converted data defined as :
+ *                              array( 
+ *              array(
+ *                  'x' => x,
+ *                  'y' => y,
+ *                  'zone' => 'zone',
+ *                  'band' => 'band',
+ *                  'string' => 'zoneband x y',
+ *              ),
+ *              array(
+ *                  'x' => x1,
+ *                  'y' => y1,
+ *                  'zone' => 'zone1',
+ *                  'band' => 'band1',
+ *                  'string' => 'zone1band1 x1 y1',
+ *              ),
+ *          );
+ */
+    
+    function convert2utm($coords){
+        $convCoords  = array();
+        $proj4 = new Proj4php();
+        $projWGS84  = new Proj('EPSG:4326', $proj4);  //WGS84 (long/lat)
+        
+        foreach($coords as $coord)
+        {
+            //Find current zone
+            $zone = long2UTMZone($coord[0]);
+            
+            //find band (letter)
+            $band = getUTMLatBand($coord[1]);
+            
+            //build proj data for proj4
+            //depending on zone ; may not be suitable for all zones like 32V or 31X
+            $currUtmDefinition = '+proj=utm +zone=' . $zone . ' +datum=WGS84 +units=m +no_defs';
+            $currUTM = new Proj($currUtmDefinition, $proj4);
+            
+            //create new point
+            $pointSrc = new Point($coord[0], $coord[1], $projWGS84);
+            
+            //convert point to utm
+            $pointDest = $proj4->transform($currUTM, $pointSrc);
+            
+            //build return data
+            $x = floor( $pointDest->__get('x') );
+            $y = floor( $pointDest->__get('y') );
 
-    /*$projL93   = new Proj('EPSG:2154', $proj4);
+            $convCoords [] = array( 
+                                    'x' => $x,
+                                    'y' => $y,
+                                    'z' => $coord[2],
+                                    'string' => $zone. $band. ' ' . $x . ' ' . $y,
+                                    );
+        }
+        return $convCoords;
+    }
     
-    $projLI    = new Proj('EPSG:27571', $proj4);
-    $projLSud  = new Proj('EPSG:27563', $proj4);
-    $projL72   = new Proj('EPSG:31370', $proj4);
-    $proj25833 = new Proj('EPSG:25833', $proj4);
-    $proj31468 = new Proj('EPSG:31468', $proj4);
-    $proj5514  = new Proj('EPSG:5514', $proj4);
-    $proj28992 = new Proj('EPSG:28992', $proj4);*/
+    /*
+     * this get a UTM zone for a know longitude. Take long as only arg.
+     * It does not work for some area (ie : norway and Svalbard)
+     * see https://stackoverflow.com/questions/9186496/determining-utm-zone-to-convert-from-longitude-latitude
+     */
+    function long2UTMZone($long)
+    {
+        return ( floor( ($long + 180)/6) % 60 + 1 );
+    }
     
-    $projWGS84 = new Proj('EPSG:4326', $proj4);
-    $projUTM31  = new Proj('EPSG:32631', $proj4); // Zone UTM31
-    $projUTM32  = new Proj('EPSG:32632', $proj4);
     
-    //X:5.9630875 Y:43.1988465 Z:670m
-    $pointSrc = new Point(5.9630875, 43.1988465, $projWGS84);
-    $pointDst = $proj4->transform($projUTM31, $pointSrc);
-    
-    $newCoords[] = array( 'x'=>$pointDst->__get('x'), 'y' => $pointDst->__get('y') );
-    
-    print_r($pointDst);
-    print_r($newCoords);
-    
-    exit();
+    /* this function get UTM latitude band for a given 
+     * latitude in degrees
+     * inspired from 
+     * https://gis.stackexchange.com/questions/238931/utm-coordinates-and-knowing-how-to-get-the-grid-zone-letter
+     */
+    function getUTMLatBand($lat)
+    {
+
+        $bandLetters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        //int latz = 0;//Latitude zone: A-B S of -80, C-W -80 to +72, X 72-84, Y,Z N of 84
+
+        if ($lat > -80 && $lat < 72) {
+            //= floor((lat + 80)/8)+2;
+            return substr ( $bandLetters, floor( ($lat+80)/8) +2, 1);
+            //return bandLetters.charAt(Math.floor( ($lat+80)/8) +2);
+        }
+        if ($lat > 72 && $lat < 84) {
+            return substr ( $bandLetters,21, 1);
+        }
+        if ($lat > 84){
+            return substr ( $bandLetters,23);
+        }
+        return false;
+    }
 ?>

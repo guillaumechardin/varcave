@@ -243,15 +243,17 @@ class VarcavePdf extends TCPDF {
         // user images have priority over gMaps API. You need to enable the 'Google static MAPS API'
         $maxImgWidth = 70; // resiz img to to 7cm width
         $maxImgHeigth = 50; // 5cm img heigth because of aspect ratio
+        
+        //get coords to display on img
+        $coordsObj = json_decode($this->cavedata['json_coords']);
+        $coordList = $coordsObj->features[0]->geometry->coordinates;
+            
         if( !empty($sketchAccessArr) ) {
             $this->varcave->logger->debug('Add access sketch image from user file');
             $this->Image($sketchAccessArr[0],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
 		}
         elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) ) {
             $this->varcave->logger->debug('Add access sketch image from gAPI');
-            //get coords to display on img
-            $coordsObj = json_decode($this->cavedata['json_coords']);
-            $coordList = $coordsObj->features[0]->geometry->coordinates;
             
             //build strings for url
             $colors=array('dummy','green', 'blue', 'purple','red', 'white', 'yellow', 'gray', 'orange','black','brown');
@@ -323,37 +325,42 @@ class VarcavePdf extends TCPDF {
         $this->setx($xCoords);
         
         // select the right coordinates system and write coords
-        $pdfCoordSystem = $cave->getConfigElement('pdfCoordSystem');
+        $pdfCoordSystem = $cave->getConfigElement('pdf_coords_system');
         //get alist of available systems
         $geoCoordSysList = $cave->getCoordsSysList();
         
         //load correct System using canonical filename
         foreach($geoCoordSysList as $system) {
             if( $system['name'] == $pdfCoordSystem ){ //load only the required one
-                $systemLibName =  './lib/varcave/' . $system['php_lib_filename'];
+                $systemLibName = './lib/varcave/' . $system['php_lib_filename'];
                 if( file_exists($systemLibName) ) {
                     $cave->logger->debug('Load lib : [' . $systemLibName .']');
-                    include_once($systemLibName);
+                    if( include_once($systemLibName) )
+                    {
+                        //convert from longlat (geographical is the default stored in geoJson) to desired coordinate system
+                        $funcName = 'convert2' . $system['name'];
+                        $convCoords = $funcName( $coordsObj->features[0]->geometry->coordinates);
+                    }
                 }
             }
             else{
                 $cave->logger->debug('Do not load lib for system ' . $system['name']);
             }
         }            
-        //Sources coords format is long/lat
         
+        //Sources coords format is long/lat
         //show coords in the right system
-        $this->multicell($remWidth, 0, 'LNE::display_caveCoords',0,'L');
-        foreach($coordList as $coords) {
-            $this->multicell($remWidth, 0, '31C T 35.25552255  85.8dddads88D:', 0, 'L', false, 1, $xCoords + 3);
+        $this->multicell($remWidth, 0, LNE::display_caveCoords . ':',0,'L');
+        
+        foreach($convCoords as $coords)  {
+            $this->multicell($remWidth, 0, $coords['string'] , 0, 'L', false, 1, $xCoords + 3);
         }
         
-        exit();
         
         $textSize = $this->gety() - $startAccessSketchY;
         if( $textSize > $maxImgHeigth)
         {
-            $this->sety($textSize);  //last know Y pos + 50mm size  img
+            $this->sety($startAccessSketchY +$textSize);  //last know Y pos + 50mm size  img
         }
         else
         {
