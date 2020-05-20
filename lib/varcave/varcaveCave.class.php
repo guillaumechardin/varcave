@@ -214,7 +214,7 @@ class VarcaveCave extends Varcave
 	*	$return[1] = number of items found in search
 	*	$return[2] => total depth sum for founded caves
 	*	$return[3] => total length sum for founded caves
-	*	$return[4] => list of col and their respective localized name from table searchField
+	*	$return[4] => list of col and their respective localized name
 	* 
     */
 	function search($searchInput, $sortField, $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false)

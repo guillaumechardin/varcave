@@ -316,6 +316,11 @@ home-caveChgtContent {
     margin : 0.5em;
 }
 
+/* input in seach page*/
+input[name^="value_"] {
+    margin: 0 0 0 0.5em;
+}
+
 .displayItem
 {
 	display:block;
@@ -516,7 +521,7 @@ div [class|="displaySciDataCol"]
 {
 	width: 18em;
     border-radius: 0.5em;
-    padding: 0.2em;
+    padding: 0.3em 0.5em;
 
 }
 
@@ -1200,5 +1205,6 @@ div[id^="ressources-filelink"]
 
 #login-doLogin
 {
-    margin: 1em;
+    margin: 0.5em;
+    font-size: 1em;
 }
