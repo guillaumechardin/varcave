@@ -177,10 +177,11 @@ if( isset($_GET['guid']) ){
                 
 				$curHtml = '<div class="edit-flexItem">';
                 $curHtml .= '   <span class="editDisplayName-Title">';
-				$curHtml .=         htmlentities($fieldInfo['display_name']) . ':';
+				$curHtml .=         $fieldInfo['display_name'] . ':';
                 $curHtml .= '  </span>';
 				
-				if ( !isset($filesObj->$currentField) || empty($filesObj->$currentField) )
+				// the file input is empty in db, we show the "add item" icon
+                if ( !isset($filesObj->$currentField) || empty($filesObj->$currentField) )
                 {
                     //NO data to display, processing next col after adding + symbol
                     $curHtml .= '<div id="edit-' .  $currentField . '"></div>';
@@ -246,10 +247,11 @@ if( isset($_GET['guid']) ){
 				$filesHTML .= $curHtml;
 
             }
-            elseif( $fieldInfo['field'] == 'sketchAccessPath' && !empty($cave['sketchAccessPath']) )
+            /*elseif( $fieldInfo['field'] == 'sketchAccessPath' && !empty($cave['sketchAccessPath']) )
             {
                  $sketchAccessHtml = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
                 . $fieldInfo['display_name'] . ':</span>';
+                $sketchAccessHtml .=  '<span>test</span>';
                 $sketchAccessHtml .= '<div class="sketchItem">'; //force new line
                 $sketchAccessHtml .= '<i class="fas fa-undo fa-lg" style="margin:0 0.1em 0"></i> <img class="edit-sketchMini" src="' . $cave['sketchAccessPath'] . '" /> <i class="fas fa-undo  fa-lg fa-flip-horizontal "></i>';
                 $sketchAccessHtml .= '<span>&nbsp<i class="fas fa-trash-alt fa-lg fa-pull-left"  name="sketchImg"></i></span><form><input type="file" name="sketchImg"> <button>' . L::save . '</button></form> ';
@@ -257,7 +259,7 @@ if( isset($_GET['guid']) ){
                 
                  $sketchAccessHtml .= '</div>';
                  
-            }
+            }*/
 			elseif( $fieldInfo['type'] == 'text' &&  strlen($cave[ $fieldInfo['field'] ]) > 40 )
             {
                 $areas[] = '<div class="edit-flexItem"><span class="editDisplayName-Title">'

@@ -215,7 +215,7 @@ if (isset($_GET['guid']) )
         $sketchAccessArr = $cave->getCaveFileList($caveData['guidv4'], 'sketch_access');
 		if ( ! empty($sketchAccessArr ) )
 		{
-			$htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr[0]. '"></img>';
+			$htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr[1]. '"></img>';
 			$htmlstr .= '<div id="miniMap" style="display:none"></div>';
 			$htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
 			$htmlstr .= '<script> var miniMapHidden=true;</script>';

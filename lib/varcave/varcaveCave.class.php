@@ -934,8 +934,8 @@ class VarcaveCave extends Varcave
 			$this->logger->debug('Empty files list, will create blank one');
 			$files = new stdClass();
 			$files->$varObject = new stdClass();
-			$lastItemIndex = 0;
-			$nextItemIndex =  0;
+			$lastItemIndex = 1;
+			$nextItemIndex =  1;
 		}
 		else
 		{
@@ -1045,7 +1045,7 @@ class VarcaveCave extends Varcave
 		//deleting db data and file of existing object
 		if ($varObject == "photos")
 		{
-			//update the comment part
+			//update  comment of photo
 			$files->$varObject->$itemNbr[1] = $value;
 		}
 		else
