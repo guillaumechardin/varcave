@@ -152,7 +152,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	try 
 	{
 		//search caves from user input
-		// OLD $list = $cave->search($searchTerms, 'name', array('guidv4','name','maxDepth','length','town','massif','topographer') );
+        //$searchInput, $sortField, $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false
 		$list = $cave->search($searchTerms, 'name');
         
 		if (!$list)
@@ -174,13 +174,6 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		
         foreach ($searchTableFields as $key => $field)
 		{
-			
-			/*//skip indexid to prevent warning msg
-			if ($field == 'indexid')
-			{
-				$i18nColNamesFilter['indexid'] = 'indexid';
-				continue;
-			}*/
 			//get indexid of $field in $i18nColNames
 			$key = array_search($field, array_column($i18nColNames, 'field'));
             //echo $field . 'is at i18nColNames'. $key;
