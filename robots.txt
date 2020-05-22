@@ -3,6 +3,5 @@ Disallow: /image.php
 Disallow: /getpdf.php
 Disallow: /display.php
 Disallow: /search.php
-Disallow: /search.php
 Allow: /
 

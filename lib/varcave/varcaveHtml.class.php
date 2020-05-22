@@ -108,19 +108,22 @@ class VarcaveHtml extends Varcave {
 		$this->html .= '    <a href="contact.php">' . L::contactus . '</a>';
 		$this->html .= '  </div>';
 		$this->html .= '</div>';
-		//debug info
+		
 		if ($this->config['loglevel'] == 0)
 		{
-			$this->html .=  '<div id="debugInfo">DEBUG INFO';            
+            // old style debug info
+			/*$this->html .=  '<div id="debugInfo">DEBUG INFO';            
             $time = (microtime(true) - $this->startInvoke)*1000 ;
             $this->html .=  '  <div>Page loaded in : [' . round($time,2) . 'ms]</div>';
 			$this->html .=  '  <PRE>';
 			$this->html .=       print_r($this->getErrorMsg(),true);
 			$this->html .=  '  </PRE>';
 			$this->html .=  '</div>';
+             * */
+            
 			
 		}
-
+    
 		$this->html .= '</body>';
 		$this->html .= '</html>';
 
