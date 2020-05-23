@@ -300,7 +300,7 @@ class VarcaveUsers extends Varcave
 					break;
 				
 				case 'geo_api':
-					$_SESSION['userGeoApi'] = $prefValue;
+					$_SESSION['geo_api'] = $prefValue;
 					break;
 				
 				default:

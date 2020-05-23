@@ -89,9 +89,9 @@ class Varcave {
 
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );
             //set default geoapi for anonymous users
-			if (!isset($_SESSION['userGeoApi']) )
+			if (!isset($_SESSION['geo_api']) )
 			{
-				$_SESSION['userGeoApi'] =  $this->getConfigElement('default_geo_api');
+				$_SESSION['geo_api'] =  $this->getConfigElement('default_geo_api');
 			}
 			
             //set default group anonymous for anonymous users

@@ -228,7 +228,7 @@ else
 	{
 		
 		$selected ='';
-		if ($_SESSION['userGeoApi'] == $API['name'])
+		if ($_SESSION['geo_api'] == $API['name'])
 		{
 			$selected = 'selected';
 		}

@@ -93,10 +93,6 @@ class VarcaveAuth extends Varcave
                     // BEWARE $_SESSION[$key] = $result ;// Uncomment this if you know what youre doing !;
                     $_SESSION[$key] = '<hiddenpassword>';
                 }*/
-                
-                //old style css affectation
-				//$users = new varcaveUsers();
-				//$_SESSION['userCss'] = $users->getUserTheme($_SESSION['uid']);
 			}
 			
 			//add `users` default group  to current connected user.
