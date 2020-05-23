@@ -308,12 +308,26 @@ class VarcavePdf extends TCPDF {
             $this->varcave->logger->debug('No access sketch image added');
             //no image added
         }
-			
-		//display sketch access text
+        
+        //compute left margin. Some space is use by access sketch
         $this->ln(1);
-        $this->setx($this->marginleft + $maxImgWidth +1);
+        $leftMargin = $this->marginleft + $maxImgWidth +1;
+        $this->setx($leftMargin);
         //$remWidth = 210 - $this->marginleft - $this->marginright - $maxImgWidth ; //210- marginleft - marginright - imagewidth - imgmargins = 
-		$remWidth = 126;
+
+        $remWidth = 126;
+        
+        
+        //display no access to cave disclaimer
+        if($this->cavedata['noAccess']){
+            $this->SetTextColor(255, 0, 0); //red
+            $this->multicell($remWidth, 0, $cave->getConfigElement('noAccessDisclaimer'),0,'L');
+            $this->SetTextColor(0, 0, 0); 
+            $this->ln(1);
+        }
+        
+		//display sketch access text
+        $this->setx($leftMargin);
         //access text can be long, we use the longest value either height of img or size of txt
         
         $startAccessSketchY = $this->gety();
