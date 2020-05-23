@@ -463,6 +463,13 @@ div [class|="displaySciDataCol"]
 	padding: 0.1em;	
 }
 
+#display-noaccess {
+    margin: 0.3em;
+    text-align: center;
+    color: red;
+    font-size: 1.5em;
+}
+
 .displayTitleWrapper > span
 {
 	margin: 0 0.5em 0;

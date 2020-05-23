@@ -284,7 +284,7 @@ class Varcave {
      */
 	public function fetchConfigSettings($getAll = true, $fullInfo = false)
 	{
-		$this->logger->info(__METHOD__ . ' : Getting config settings');
+		$this->logger->debug(__METHOD__ . ' : Getting config settings');
 		$this->logger->debug('getAll:'.$getAll.'|fullInfo:'.$fullInfo);
 		if($getAll == true)
 		{

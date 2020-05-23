@@ -255,6 +255,10 @@ if (isset($_GET['guid']) )
 		
 		$htmlstr .= '    </div>';
 		$htmlstr .= '    <div class="sketchAccessTxt">';
+        if($caveData['noAccess']){
+            $htmlstr .=  '<div id="display-noaccess">' . $cave->getConfigElement('noAccessDisclaimer') . '</div>';
+            
+        }
 		$htmlstr .= '		<span>' . htmlentities($caveData['accessSketchText']) . '</span>';
 		
 		
