@@ -353,6 +353,7 @@ if (isset($_GET['guid']) )
 				$i++;
 			}
 		}
+        //lightbox is use for cave_maps and photos
 		$htmlstr .= '</div>';
 		$htmlstr .= '<script src="lib/lightbox/2.10.0/dist/js/lightbox.min.js"></script>';
 		$htmlstr .= '<link href="lib/lightbox/2.10.0/dist/css/lightbox.css" rel="stylesheet">';
@@ -385,7 +386,15 @@ if (isset($_GET['guid']) )
 			foreach ($photosArr as $photo)
             {
                 $htmlstr .= '<div class="cavePhoto">';
-                $htmlstr .= '    <img class="displayCavePhotos" src="' . $photo[0] . '"/>';
+                
+                
+                /*$htmlstr .= '  <a  href="' . $mapPath . '" data-lightbox="cave-maps">';
+				$htmlstr .= '    <img class="displayCaveMapsImg" src="' . $mapPath . '"></img>';
+				$htmlstr .= '  </a>';
+                */
+                $htmlstr .= '    <a  href="' . $photo[0] . '" data-lightbox="cave-photos">';
+                $htmlstr .= '      <img class="displayCavePhotos" src="' . $photo[0] . '"/>';
+                $htmlstr .= '    </a>';
                 $htmlstr .= '<p>' . htmlentities($photo[1]) . '</p>';
                 $htmlstr .= '</div>';
             }
