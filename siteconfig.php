@@ -83,43 +83,86 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
         }
     }
     
+    print_r($newconfigItems);
+
+    
     foreach($newconfigItems as $itemGroup => $data)
 	{
         
-        // Create a new title for current itemgroup 
-         $htmlstr .= '<h3>' . $itemGroup . '</h3>';
+        // Title for current itemgroup 
+        $htmlstr .= '<h3>' . $itemGroup . '</h3>';
+        
+        // create the right input type depending ̀ configItemType`
         foreach($data as $key => $value)
         {
-           
-            //set a personalized input box size depending string lenght
-            $cssInputClass = 'siteconfig-input-short';
-            if(strlen($value['configItemValue']) >= 10 )
-            {
-                $cssInputClass='siteconfig-input-mid';
-            }
-            
-            if(strlen($value['configItemValue']) >= 50 )
-            {
-                $cssInputClass='siteconfig-input-long';
-            }
             $L='L';
             $dspName = 'siteconfighelp_' . $value['configItem'] . '_dsp';
             $hlp = 'siteconfighelp_' . $value['configItem'] . '_hlp';
             
-            $htmlstr .= '<div class="siteconfig-row" >';
-            $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
-            $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
-            $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
-            $htmlstr .= '  </span>';
-            $htmlstr .= '  <span class="col-2">'; //item value
-            $htmlstr .= '    <input type="text" name="' . $value['configItem'] . '" data="name" class="' . $cssInputClass .'" value="' . $value['configItemValue'] . '"></input>';
-            $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
-            $htmlstr .= '  </span>';
-            $htmlstr .= '  <span class="col-3">'; //save buton
-            $htmlstr .= '  </div>';
-            $htmlstr .= '</span>';
-        }
+            //start new row
+            $htmlstr .= '<div class="siteconfig-row" >'; ///b
+            if($value['configItemType'] === 'bool')
+            {
+                if( empty($value['configItemValue']) ){
+                    $selected = '';
+                }
+                else{
+                    $selected = 'checked';
+                }
 
+                $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
+                $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
+                $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
+                $htmlstr .= '  </span>';
+                $htmlstr .= '  <span class="col-2">'; //item value
+                $htmlstr .= '    <input type="checkbox" ' . $selected . ' name="' . $value['configItem'] . '"></input>';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '  </span>';
+                
+            }
+            elseif($value['configItemType'] === 'list')
+            {
+                //get a list of available data
+            }
+            elseif($value['configItemType'] === 'dec')
+            {
+                $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
+                $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
+                $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
+                $htmlstr .= '  </span>';
+                $htmlstr .= '  <span class="col-2">'; //item value
+                $htmlstr .= '    <input type="number" name="' . $value['configItem'] . '" data="name" class="siteconfig-input-short" value="' . $value['configItemValue'] . '"></input>';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '  </span>';
+                
+            }
+            else{ 
+                /*
+                 * it's standard text data
+                 * set a personalized input box size depending string lenght
+                 */
+                $cssInputClass = 'siteconfig-input-short';
+                if(strlen($value['configItemValue']) >= 10 )
+                {
+                    $cssInputClass='siteconfig-input-mid';
+                }
+
+                if(strlen($value['configItemValue']) >= 50 )
+                {
+                    $cssInputClass='siteconfig-input-long';
+                }
+                $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
+                $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
+                $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
+                $htmlstr .= '  </span>';
+                $htmlstr .= '  <span class="col-2">'; //item value
+                $htmlstr .= '    <input type="text" name="' . $value['configItem'] . '" data="name" class="' . $cssInputClass .'" value="' . $value['configItemValue'] . '"></input>';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '  </span>';
+            }
+            
+            $htmlstr .= '  </div>'; //end siteconfig-row
+        }
 	}
 	$htmlstr .= '<script src="lib/varcave/siteconfig.js"></script>';
 	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';

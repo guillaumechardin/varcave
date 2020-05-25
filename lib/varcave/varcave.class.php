@@ -288,11 +288,11 @@ class Varcave {
 		$this->logger->debug('getAll:'.$getAll.'|fullInfo:'.$fullInfo);
 		if($getAll == true)
 		{
-				$q = 'SELECT configItem, configItemValue, configIndexid, configItemGroup FROM ' .  $this->dbtableprefix . 'config WHERE 1 ORDER BY configIndexid  ASC';
+				$q = 'SELECT configItem, configItemValue, configIndexid, configItemGroup, configItemType FROM ' .  $this->dbtableprefix . 'config WHERE 1 ORDER BY configIndexid  ASC';
 		}
 		else
 		{
-			$q = 'SELECT configItem, configItemValue, configIndexid, configItemGroup FROM ' .  $this->dbtableprefix . 'config WHERE configItemAdminOnly=0 ORDER BY configIndexid  ASC';
+			$q = 'SELECT configItem, configItemValue, configIndexid, configItemGroup,configItemType FROM ' .  $this->dbtableprefix . 'config WHERE configItemAdminOnly=0 ORDER BY configIndexid  ASC';
 		}
 		
 		//fetching DB
