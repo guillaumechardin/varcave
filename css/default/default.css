@@ -820,11 +820,6 @@ div[id^="edit-imgEl"]
 	 
 }
  
-.siteconfig-row
-{
-	margin:0.5em;
-}
- 
 .siteconfig-row  .siteconfig-input-short
 {
 	width: 10em;
@@ -841,9 +836,16 @@ div[id^="edit-imgEl"]
 }
  
 .siteconfig-csstooltip {
-  position: relative;
- display: inline-block;
-  border-bottom: 0.1em dotted black;
+    position: relative;
+    display: inline-block;
+    border-bottom: 0.1em dotted black;
+    width: 20em;
+}
+
+.siteconfig-textarea{
+    width: 35em;
+    height: 10em;
+    vertical-align: middle;
 }
 
 .siteconfig-csstooltip .siteconfig-csstooltiptxt
@@ -872,7 +874,7 @@ div[id^="edit-imgEl"]
 
 .siteconfig-row
 {
-	margin : 0.75em 0.75em 0.75em 1.5em ;
+	margin : 0.75em 0.75em 2em 1.5em
 	
 }
 

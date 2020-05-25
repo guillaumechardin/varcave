@@ -136,6 +136,17 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '  </span>';
                 
             }
+            elseif($value['configItemType'] === 'longtext'){ 
+        
+                $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
+                $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
+                $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
+                $htmlstr .= '  </span>';
+                $htmlstr .= '  <span class="col-2">'; //item value
+                $htmlstr .= '    <textarea name="' . $value['configItem'] . '" data="name" class="siteconfig-textarea">' . $value['configItemValue'] . '</textarea>';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '  </span>';
+            }
             else{ 
                 /*
                  * it's standard text data
