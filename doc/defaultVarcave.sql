@@ -344,7 +344,7 @@ CREATE TABLE `list_coordinates_systems` (
   `js_lib_filename` varchar(64) NOT NULL,
   `php_lib_filename` varchar(64) NOT NULL DEFAULT '0',
   PRIMARY KEY (`indexid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -353,7 +353,7 @@ CREATE TABLE `list_coordinates_systems` (
 
 LOCK TABLES `list_coordinates_systems` WRITE;
 /*!40000 ALTER TABLE `list_coordinates_systems` DISABLE KEYS */;
-INSERT INTO `list_coordinates_systems` VALUES (1,'GEOGRAPHIC','geoconv_longlatdef.js','geoconv_longlatdef.php'),(2,'UTM','geoconv_longlat2utm.js','geoconv_longlat2utm.php');
+INSERT INTO `list_coordinates_systems` VALUES (1,'GEOGRAPHIC','geoconv_longlatdef.js','geoconv_longlatdef.php'),(2,'UTM','geoconv_longlat2utm.js','geoconv_longlat2utm.php'),(3,'LAMBERT3','geoconv_lambert3.js','geoconv_lambert3.php');
 /*!40000 ALTER TABLE `list_coordinates_systems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -599,4 +599,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-05-21 11:03:31
+-- Dump completed on 2020-05-25 23:04:56
