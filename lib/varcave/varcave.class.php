@@ -432,9 +432,6 @@ class Varcave {
 			$qPdostmt = $this->PDO->query($q);
             $datas = $qPdostmt->fetchall(PDO::FETCH_ASSOC);
             
-            echo 'ok';
-            var_dump( $datas );
-            
             foreach ($datas as $key => &$data)
             {
                 //add the localized name  if available
@@ -511,18 +508,19 @@ class Varcave {
      * 
      * @return false on error or empty set array on sucess
      */
-    function getListElement($listname){
+    function getListElements($listname){
         $this->logger->debug(__METHOD__ . ': fetching list of item for list :' . $listname);
         try{
             $q = 'SELECT * FROM ' . $this->dbtableprefix . 'lists WHERE list_name=' . $this->PDO->quote($listname) ;
             $pdoStmt = $this->PDO->query($q);
-            var_dump($pdoStmt->rowCount());
             if ($pdoStmt->rowCount() == 0 )
             {
                 // empty list
                 return false;
             }
-            return $pdoStmt->fetchall(PDO::FETCH_ASSOC);
+            $r = $pdoStmt->fetchall(PDO::FETCH_ASSOC);
+            $this->logger->debug('find this list :' . print_r($r,true) );
+            return $r;
         }
         catch(Exception $e)
         {

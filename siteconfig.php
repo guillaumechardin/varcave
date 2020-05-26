@@ -83,9 +83,6 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
         }
     }
     
-    print_r($newconfigItems);
-
-    
     foreach($newconfigItems as $itemGroup => $data)
 	{
         
@@ -104,10 +101,10 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
             if($value['configItemType'] === 'bool')
             {
                 if( empty($value['configItemValue']) ){
-                    $selected = '';
+                    $checked = '';
                 }
                 else{
-                    $selected = 'checked';
+                    $checked = 'checked';
                 }
 
                 $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
@@ -115,14 +112,31 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
                 $htmlstr .= '  </span>';
                 $htmlstr .= '  <span class="col-2">'; //item value
-                $htmlstr .= '    <input type="checkbox" ' . $selected . ' name="' . $value['configItem'] . '"></input>';
+                $htmlstr .= '    <input type="checkbox" ' . $checked . ' name="' . $value['configItem'] . '"></input>';
                 $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
                 $htmlstr .= '  </span>';
                 
             }
             elseif($value['configItemType'] === 'list')
             {
-                //get a list of available data
+                //get a list of current item. Target data are stored in `lists` table.
+                $listData = $varcave->getListElements($value['configItem']);
+                
+                $htmlstr .= '  <span class="col-1 siteconfig-csstooltip">';
+                $htmlstr .= '    <span class="siteconfig-csstooltiptxt"> ' . constant($L . '::' . $hlp) . '</span>' ; //item help
+                $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
+                $htmlstr .= '  </span>';
+                $htmlstr .= '  <span class="col-2">'; //item value
+                $htmlstr .= '    <select  name="' . $value['configItem'] . '">';
+                
+                foreach($listData as $key => $listItem )
+                {
+                    $htmlstr .= '   <option value="' . $listItem['list_item'] . '" >' . $listItem['list_item'] . '</option>';
+                }
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '    </select ';
+                $htmlstr .= '  </span>';
+                
             }
             elseif($value['configItemType'] === 'dec')
             {

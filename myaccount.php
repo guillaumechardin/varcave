@@ -216,9 +216,10 @@ else
 	 * CHANGE GEOAPI
 	 * Fetch db to get a list of available geoAPI to offer to users
 	 */
-	$qGeoApi = 'SELECT name FROM ' . $users->getTablePrefix() . 'list_geo_api WHERE 1';
+	/*$qGeoApi = 'SELECT name FROM ' . $users->getTablePrefix() . 'list_geo_api WHERE 1';
 	$qGeoStmt = $users->PDO->query($qGeoApi);
-	$geoAPIs = $qGeoStmt->fetchall(PDO::FETCH_ASSOC);
+	$geoAPIs = $qGeoStmt->fetchall(PDO::FETCH_ASSOC);*/
+    $geoAPIs = $users->getListElements('default_geo_api');
 	
 	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_userGeoApi .' </h2>';
 	$htmlstr .= '<select id="geo_api">';
@@ -228,11 +229,11 @@ else
 	{
 		
 		$selected ='';
-		if ($_SESSION['geo_api'] == $API['name'])
+		if ($_SESSION['geo_api'] == $API['list_item'])
 		{
 			$selected = 'selected';
 		}
-		$htmlstr .='<option value="' . $API['name'] . '"' . $selected . '>'. $API['name'] . '</option>';
+		$htmlstr .='<option value="' . $API['list_item'] . '"' . $selected . '>'. $API['list_item'] . '</option>';
 	}
 	$htmlstr .= '</select>';
     
