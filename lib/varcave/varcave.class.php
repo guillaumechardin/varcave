@@ -421,9 +421,20 @@ class Varcave {
 		try
 		{
 			$this->logger->debug(__METHOD__ . ' :get a list of coordinate systems');
-			$q = 'SELECT * FROM ' . $this->dbtableprefix . 'list_coordinates_systems WHERE 1';
+            //$cs_list = $this->getListElement('list_coordinates_systems');
+			$q = ''.
+            'SELECT lists.indexid as indexid,list_name,list_item as name,js_lib_filename,js_lib_filename ' .
+            'FROM  `' . $this->dbtableprefix . 'lists` ' . 
+            'INNER JOIN `' . $this->dbtableprefix . 'list_coordinates_systems` as lcs ' .
+            'ON lists.indexid = lcs.indexid_lists  ' . 
+            'WHERE `list_name` =   "list_coordinates_systems"';
+            
 			$qPdostmt = $this->PDO->query($q);
             $datas = $qPdostmt->fetchall(PDO::FETCH_ASSOC);
+            
+            echo 'ok';
+            var_dump( $datas );
+            
             foreach ($datas as $key => &$data)
             {
                 //add the localized name  if available
@@ -492,6 +503,34 @@ class Varcave {
 		$req = 'SELECT COUNT(*) as caves, SUM(*) FROM ' . $this->dbtableprefix . 'caves WHERE 1;';
 		
 	}
+    
+    /*
+     * getListElement
+     * Get a list of element by fetching table lists
+     * @param $listname list name to query an get elements
+     * 
+     * @return false on error or empty set array on sucess
+     */
+    function getListElement($listname){
+        $this->logger->debug(__METHOD__ . ': fetching list of item for list :' . $listname);
+        try{
+            $q = 'SELECT * FROM ' . $this->dbtableprefix . 'lists WHERE list_name=' . $this->PDO->quote($listname) ;
+            $pdoStmt = $this->PDO->query($q);
+            var_dump($pdoStmt->rowCount());
+            if ($pdoStmt->rowCount() == 0 )
+            {
+                // empty list
+                return false;
+            }
+            return $pdoStmt->fetchall(PDO::FETCH_ASSOC);
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error('Fail to fetch database :' . $e->getMessage() );
+            $this->logger->debug('Full Query: ' . $q);
+            return false;
+        }
+    }
 }
 
    
