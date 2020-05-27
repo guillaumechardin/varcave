@@ -423,7 +423,7 @@ class Varcave {
 			$this->logger->debug(__METHOD__ . ' :get a list of coordinate systems');
             //$cs_list = $this->getListElement('list_coordinates_systems');
 			$q = ''.
-            'SELECT lists.indexid as indexid,list_name,list_item as name,js_lib_filename,js_lib_filename ' .
+            'SELECT lists.indexid as indexid,list_name,list_item as name,js_lib_filename,php_lib_filename ' .
             'FROM  `' . $this->dbtableprefix . 'lists` ' . 
             'INNER JOIN `' . $this->dbtableprefix . 'list_coordinates_systems` as lcs ' .
             'ON lists.indexid = lcs.indexid_lists  ' . 

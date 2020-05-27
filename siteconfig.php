@@ -131,7 +131,12 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 
                 foreach($listData as $key => $listItem )
                 {
-                    $htmlstr .= '   <option value="' . $listItem['list_item'] . '" >' . $listItem['list_item'] . '</option>';
+                    $selected = '';
+                    if ( $value['configItemValue'] == $listItem['list_item'] )
+                    {
+                        $selected = 'selected';
+                    }
+                    $htmlstr .= '   <option value="' . $listItem['list_item'] . '"' .  $selected . '>' . $listItem['list_item'] . ' </option>';
                 }
                 $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
                 $htmlstr .= '    </select ';
