@@ -1328,13 +1328,13 @@ class VarcaveCave extends Varcave
 	{
 		$this->logger->debug(__METHOD__ . ' : build gpx and kml for all caves');
         $searchInput[] = array(
-                        'field' => 'name',
-                        'type' => 'LIKE',
-                        'value' => 'maram',
+                        'field' => 'indexid',
+                        'type' => '!=',
+                        'value' => '',
                 );
         $cols = array('indexid', 'name', 'caveRef', 'guidv4');
 		try{
-            $caves = $this->search($searchInput, 'name', $cols, 'ASC', 0, 10, true);
+            $caves = $this->search($searchInput, 'name', 'ASC', 0, 99999, true);
             $allCaves = $caves[0]->fetchall(PDO::FETCH_ASSOC);
         }
         catch(Exception $e){
@@ -1353,16 +1353,17 @@ class VarcaveCave extends Varcave
         $siteLink->href 					= $this->config['httpdomain'] . '/' . $this->config['httpwebroot'] ;
         $gpx_file->metadata->links[] 	= $siteLink;
     
-        
-        foreach($allCaves as $key => $cavedata)
+        foreach($allCaves as $key => $cave)
         {
+            $cavedata = $this->selectByGUID($cave['guidv4'],false,false);
+            
             $coords = json_decode($cavedata['json_coords']);
             $this->logger->debug('json data :  '. print_r($coords, true) );
             $coordsList = $coords->features[0]->geometry->coordinates;
             
             if(empty($coordsList) )
             {
-                $this->logger->debug('no coords for cave: ' . $cavedata['indexid']);
+                $this->logger->debug('no coords for cave: ' . $cavedata['guidv4']);
                 break;
             }
             
