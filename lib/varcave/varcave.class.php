@@ -565,6 +565,38 @@ class Varcave {
         
         return $issues;
     }
+
+    /*
+     * updateEndUserFields
+     * Update end_user_fields table
+     * @param $id indexid of db row
+     * @param $field Db col name to update
+     * @param $value new value
+     * 
+     * @return true on success false on error
+     */
+    public function updateEndUserFields($id, $field, $value){
+        $this->logger->debug(__METHOD__ . ': Try to update end_user_fields data');
+        if ( empty($id) || empty($field) ) {
+            throw new Exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
+        }
+        
+        //update val       
+        try{
+            $q  = 'UPDATE ' . $this->getTablePrefix() . 'end_user_fields';
+            $q .= ' SET `' . $field . '`=' . $this->PDO->quote($value) ;
+            $q .= ' WHERE indexid =' . $this->PDO->quote($id) ;
+            
+            $this->PDO->query($q);
+            return true;
+        }
+        catch (exception $e){
+            $this->logger->error(__METHOD__ . ': Fail to update db : ' . $e->getmessage() );
+            $this->logger->debug('full query :'. $q);
+            return false;
+        }
+    }
+
 }
 
    

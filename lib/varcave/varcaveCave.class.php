@@ -490,7 +490,7 @@ class VarcaveCave extends Varcave
 			switch ($filter)
 			{
 				case 'ALL':
-					$query = 'SELECT field,show_on_display,show_on_search,type   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE 1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT *  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE 1 ORDER BY sort_order,field ASC';
 					break;
 				case 'ONSEARCH':
 					$query = 'SELECT field,type   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_search=1 ORDER BY sort_order,field ASC';

@@ -272,8 +272,9 @@ class VarcaveHtml extends Varcave {
 		$this->html .= '  </div>';
 		
 		$this->html .= '</div>'; //topmenu div end
-
+        
         //alert bar
+        $issues = $this->getIssues();
         if( $issues && $auth->isSessionValid() &&  $auth->isMember( 'admin') ){
             $issues = $this->getIssues();
             $this->html .= '<div id="alert-bar">';

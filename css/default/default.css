@@ -1240,3 +1240,27 @@ div[id^="ressources-filelink"]
     margin: 0.5em;
     font-size: 1em;
 }
+
+#fieldssettings_table{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1em ;
+    padding: 0;
+    width: 75%;
+}
+
+.fieldssettings_tableCell{
+    box-sizing: border-box;
+    flex-grow: 1;
+    width: 18%;  /* 5 col max */
+    padding: 0.4em;
+    overflow: hidden; /*Or flex might break */
+    list-style: none;
+    border: 1px solid white;
+    background: darkgray;
+}
+
+.fieldssettings_tableCell > input[type=checkbox]{
+    transform: scale(1.5);
+    margin-left: 50%;
+}
