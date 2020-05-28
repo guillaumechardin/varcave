@@ -221,4 +221,30 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
     return $str;
 }
 
+
+    /*
+     * filtering an multi-dim array by pair key/value
+     * ex : 
+     *   $results = array(
+     *      0 => array('key1' => '1', 'key2' => 2, 'key3' => 3),
+     *      1 => array('key1' => '12', 'key2' => 22, 'key3' => 32)
+     *   );
+     *   $nResults = filter_by_value($results, 'key2', '2'); 
+     *   
+     *   will return  : array('key1' => '1', 'key2' => 2, 'key3' => 3)
+     */
+    function filter_by_value ($array, $index, $value){
+        if(is_array($array) && count($array)>0) 
+        {
+            foreach(array_keys($array) as $key){
+                $temp[$key] = $array[$key][$index];
+                
+                if ($temp[$key] == $value){
+                    $newarray[$key] = $array[$key];
+                }
+            }
+          }
+      return $newarray;
+    } 
+
 ?>

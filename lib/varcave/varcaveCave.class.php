@@ -243,29 +243,11 @@ class VarcaveCave extends Varcave
 		foreach($searchInput as $key=>$value)
 		{
 			
-			if($value['field'] == 'coordonnee_lambert_presente')
-            {
-                $req .= ' X_lambert_0 IS NOT NULL AND Y_lambert_0 IS NOT NULL ';
-            }
-            elseif ($value['field'] == 'CO2' | $value['field'] == 'airflow' | 
+			if ($value['field'] == 'CO2' | $value['field'] == 'airflow' | 
                     $value['field'] =='anchors'| $value['field'] =='zone_natura_2000'| 
                     $value['field'] =='noAccess'|$value['field'] =='PNR_SB')
             {
                 $req .= ' ' . $value['field'] . ' = 1 ';
-            }
-            elseif ($value['field'] =='document_lie'|$value['field'] =='document_biospeleo')
-            {
-				$req .= ' ' . $value['field'] . ' != \'\' ';
-			}
-            elseif ($value['field'] == 'photos')
-            {
-				
-				$recherchePhoto = true;
-				$req .= $this->dbtableprefix . ' caves.indexid=' . $this->dbtableprefix . 'photos.indexid_cavites ';
-            }
-            elseif($value['field'] == 'coordonnee_utm_presente')
-            {
-                $req .= ' zone_UTM_0  IS NOT NULL AND zone_UTM_0  != \'\' ';
             }
             elseif ($value['type'] == '=')
             {
@@ -493,13 +475,13 @@ class VarcaveCave extends Varcave
 					$query = 'SELECT *  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE 1 ORDER BY sort_order,field ASC';
 					break;
 				case 'ONSEARCH':
-					$query = 'SELECT field,type   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_search=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_search=1 ORDER BY sort_order,field ASC';
 					break;
 				case 'ONDISPLAY':
-					$query = 'SELECT field,type   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_display=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_display=1 ORDER BY sort_order,field ASC';
 					break;
                 case 'ONEDIT':
-					$query = 'SELECT field,type   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_edit=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_edit=1 ORDER BY sort_order,field ASC';
 					break;
             }
 				

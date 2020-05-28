@@ -233,7 +233,8 @@ class VarcaveHtml extends Varcave {
 			$this->html .= '      <a href="/ressources.php?admin=true">' . L::menu_ressourcesMgmt . '</a>';
             $this->html .= '      <a href="/usermgmt.php?#tab-acl">' . L::menu_aclMgmt . '</a>';
             $this->html .= '      <a href="/newsmgmt.php">' . L::menu_newsMgmt . '</a>';
-			
+			$this->html .= '      <a href="/fieldssettings.php">' . L::menu_fieldsMgmt . '</a>';
+            
 			$this->html .= '    </div>';
 			$this->html .= '  </div>';
 		}

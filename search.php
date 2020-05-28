@@ -169,7 +169,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		/*
 		 * filtering colnames to send back to user. We do not send indexid col
 		 */
-        $searchTableFields = array('guidv4','name','maxDepth','length','town','massif','topographer');
+        $searchTableFields = array('guidv4','name','maxDepth','length','town','topographer');
 		$i18nColNamesFilter = array();
 		
         foreach ($searchTableFields as $key => $field)

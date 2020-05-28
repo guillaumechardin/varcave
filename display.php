@@ -99,18 +99,33 @@ if (isset($_GET['guid']) )
 	}
     //add some icons to cave
 		$htmlstr .= $adminBar;
+        
+        //gpx download link
 		$htmlstr .= '    <div class="fa-3x display-gpx-dwnld" data-guid="' . $caveData['guidv4'] . '">
-		                  <span class="fa-layers fa-fw">
+		                  <span class="fa-layers fa-fw" title="' . L::display_gpxDownload . '">
 							<i class="fas fa-map-marker-alt" ></i>
 							<span class="fa-layers-counter display-gpxicon">GPX</span>
 						  </span>
 						  </div>';
+        //pdf dnwload link
         $htmlstr .= '   <div class="fa-3x display-pdf-dwnld" data-guid="' . $caveData['guidv4'] . '">
-		                  <span class="fas fa-file-pdf">
+		                  <span class="fas fa-file-pdf" title="' . L::display_pdfDownload . '">
 						  </span>
                         </div>';
+        
+        //link to cave files
+        //check if files exists
+        $json = json_decode($caveData['files']);
+        if( count( (array)$json) ){
+        $htmlstr .= '   <div class="fa-3x display-files-dwnld">
+		                  <span href="#filesSection" class="fas fa-file-download" title="' . L::display_gotoFiles . '">
+						  </span>
+                        </div>';
+                        
+        }
+                        
         $htmlstr .= '   <div class="fa-3x display-send-msg" data-guid="' . $caveData['guidv4'] . '">
-		                  <span class="fas fa-envelope"></span>
+		                  <span class="fas fa-envelope" title="' . L::display_updatecave . '"></span>
                           <script>
                             var subject = \'' . L::display_updatecave . ' : '. $caveData['caveRef'] . '\';
                             var newmessage = \'' . L::email_newmessage . '\'
@@ -143,8 +158,12 @@ if (isset($_GET['guid']) )
 		
 		$htmlstr .= '<h2>' .  L::display_caveSpeleometry . '</h2>';
 		$htmlstr .= '<div class="flexContainer flexWrap flexSpaceBetween">';
-
-		foreach($fields as $subArray)
+        
+        //keep only required fields; here is "main" section
+        $results = filter_by_value($fields, 'field_group', 'main'); 
+        
+        
+		foreach($results as $subArray)
 		{
 			if( empty( $caveData[ $subArray['field'] ] ) )
 			{ 
@@ -413,10 +432,18 @@ if (isset($_GET['guid']) )
 		/**
 		 * Search and display Cave documents data
 		 **/
-		$htmlstr .= '<h2>' .  L::display_caveDocuments . '</h2>';
+		$htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
 		$htmlstr .= '<div class="displaySciData">';
 		
-		$documentsFields = array("biologyDocuments", "documents");
+        //keep only required fields; here is "main" section
+		//$documentsFields = array("biologyDocuments", "documents"); //old style
+        $results = filter_by_value($fields, 'field_group', 'files'); 
+        
+        $documentsFields = array();
+        foreach($results as $key => $value){
+            $documentsFields[] = $value['field'];
+        }
+        
 		$i=0; //increment to  columns numbering
 		
 		foreach ($documentsFields as $key => $docField)
