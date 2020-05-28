@@ -529,6 +529,42 @@ class Varcave {
             return false;
         }
     }
+    
+    /*
+     * getIssues
+     * Retrieve a list of know issue of website like debug on,
+     * some dirs that are not rw and so on
+     * 
+     * @return array() of messages  
+     * @return false on error or if no issues found
+     */
+    function getIssues(){
+        $this->logger->debug(__METHOD__ . ' get a list of known issues');
+        
+        // check if debug is on
+        $issues = false; 
+        if ($this->getConfigElement('loglevel') == 0){
+            $issues[] = L::alertIssues_debugSet;
+        }
+        
+        //check log dir
+        if( file_exists($this->ROOT_DIR . '/logs') )
+        {
+            $issues[] = L::alertIssues_defaultLogDir ;
+        }
+        
+        //check some read/write folders
+        $dirList  = array_map('trim', explode(',', $this->getConfigElement('RWfolders') ) ) ;
+        foreach($dirList as $key => $folder){
+            $dir = $this->ROOT_DIR . '/' . $folder ;
+            if( ! is_writable($dir) ){
+                $issues[] = L::alertIssues_roFolder . ' : ' . $dir;
+            }
+        }
+        
+        
+        return $issues;
+    }
 }
 
    

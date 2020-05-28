@@ -419,10 +419,11 @@ if (isset($_GET['guid']) )
 		$documentsFields = array("biologyDocuments", "documents");
 		$i=0; //increment to  columns numbering
 		
-		foreach ($documentsFields as $key=>$docField)
+		foreach ($documentsFields as $key => $docField)
 		{	try
 			{
-				$allfields = $cave->getI18nCaveFieldsName('ALL');
+				//$allfields = $cave->getI18nCaveFieldsName('ALL');
+                $allfields = $fields;
 				$cave->logger->info('Getting biology docs');		 
 				$docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
 			}

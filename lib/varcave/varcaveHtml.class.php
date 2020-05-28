@@ -272,7 +272,25 @@ class VarcaveHtml extends Varcave {
 		$this->html .= '  </div>';
 		
 		$this->html .= '</div>'; //topmenu div end
-		
+
+        //alert bar
+        if( $issues && $auth->isSessionValid() &&  $auth->isMember( 'admin') ){
+            $issues = $this->getIssues();
+            $this->html .= '<div id="alert-bar">';
+            if($issues) {
+                $this->html .= '<div id="alert-title">' . L::alertIssues_requireAttention . '</div>';
+                $this->html .= '<ul id="alert-list">';
+                foreach( $issues as $key => $alert) {
+                    $this->html .= '<li class="alert-' . $key . '">' . $alert . '</li>';
+                }
+                $this->html .= '</ul>';
+                $this->html .=  '<button id ="alert-bar-close">X</button>';
+            }
+            $this->html .= '</div>';
+        }
+        
+        
+
 		$this->html .= '<div class="dbStat">';
 		$this->html .= '  <span>' . L::menu_nbrOfCavesInDB . ' : ';
 		try

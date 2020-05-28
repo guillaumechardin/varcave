@@ -508,7 +508,7 @@ class VarcaveCave extends Varcave
 			 
 			$cols =  array();
 			$i18nFields = $pdoStmt->fetchall(PDO::FETCH_ASSOC);
-			$this->logger->debug('Find this columns translation' . print_r($i18nFields,true));
+			
 			foreach($i18nFields as &$subArr)
 			{
 				//add display name to col definition
@@ -517,17 +517,8 @@ class VarcaveCave extends Varcave
 				}else{
 					$subArr['display_name'] = $subArr['field'];
 				}
-				/*
-				//print_r ($subArr);
-				if (IsNullOrEmptyString($subArr['display_name']) )
-				{
-					
-					$subArr['display_name'] = $subArr['field'];
-					continue;
-				}
-				*/
 			}
-			//	print_r($i18nFields);
+            $this->logger->debug('Find  translated col names : ' . print_r($i18nFields,true));
 			return $i18nFields;
 		}
 		catch (Exception $e)
