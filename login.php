@@ -32,8 +32,20 @@ if ( isset($_GET['logout']) && $_GET['logout']!='' )
 
 if ( isNullOrEmptyArray($_POST) )
 {
-		
-	$htmlstr .= '<div id="userpwdform" >';
+    
+    $htmlstr .= '<form id="login-login-form" action="/login.php" >';
+    $htmlstr .= '<p>' . L::login_loginPrompt . '</p>';
+    $htmlstr .= '  <label for="username">' . L::login_userName . '</label><br>';
+    $htmlstr .= '  <input type="text" id="login-username" name="username"><br>';
+    $htmlstr .= '  <label for="password">' . L::login_userPassword . '</label><br>';
+    $htmlstr .= '  <input type="password" id="login-password" name="password"><br>';
+    $htmlstr .= '  <input type="submit" id="login-submit" name="submit" value="' . L::login_connect . '"><br>';
+    $htmlstr .= '</form>';
+    
+    
+    
+    
+	/*$htmlstr .= '<div id="userpwdform" >';
 	$htmlstr .= '  <p>' . L::login_loginPrompt . '</p>';;
 	$htmlstr .=    L::login_userName . '<br />';
 	$htmlstr .= '  <input type="text" name="username" id="username" />';
@@ -42,7 +54,7 @@ if ( isNullOrEmptyArray($_POST) )
 	$htmlstr .= '  <input type="password" name="password" id="password"/>';
 	$htmlstr .= '  <br />';
 	$htmlstr .= '  <button id="login-doLogin"> OK </button>';
-	$htmlstr .= '</div>';
+	$htmlstr .= '</div>';*/
 	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
 	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
 	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';

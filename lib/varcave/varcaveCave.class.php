@@ -558,6 +558,7 @@ class VarcaveCave extends Varcave
                 // disable coords obfuscation if user is admin
                 if ( $auth->isMember('admin') || $auth->isMember('editors') )
                 {
+                    $this->logger->debug('no obfuscation, user admin or editor');
                     $obfuscateCoords = false;
                 }
                 elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) )
@@ -1256,7 +1257,7 @@ class VarcaveCave extends Varcave
                 $lat = $value[1];
                 $elev = $value[2];
                 
-                $this->logger->debug('add point with : lat:'.$lat.' long:'.$long.'elev:'.$elev );
+                $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
                 $point->name           = $namePrefix . '_' . $i ;
                 $point->latitude       = $lat;
@@ -1272,7 +1273,7 @@ class VarcaveCave extends Varcave
             $lat = $coordsList[0][1];
             $elev = $coordsList[0][2];
             
-            $this->logger->debug('add point with : lat:'.$lat.' long:'.$long.'elev:'.$elev );
+            $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
             $point                 = new Point(Point::WAYPOINT);
             $point->name           = $namePrefix;
             $point->latitude       = $lat;
@@ -1294,16 +1295,16 @@ class VarcaveCave extends Varcave
 	 * @param int $type "gpx" or "kml"
 	 * @param bool $PointNameAsRef  use the cave reference or number 
 	 * as points names instead of cave name
-	 * @param bool $outputAsFile a flag to force a file download 
+     * @param $asUser generate file as user thereby coords *ARE* by default obfuscated if needed
 	 * @return string or false
 	 */
-	public function createAllGPXKML($type, $PointRefAsName = false, $outputAsFile = false)
+	public function createAllGPXKML($type, $PointRefAsName = false, $asUser = true )
 	{
 		$this->logger->debug(__METHOD__ . ' : build gpx and kml for all caves');
         $searchInput[] = array(
-                        'field' => 'indexid',
-                        'type' => '!=',
-                        'value' => '',
+                        'field' => 'guidv4',
+                        'type' => '=',
+                        'value' => '31244280-731d-4d66-9960-c30df1e805c6',
                 );
         $cols = array('indexid', 'name', 'caveRef', 'guidv4');
 		try{
@@ -1325,7 +1326,23 @@ class VarcaveCave extends Varcave
         $siteLink 							= new Link();
         $siteLink->href 					= $this->config['httpdomain'] . '/' . $this->config['httpwebroot'] ;
         $gpx_file->metadata->links[] 	= $siteLink;
-    
+        
+        //impersonnate as simple user if required
+         $this->logger->debug('checkiftrue');
+        if( $asUser == true ){
+            $admin_sessionid = session_id();
+            $admin_SESSION = $_SESSION;
+            $this->logger->debug('saved data :' . $admin_sessionid  . '$_SESSION:'. print_r($admin_SESSION,true) );
+            session_write_close(); //end admin sess
+
+            //Create a dummy session to obuuscate coords for end users
+            session_id('system-session');
+            session_start();
+            $_SESSION = array();
+            $_SESSION['groups'] = 'users';
+            $this->logger->debug('System $_SESSION ('. session_id() .') info :' . print_r($_SESSION,true) );
+        }
+        
         foreach($allCaves as $key => $cave)
         {
             $cavedata = $this->selectByGUID($cave['guidv4'],false,false);
@@ -1365,7 +1382,7 @@ class VarcaveCave extends Varcave
                     $lat = $value[1];
                     $elev = $value[2];
                     
-                    $this->logger->debug('add point with : lat:'.$lat.' long:'.$long.'elev:'.$elev );
+                    $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                     $point                 = new Point(Point::WAYPOINT);
                     $point->name           = $pointName . ' [' . $i . ']' ;
                     $point->latitude       = $lat;
@@ -1383,7 +1400,7 @@ class VarcaveCave extends Varcave
                 $lat = $coordsList[0][1];
                 $elev = $coordsList[0][2];
                 
-                $this->logger->debug('add point with : lat:'.$lat.' long:'.$long.'elev:'.$elev );
+                $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
                 $point->name           = $pointName ;
                 $point->latitude       = $lat;
@@ -1395,9 +1412,19 @@ class VarcaveCave extends Varcave
             }
 		}
         
+        //clean impersonation
+        if( $asUser ){
+            //delete dummy session
+            session_destroy();
+            //restore admin session settings
+            session_id($admin_sessionid);
+            session_start();
+            $_SESSION = $admin_SESSION;
+            $this->logger->debug('reload admin session :' . session_id(). ' $_SESSION:' . print_r($_SESSION,true) );
+        }
+
         $this->logger->debug('gpx build complete');
         return $gpx_file->toXML()->saveXML();
-		
 	}
 	
 }    

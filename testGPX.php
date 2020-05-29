@@ -4,7 +4,7 @@ include_once('lib/varcave/varcaveCave.class.php');
 
 $cave = new varcaveCave();
 
-$gpxdata = $cave->createAllGPXKML('gpx', FALSE, false);
+$gpxdata = $cave->createAllGPXKML('gpx');
 
 header('Content-Type: application/gpx+xml');
 //clean cav name susbtr is here to remove the 6last letter of dummy file extension and makes cleanStringFilename works

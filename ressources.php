@@ -51,6 +51,12 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 		$htmlstr .= '    <button class="pure-button" disabled id="ressources-savefile">' . L::save . '</button>';
 		$htmlstr .= '  </div>';
 		$htmlstr .= '</div>';
+        
+        $logger->debug('adding generate all gpx option');
+        $htmlstr .= '<div id="ressources-genGpx-container">';
+        $htmlstr .= '  <h2 id="ressources-title-genGPX">' . L::ressources_titleGenGPX .'</h2>';
+        $htmlstr .= '  <button id="ressources-genGPX">' . L::ressources_genGPX . '</button>';
+        $htmlstr .= '</div>';
 	}
 	
 	$htmlstr .= '<div id="available-ressources">';
@@ -207,9 +213,27 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 			$q = 'DELETE FROM ' . $html->getTablePrefix() . 'files_ressources WHERE indexid=' . $html->PDO->quote($_POST['id']);
 			$delPdoStmt = $html->PDO->query($q);
 		}
-		elseif($_POST['action'] == 'update')
+		elseif($_POST['action'] == 'buildgpx')
 		{
-			
+            try{
+                $cave = new varcaveCave();
+                $gpxdata = $cave->createAllGPXKML('gpx');
+                $suffix = substr( md5($gpxdata) , 0, 10) ;
+                if( !file_put_contents ( './ressources/gpx_'.$suffix . '.gpx', $gpxdata) ){
+                    throw new exception('file upload error');
+                }
+            }catch( exception $e)
+            {
+                echo 'erreyr';exit();
+            }
+            
+			$return = array(
+                'title' => L::edit,
+                'stateStr'=> "build complete",
+            );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+            jsonWrite(json_encode($return), $httpError, $httpErrorStr);
 		}
 		else
 		{
@@ -217,13 +241,13 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 		}
 		//prepare data feedback
 		$return = array(
-		'title' => L::edit,
-		'stateStr'=> L::ressources_fileaddedsuccess,
-		'newid' => $lastinsertid,
-		'newfile' => $httpFile, 
-		'actionType' => $_POST['action'],
-		'faIcon' => $faIcon,
-		'deleted' => 'true',
+            'title' => L::edit,
+            'stateStr'=> L::ressources_fileaddedsuccess,
+            'newid' => $lastinsertid,
+            'newfile' => $httpFile, 
+            'actionType' => $_POST['action'],
+            'faIcon' => $faIcon,
+            'deleted' => 'true',
 		);
 		$httpError = 200;
 		$httpErrorStr = ' OK';

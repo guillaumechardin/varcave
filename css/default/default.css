@@ -174,9 +174,20 @@ h2 {
 	
 }
 
-#userpwdform {
+#login-login-form {
 	text-align: center;
 	margin : auto;
+}
+
+#login-login-form > input {
+    padding: 0.3em;
+    font-size: 1em;
+    margin: 0 0 0.5em 0;
+}
+
+#login-login-form > label {
+    display: inline-block;
+    margin: 0 0 0.3em 0;
 }
 
 .topmenu > .rigthy 	
@@ -1086,9 +1097,9 @@ div[id^="ressources-filelink"]
 	max-width:max-content;
 }
 
-.ressources-upload
+#ressources-upload
 {
-	margin-bottom:1em;
+	margin-bottom: 1.5em;
 }
 
 #stats-table-container
@@ -1266,3 +1277,4 @@ div[id^="ressources-filelink"]
     transform: scale(1.5);
     margin-left: 50%;
 }
+
