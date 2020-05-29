@@ -558,7 +558,7 @@ class VarcaveCave extends Varcave
                 // disable coords obfuscation if user is admin
                 if ( $auth->isMember('admin') || $auth->isMember('editors') )
                 {
-                    $this->logger->debug('no obfuscation, user admin or editor');
+                    $this->logger->debug('  no obfuscation, user admin or editor');
                     $obfuscateCoords = false;
                 }
                 elseif (  ($result['random_coordinates']  ||  $forceRandomCoords ) )
@@ -569,8 +569,8 @@ class VarcaveCave extends Varcave
                 elseif( !isset($_SESSION['isauth']) )
                 {
                     $this->logger->debug('  anon user, check if global config is set for obfuscation');
-                    if( $this->getconfigelement('anon_get_obfsuc_coords') )
-                    {
+                    if( $this->getconfigelement('anon_get_obfsuc_coords') ) //verify if global config is set
+                    {                                                       //to obfuscate coords to anonymous users
                         $obfuscateCoords = true ;
                     }
                     else
@@ -1302,9 +1302,9 @@ class VarcaveCave extends Varcave
 	{
 		$this->logger->debug(__METHOD__ . ' : build gpx and kml for all caves');
         $searchInput[] = array(
-                        'field' => 'guidv4',
-                        'type' => '=',
-                        'value' => '31244280-731d-4d66-9960-c30df1e805c6',
+                        'field' => 'indexid',
+                        'type' => '!=',
+                        'value' => '',
                 );
         $cols = array('indexid', 'name', 'caveRef', 'guidv4');
 		try{
@@ -1328,18 +1328,18 @@ class VarcaveCave extends Varcave
         $gpx_file->metadata->links[] 	= $siteLink;
         
         //impersonnate as simple user if required
-         $this->logger->debug('checkiftrue');
         if( $asUser == true ){
             $admin_sessionid = session_id();
             $admin_SESSION = $_SESSION;
             $this->logger->debug('saved data :' . $admin_sessionid  . '$_SESSION:'. print_r($admin_SESSION,true) );
             session_write_close(); //end admin sess
 
-            //Create a dummy session to obuuscate coords for end users
+            //Create a dummy session to obfuscate coords for end users
             session_id('system-session');
             session_start();
             $_SESSION = array();
             $_SESSION['groups'] = 'users';
+            $_SESSION['isauth'] = 1;
             $this->logger->debug('System $_SESSION ('. session_id() .') info :' . print_r($_SESSION,true) );
         }
         
@@ -1351,10 +1351,10 @@ class VarcaveCave extends Varcave
             $this->logger->debug('json data :  '. print_r($coords, true) );
             $coordsList = $coords->features[0]->geometry->coordinates;
             
-            if(empty($coordsList) )
+            if(empty( (array)$coordsList ) )
             {
                 $this->logger->debug('no coords for cave: ' . $cavedata['guidv4']);
-                break;
+                continue;
             }
             
             

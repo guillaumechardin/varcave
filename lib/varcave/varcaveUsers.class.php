@@ -10,8 +10,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return mixed the indexid of last created user on success, throw error on  error
 	 */
-    public function adduser($userSettings)
-	{
+    public function adduser($userSettings){
 		$this->logger->info(__METHOD__ . ' : Adding new user');
 		$this->logger->debug('settings : ' . print_r($userSettings,true) );
 		try
@@ -131,8 +130,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return mixed the indexid of last created user on success, throw error on  error
 	 */
-    public function addGroup($groupSettings)
-	{
+    public function addGroup($groupSettings){
 		$this->logger->info(__METHOD__ . ' : Adding new group');
 		$this->logger->debug('settings : ' . print_r($groupSettings,true) );
 		try
@@ -191,8 +189,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return bool true on success, throw exception on  error
 	 */
-	public function deluser($id)
-	{
+	public function deluser($id){
 		$this->logger->info(__METHOD__ . ': Deleting user  : ' . $id);
 		try
 		{
@@ -218,8 +215,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return bool true on success, throw exception on  error
 	 */
-	public function delGroup($gid)
-	{
+	public function delGroup($gid){
 		$this->logger->info(__METHOD__ . ': Deleting user  : ' . $gid);
 		try
 		{
@@ -247,8 +243,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return bool true on success, false on  error
 	 */
-	public function changeUserPwd($sha256,$uid)
-	{
+	public function changeUserPwd($sha256,$uid){
 		$this->logger->info('Trying to update password for uid: ' . $uid);
 		
 		try
@@ -282,8 +277,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return bool  true on success,false on  error
 	 */
-	public function changeUserPref($prefName, $prefValue, $id)
-	{
+	public function changeUserPref($prefName, $prefValue, $id){
 		$this->logger->info('Trying to update ' . $prefName . '  for user: ' . $id);
 		try
 		{
@@ -325,8 +319,7 @@ class VarcaveUsers extends Varcave
 	 *
 	 * @return mixed  a string containing theme name on success,false on  error
 	 */
-	public function getUserTheme($id)
-	{
+	public function getUserTheme($id){
 		$this->logger->info('Trying to get theme  for user: ' . $id);
 		try
 		{
@@ -353,8 +346,7 @@ class VarcaveUsers extends Varcave
 	 * @param : $assocArray if true return a non associative array (needed sometimes for json conversion)
 	 * @return : array on success, throw exeption on error
 	 */
-	function getUsersList($assocArray = true)
-	{
+	function getUsersList($assocArray = true){
 		try
 		{
 			$this->logger->info(__METHOD__. ' : Starting to fetch a list of user');
@@ -386,8 +378,7 @@ class VarcaveUsers extends Varcave
 	 * @param : $assocArray if true return a non associative array (needed sometimes for json conversion)
 	 * @return : array on success, throw exeption on error
 	 */
-	function getGroupsList($assocArray = true)
-	{
+	function getGroupsList($assocArray = true){
 		try
 		{
 			$this->logger->info(__METHOD__. ' : Starting to fetch a list of groups');
@@ -419,8 +410,7 @@ class VarcaveUsers extends Varcave
 	 * @param : $uid : user indexid into db
 	 * @return : array on success, false on error
 	 */
-	function getUserDetails($uid)
-	{
+	function getUserDetails($uid){
 		$this->logger->info(__METHOD__ . ' : Trying to fetch user details from DB');
 		$q = 'SELECT * FROM ' . $this->getTablePrefix() . 'users WHERE indexid = ' . $this->PDO->quote($uid);
 		$userPdoStmt = $this->PDO->query($q);
@@ -453,8 +443,7 @@ class VarcaveUsers extends Varcave
 	 * @param : $gid : group indexid into db
 	 * @return : array on success, false on error
 	 */
-	function getGroupDetails($gid)
-	{
+	function getGroupDetails($gid){
 		$this->logger->info(__METHOD__ . ' : Trying to fetch group details from DB');
 		$q = 'SELECT indexid as gid,groupName,description FROM ' . $this->getTablePrefix() . 'groups WHERE indexid = ' . $this->PDO->quote($gid);
 		$userPdoStmt = $this->PDO->query($q);
@@ -478,8 +467,7 @@ class VarcaveUsers extends Varcave
      * @param $value value to be updated
      * @return true on success, throw exception on failure
      */
-    function setUserProp($uid, $item, $value)
-    {
+    function setUserProp($uid, $item, $value){
         $this->logger->info(__METHOD__ . ' : updating user detail for ['. $uid .']');
 		try
 		{
@@ -523,8 +511,7 @@ class VarcaveUsers extends Varcave
      * @param $value value to be updated
      * @return true on success, throw exception on failure
      */
-    function setGroupProp($gid, $item, $value)
-    {
+    function setGroupProp($gid, $item, $value){
         $this->logger->info(__METHOD__ . ' : updating user detail for ['. $gid .']');
 		try
 		{

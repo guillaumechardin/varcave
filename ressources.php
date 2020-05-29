@@ -218,21 +218,42 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
             try{
                 $cave = new varcaveCave();
                 $gpxdata = $cave->createAllGPXKML('gpx');
-                $suffix = substr( md5($gpxdata) , 0, 10) ;
-                if( !file_put_contents ( './ressources/gpx_'.$suffix . '.gpx', $gpxdata) ){
+                $date = date_create();
+                $prefix = date_format($date, 'Y-m-d_His');
+                $filepath = './ressources/'. $prefix . '_coords.gpx';
+                if( !file_put_contents ( $filepath, $gpxdata) ){
+                    $logger->debug('Unable to create file in ressources dir');
                     throw new exception('file upload error');
                 }
-            }catch( exception $e)
-            {
-                echo 'erreyr';exit();
+                
+                //update Database
+                $lastInsert = $cave->addFilesRessources(L::ressources_gpxFile, 'SIG', $filepath, L::ressources_gpxCavesFile, $_SESSION['uid'], '');
+                
+                //send back to browser OK state
+                $return = array(
+                    'title' => L::edit,
+                    'stateStr'=> "build complete",
+                    'newid' => $lastInsert,
+                    'faIcon' => 'fas fa-map-marked-alt',
+                    'actionType' => 'add',
+                    'display_name' => L::ressources_gpxFile,
+                    'description' => L::ressources_gpxCavesFile,
+                    'groupName' => 'SIG',
+                    'newfile' => $filepath,
+                    
+                );
+                $httpError = 200;
+                $httpErrorStr = ' OK';
+            }
+            catch( exception $e){
+                $return = array(
+                    'title' => L::errors_ERROR,
+                    'stateStr'=> $e->getmessage() ,
+                );
+                $httpError = 500;
+                $httpErrorStr = 'Internal error';
             }
             
-			$return = array(
-                'title' => L::edit,
-                'stateStr'=> "build complete",
-            );
-            $httpError = 200;
-            $httpErrorStr = ' OK';
             jsonWrite(json_encode($return), $httpError, $httpErrorStr);
 		}
 		else

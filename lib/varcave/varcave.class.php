@@ -52,8 +52,7 @@ class Varcave {
     protected $startInvoke = 0;
     
     
-    function __construct() 
-    {
+    function __construct(){
         $this->startInvoke = microtime(true);
         #loading local configuration
 		//setting temporary logger interface because defined bd loglevel
@@ -122,8 +121,7 @@ class Varcave {
     }
     
 	#get current configuration from database
-	private function retreiveConfig()
-	{
+	private function retreiveConfig(){
 		try
 		{
 			
@@ -200,8 +198,7 @@ class Varcave {
 	* message to user.
 	* verbose logs for admin are handled by $this->logger().
 	**/
-	public function setErrorMsg($context, $title, $msg)
-	{
+	public function setErrorMsg($context, $title, $msg){
 		$datetime = time();
 		$errCntr = $this->errorMsgCntr;
 		$this->errorMsg[$this->errorMsgCntr]['context'] = $context;
@@ -212,8 +209,7 @@ class Varcave {
 		return $errCntr;
 	}
 	
-	public function getErrorMsg($asString = false)
-	{
+	public function getErrorMsg($asString = false){
 		if ( isNullOrEmptyArray($this->errorMsg) )
 		{
 			$this->errorMsg = array("WARNING" => 'No error message', );
@@ -228,16 +224,14 @@ class Varcave {
 	/*
 	 * get ROOT_DIR
 	 */
-	 public function getROOT_DIR()
-	 {
+	 public function getROOT_DIR(){
 			return $this->ROOT_DIR ;
 	 }
 	
 	/*
 	 * getter for bdtableprefix
 	 */
-	public function getTablePrefix()
-	{
+	public function getTablePrefix(){
 		return $this->dbtableprefix;
 	}
 	
@@ -247,8 +241,7 @@ class Varcave {
      * Retrieve loglevel from DB
      * and translate it to an understandable value.
      */
-    public function getLogLevel()
-    {
+    public function getLogLevel(){
        $level =  $this->getConfigElement('loglevel');
        
        switch($level)
@@ -282,8 +275,7 @@ class Varcave {
 	 * 		   on error or failure :  throw exception
      * 
      */
-	public function fetchConfigSettings($getAll = true, $fullInfo = false)
-	{
+	public function fetchConfigSettings($getAll = true, $fullInfo = false){
 		$this->logger->debug(__METHOD__ . ' : Getting config settings');
 		$this->logger->debug('getAll:'.$getAll.'|fullInfo:'.$fullInfo);
 		if($getAll == true)
@@ -329,8 +321,7 @@ class Varcave {
 	 * 		   on error or failure :  throw exception
      * 
 	 */						
-	public function setConfigSettings($itemID, $value)
-	{
+	public function setConfigSettings($itemID, $value){
 		$this->logger->info(__METHOD__ . ' : updating config item [' . $itemID . ']' );
 		$q = 'UPDATE ' . $this->dbtableprefix . 'config SET configItemValue =' . $this->PDO->quote($value) . ' WHERE configIndexid=' . $this->PDO->quote($itemID);
 		
@@ -356,8 +347,7 @@ class Varcave {
 	 *          if element not found: false
 	 */
 	
-	public function getConfigElement($element)
-	{
+	public function getConfigElement($element){
 		if ( isset ($element) )
 		{
 			return $this->config[$element];
@@ -366,20 +356,20 @@ class Varcave {
 	}
 	
 	//get all config elements as array
-	public function getAllConfigElements()
-	{
+	public function getAllConfigElements(){
 		return $this->allConfigInfo;
 	}
 	
 	/*
 	 * Get a list of files from `ressources` table 
-	 * @return  array on sucess, throw exeption on failure
+	 * @param $userGroupArray [currentlyNotSupported] an array of user group membership acceding ressource
+     * @return  array on sucess, throw exeption on failure
+     * 
 	 */
-	function getFilesRessources()
-	{
+	function getFilesRessources($userGroupsArray = ''){
 		$this->logger->info(__METHOD__ . ' : fetch a list of files ressources');
 		try
-		{
+		{            
 			//generate 	csv content 
 			$q = 'SELECT 
 					
@@ -409,6 +399,45 @@ class Varcave {
 		}
 		
 	}
+    
+    /*
+     * addFilesRessources add a file to table ressource that can be
+     * later displayed in ressources.php
+     * @param $display_name 
+     * @param $display_group
+     * @param $filepath
+     * @param $description
+     * @param $creatorID
+     * @param $accessRights [not supported]
+     * 
+     * @return new element indexid from DB. Throw exception on failure  
+     * 
+     */
+    function addFilesRessources($display_name,$display_group,$filepath,$description,$creatorID,$accessRights = ''){
+        $this->logger->debug(__METHOD__ . ': adding file to ressources');
+        try{
+            $q = 'INSERT INTO ' . $this->getTablePrefix() . 'files_ressources
+                (display_name,display_group,filepath,description,creator,access_rights) 
+                VALUES(' . 
+                $this->PDO->quote($display_name)  . ',' . 
+                $this->PDO->quote($display_group) . ',' .
+                $this->PDO->quote($filepath)      . ',' .
+                $this->PDO->quote($description)   . ',' .
+                $this->PDO->quote($creatorID)     . ',' . 
+                $this->PDO->quote($accessRights)  . ')';
+                
+            $this->PDO->query($q);
+            $lastid = $this->PDO->lastinsertid();
+            $this->logger->debug('File added successfully to db, lastid :' . $lastid);
+            return $lastid;
+        }
+        catch(exception $e){
+            $this->logger->error('Fail to update DB : ' . $e->getmessage() );
+            $this->logger->debug('Full query : ' . $q);
+            throw new exception(L::errors_databaseUpdateFail);
+        }
+				
+    }
 
 	/*
 	 * get a list of available coordinate systems

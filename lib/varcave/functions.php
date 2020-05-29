@@ -190,6 +190,11 @@ function getFaIcon($fileExt, $faStyle = 'fas')
 		case 'jpg':
 			return $faStyle . ' fa-file-image';
 			break;
+            
+        case 'gpx':
+        case 'kml':
+			return $faStyle . ' fa-map-marked-alt';
+			break;
 			
 		default:
 			return $faStyle . ' fa-file';

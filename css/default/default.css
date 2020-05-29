@@ -1097,9 +1097,11 @@ div[id^="ressources-filelink"]
 	max-width:max-content;
 }
 
-#ressources-upload
+#ressources-upload,
+#ressources-genGpx-container,
+#available-ressources
 {
-	margin-bottom: 1.5em;
+	margin: 0 0 1.5em 1.5em;
 }
 
 #stats-table-container
