@@ -84,7 +84,7 @@ class Varcave {
 		{	
 			$this->logger->debug("No session exist for current browser. Creating or resuming one");
 			//set sessions directory
-			session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
+			//session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
 			session_start();
 
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );

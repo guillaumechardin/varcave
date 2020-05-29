@@ -27,7 +27,7 @@ class VarcaveAuth extends Varcave
 			$this->logout();
 			
 			//restart a new session because it has been deleted above by logout()
-			session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
+			//session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
 			session_start();
 			
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );
@@ -361,7 +361,8 @@ class VarcaveAuth extends Varcave
 	 * @param $uid the corresponding uid  the session file to make sure we do not update another one
 	 * @param $item session var to update
 	 * @param $value value of item
-	 * @return true on success,  throw exception on failure
+	 * @return true on success, false if unable to change users settings (usualy because session file
+     * do not exists any more on server), throw exception on failure
 	 */
 	public function updateSessionVar($uid, $item, $value)
 	{
@@ -371,33 +372,28 @@ class VarcaveAuth extends Varcave
 		$users = new varcaveUsers();
 		$userInfos = $users->getUserDetails($uid);
 		
-		//check session file existence
-		$sessionFile = __DIR__ . '/../../' . $this->config['sessiondir'] . '/sess_' . $userInfos['last_php_session'];
-		if( !file_exists( $sessionFile ) )
-		{
-			$this->logger->info('unable to find session file:[' . $sessionFile . ']. Cannot update dynamicaly.');
-			return true;
-		}
-		
-		//backup session before importing user's one
+		//backup session before importing user's one 
 		$admin_sessionid = session_id();
 		$admin_SESSION = $_SESSION;
+        $this->logger->debug('saved data :' . $admin_sessionid  . '$_SESSION:'. print_r($admin_SESSION,true) );
 		session_write_close(); //end admin sess
 
 		//load user session
 		session_id( $userInfos['last_php_session'] );
-		session_start(); 
+		session_start();
+        
 		$this->logger->debug('Imported SESSION info :' . print_r($_SESSION,true) );
 		$this->logger->debug('settings ['. $item .'] with value ['. $userInfos[$item] .']' );
 		$_SESSION[$item] = $userInfos[$item];
-		$this->logger->debug('modified SESSION info :' . print_r($_SESSION,true) );
-		session_write_close();
-		//close user session
+		$this->logger->debug('modified $SESSION data [' . $userInfos['last_php_session'] . '] info :' . print_r($_SESSION,true) );
+        session_write_close();
+        //close user session
 		
 		//reload admin session
 		session_id($admin_sessionid);
 		session_start();
 		$_SESSION = $admin_SESSION;
+        $this->logger->debug('reload admin session :' . session_id(). ' $_SESSION:' . print_r($_SESSION,true) );
 		return true;
 		
 	}
