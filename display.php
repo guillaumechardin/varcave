@@ -432,65 +432,72 @@ if (isset($_GET['guid']) )
 		/**
 		 * Search and display Cave documents data
 		 **/
-		$htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
-		$htmlstr .= '<div class="displaySciData">';
-		
-        //keep only required fields; here is "main" section
-		//$documentsFields = array("biologyDocuments", "documents"); //old style
-        $results = filter_by_value($fields, 'field_group', 'files'); 
         
+        //keep only required fields; here is "files" section
+        $results = filter_by_value($fields, 'field_group', 'files'); 
         $documentsFields = array();
+        
+        //detect if documents exists for cave and show section if some doc founds
+        $isDoc = false;
         foreach($results as $key => $value){
             $documentsFields[] = $value['field'];
+            if( $cave->documentExists($caveData['files'], $value['field']) ) {
+                $isDoc =true;;
+            }
         }
         
-		$i=0; //increment to  columns numbering
-		
-		foreach ($documentsFields as $key => $docField)
-		{	try
-			{
-				//$allfields = $cave->getI18nCaveFieldsName('ALL');
-                $allfields = $fields;
-				$cave->logger->info('Getting biology docs');		 
-				$docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
-			}
-			catch (exception $e)
-			{
-				$logger->error('display.php : failed to get documents : [' . $docField . '] for caveid : ' . $caveData['indexid']);
-			}
-			
-			if ( ! isNullOrEmptyArray($docsArr) )
-			{
-				//find key in array of localized fields name for current field
-				$i18n_key = array_search($docField, array_column($allfields, 'field'));
-				
-				//1st col or thumb (todo :) )
-				$htmlstr .= '<div class="displaySciDataCol-'. $i . '">';
-				
-				$htmlstr .= '  <h3>' . $allfields[$i18n_key]['display_name'] . '</h3>';
-				$htmlstr .= '<ul class="fa-ul">';
-				
-				//get file extension to get correct icon
-				foreach ($docsArr as $key => $doc)
-				{
-					$fileType = pathinfo($doc);
-					$icon = '<i class="' . getFaIcon($fileType['extension'], 'far') . ' fa-2x"></i>';
-					$htmlstr .= '<li>' . $icon . ' <a href="' . $doc . '"> ' . basename($doc). '</a></li>';
+        if($isDoc){
+            $htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
+            $htmlstr .= '<div class="displaySciData">';
+            
+            $i=0; //increment to  columns numbering
+            foreach ($documentsFields as $key => $docField)
+            {	try
+                {
+                    //$allfields = $cave->getI18nCaveFieldsName('ALL');
+                    $allfields = $fields;
+                    
+                    $cave->logger->info('Getting biology docs');		 
+                    $docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
+                   
+                }
+                catch (exception $e)
+                {
+                    $logger->error('display.php : failed to get documents : [' . $docField . '] for caveid : ' . $caveData['indexid']);
+                }
+                
+                if ( ! isNullOrEmptyArray($docsArr) ){
+                    //find key in array of localized fields name for current field
+                    $i18n_key = array_search($docField, array_column($allfields, 'field'));
+                    
+                    //1st col or thumb (todo :) )
+                    $htmlstr .= '<div class="displaySciDataCol-'. $i . '">';
+                    
+                    $htmlstr .= '  <h3>' . $allfields[$i18n_key]['display_name'] . '</h3>';
+                    $htmlstr .= '<ul class="fa-ul">';
+                    
+                    //get file extension to get correct icon
+                    foreach ($docsArr as $key => $doc)
+                    {
+                        $fileType = pathinfo($doc);
+                        $icon = '<i class="' . getFaIcon($fileType['extension'], 'far') . ' fa-2x"></i>';
+                        $htmlstr .= '<li>' . $icon . ' <a href="' . $doc . '"> ' . basename($doc). '</a></li>';
 
-				}
-				$htmlstr .= '</ul>';
-			}
-			else
-			{
-				//$htmlstr .= L::display_noBioDocData;
-			}
-			$htmlstr .= '</div>'; //displaySciDataCol
-			$i++;
-		}
-		
-		
-		$htmlstr .= '</div>'; //displaySciData
-        
+                    }
+                    $htmlstr .= '</ul>';
+                    $htmlstr .= '</div>'; //displaySciDataCol
+                }
+                else
+                {
+                    //$htmlstr .= L::display_noBioDocData;
+                }
+                
+                $i++;
+            }
+            
+            
+            $htmlstr .= '</div>'; //displaySciData
+        }
         /**
 		 * Cave change history
 		 **/

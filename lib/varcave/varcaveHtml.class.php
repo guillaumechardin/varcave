@@ -90,39 +90,33 @@ class VarcaveHtml extends Varcave {
 	
 	private function buildFooter()
 	{
+        $version = $this->version();
+
 		$this->html .= '</div>'; // end div userPageContent
 		$this->html .= '<div id="footer">';
-        $this->html .= '  <div class="footer_text_box">';
-        $this->html .= '    <a href="https://github.com/guillaumechardin/varcave/">Varcave ' . Varcave::version . '</a> ';
+        $this->html .= '  <div class="">';
+        $this->html .= '    <a href="https://github.com/guillaumechardin/varcave/">' . L::general_poweredBy. ' Varcave</a> ';
+        $this->html .= '    <span>' . $version['pgmversion'] . '/'. $version['dbversion'] . '</span>';
+
+        $this->html .= '  </div>';
+        $this->html .= '  <div class="">';
 		$this->html .=  $this->config['footerMsg'];
         $this->html .= '  </div>';
-        $this->html .= '  <div class="footer_text_box">';
-        $this->html .= '    <a href="http://www.getfirefox.com">';
-        $this->html .= '    <img class="image_aligne_droite" src="/img/FF3b80x15_square.gif" >';
-        $this->html .= '    </a>';
-        $this->html .= '    <a href="http://www.cdspeleo83.fr">';
-        $this->html .= '    <img class="image_aligne_droite" src="/img/logo_cds83.png" align="right">';
-        $this->html .= '    </a>';
-        $this->html .= '  </div>';
-		$this->html .= '  <div class="footer_text_box">';
+        
+		$this->html .= '  <div class="">';
 		$this->html .= '    <a href="contact.php">' . L::contactus . '</a>';
 		$this->html .= '  </div>';
-		$this->html .= '</div>';
-		
-		if ($this->config['loglevel'] == 0)
-		{
-            // old style debug info
-			/*$this->html .=  '<div id="debugInfo">DEBUG INFO';            
+        
+        if ($this->config['loglevel'] == 0){
+            $this->html .= '  <div class="">';
             $time = (microtime(true) - $this->startInvoke)*1000 ;
-            $this->html .=  '  <div>Page loaded in : [' . round($time,2) . 'ms]</div>';
-			$this->html .=  '  <PRE>';
-			$this->html .=       print_r($this->getErrorMsg(),true);
-			$this->html .=  '  </PRE>';
-			$this->html .=  '</div>';
-             * */
-            
-			
+            $this->html .= '[Exec:' . round($time,2) . 'ms]';
+            $this->html .= '  </div>';
 		}
+        
+		$this->html .= '</div>'; //end footer div
+		
+		
     
 		$this->html .= '</body>';
 		$this->html .= '</html>';

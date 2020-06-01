@@ -625,6 +625,33 @@ class Varcave {
             return false;
         }
     }
+    
+    
+    /*
+     * version
+     * get current database and php application version
+     * 
+     * @return an array describing current versions or false on error
+     */
+    public function version(){
+        try{
+            $qdbv = 'SELECT * FROM dbversion WHERE id = 1';
+            $rPDOStmt = $this->PDO->query($qdbv);
+            $dbver = $rPDOStmt->fetch(PDO::FETCH_ASSOC);
+            $r = array(
+                    'dbversion' => $dbver['major_version'] . '.' .
+                                   $dbver['minor_version'] . '.' .
+                                   $dbver['patch_version'],
+                    'pgmversion' => varcave::version,
+                    );
+            return $r;
+        }
+        catch(Exception $e){
+            $this->logger->error(__METHOD__ . ': Fail to get version info : ' . $e->getmessage() );
+            $this->logger->debug('full query :'. $qdbv);
+            return false;
+        }
+    }
 
 }
 

@@ -20,14 +20,12 @@ h2 {
 
 #footer {
 	background-color: #333;
-	padding: 0.2em;
-    border: 0.1em solid;
+	padding: 0.5em;
 	color: white;
-	flex-direction: row;
 	display:flex;
-	
-	justify-content: space-between;
+	justify-content: space-around;
 	align-items: : center;
+    margin: 1em 0 2em 0;
 }
 
 #footer a {
@@ -122,11 +120,6 @@ h2 {
 .flexSpaceBetween
 {
 	justify-content:space-between;
-	
-}
-
-.footer_text_box{
-	
 	
 }
 

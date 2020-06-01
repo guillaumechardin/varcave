@@ -851,7 +851,7 @@ class VarcaveCave extends Varcave
 	 * @return on success  : array of data
 	 * 		   on error  :  throw exception
      */
-    function getCaveFileList($guidv4 = null, $varObject)
+    function getCaveFileList($guidv4, $varObject)
 	{
 		$this->logger->debug(__METHOD__ . ' : Enumerating files for json object content :['. $varObject . ']');
 		$cave = $this->selectByGuid($guidv4);
@@ -1426,6 +1426,34 @@ class VarcaveCave extends Varcave
         $this->logger->debug('gpx build complete');
         return $gpx_file->toXML()->saveXML();
 	}
+    
+    /*
+     * documentExists
+     * Check onto a cave if some document(s) are registered. Test existance of any
+     * information into `files`.docType column 
+     * @param caveDocs cave "files" as an json string fetched from selectByGuid()
+     * @param docType document type for existence check (can be biodoc, documents, etc.).
+     * 
+     * @result true if some document type are registered, false if nothing is registered
+     */
+    public function documentExists($caveDocs, $docType){
+        $this->logger->debug(__METHOD__ . ': check if documents are registered for cave');
+        
+        $filesObj = json_decode($caveDocs);
+        if( ! isset($filesObj->$docType) ){
+                $this->logger->debug('Files document group DO NOT exists');
+                return false;
+        }
+        elseif( empty( (array)$filesObj->$docType) ){  //cast to array stdObject
+            $this->logger->debug('Files document group EMPTY');
+            return false;
+        }
+        else{
+            $this->logger->debug('Files document exists');
+            return true;
+        }
+            
+    }
 	
 }    
 ?>
