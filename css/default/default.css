@@ -948,8 +948,8 @@ div[id^="edit-imgEl"]
 #usermgmt-dialogFormAddUser > fieldset input,
 #usermgmt-dialogFormGroup > fieldset input,
 #usermgmt-dialogFormAddGroup > fieldset input,
-#ressources-uploadform > input, #ressources-uploadform > textarea
-
+#ressources-uploadform > input, #ressources-uploadform > textarea,
+#fieldssettings-addNewField > input, #fieldssettings-addNewField > select  
 {
 	margin: 0.5em;
 	width: 100%;
@@ -1274,3 +1274,7 @@ div[id^="ressources-filelink"]
     margin-left: 50%;
 }
 
+#fieldssettings-addNewField{
+   max-width:25em;
+   margin: 1em;
+}

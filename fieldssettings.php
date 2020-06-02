@@ -40,6 +40,25 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
 
     $htmlstr .= '<h1>' . L::fieldssettings_title . '</h1>';
 
+    // add field section
+    $htmlstr .= '<h2 >' . L::fieldssettings_addNewField . '</h2>';
+    $htmlstr .= '<div id="fieldssettings-addNewField">';
+    $htmlstr .= '  <label for="fieldName">' . L::fieldssettings_newFieldNameID . '</label>';
+    $htmlstr .= '  <input type="text" id="fieldName" name="fieldName" maxlength="25"></input>';
+    $htmlstr .= '  <label for="i18n-fieldName">' . L::fieldssettings_i18nNewFieldName . '</label>';
+    $htmlstr .= '  <input type="text" id="i18n-fieldName" name="i18n-fieldName"></input>';
+   
+    
+    $options = ['main', 'files'];
+    $htmlstr .= '  <select>';
+    foreach($options as $option){
+        $htmlstr .= '<option value="' . $option . '">' . $option . '</option>';
+    }
+    $htmlstr .= '  </select>';
+    $htmlstr .= '  <button id="fieldssettings-addNewField-send" name="fieldssettings-addNewField-send">OK</button>';
+    $htmlstr .= '</div>';
+    //end addfield section
+
     $htmlstr .= '<div id="fieldssettings_table">';
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>'. L::fieldssettings_fieldName . '</h2></div>';
