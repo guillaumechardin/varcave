@@ -99,7 +99,7 @@ class VarcaveHtml extends Varcave {
         $this->html .= '    <span>' . $version['pgmversion'] . '/'. $version['dbversion'] . '</span>';
 
         $this->html .= '  </div>';
-        $this->html .= '  <div class="">';
+        $this->html .= '  <div class="footerMsg">';
 		$this->html .=  $this->config['footerMsg'];
         $this->html .= '  </div>';
         

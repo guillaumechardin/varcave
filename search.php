@@ -53,6 +53,7 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	$htmlstr .= '</table>';
 	$htmlstr .= '</div>'; //end resultTableDiv
 
+    //run post AJAX request on page load to search all caves
 	$htmlstr .= "\n<script>";
 	$htmlstr .= '$(document).ready(function()
 	{
@@ -82,6 +83,8 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 }
 elseif( !IsNullOrEmptyArray($_POST) )
 {
+    set_time_limit(60); //change to 60s for long research list because geting cave data (name, location, area, depth...) with selectByGuid take around 20ms for each cave
+    
 	/*
 	 * search  caves from DB 
 	 * else we use $_POST or $_GET from form to search specific caves 
@@ -145,7 +148,6 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		}
 	}
 
-	
 	/*
 	 * use the previouly computed/formated query 
 	 */
@@ -154,6 +156,9 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		//search caves from user input
         //$searchInput, $sortField, $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false
 		$list = $cave->search($searchTerms, 'name');
+        
+        //save search terms for later use
+        $_SESSION['lastSearch'] = $_POST;
         
 		if (!$list)
 		{
@@ -255,8 +260,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		
 	}
 	
-	//save search terms for later use
-	$_SESSION['lastSearch'] = $_POST;
+	
 	
 	//send back to browser
 	$json = json_encode($return,JSON_FORCE_OBJECT);

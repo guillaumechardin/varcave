@@ -6,7 +6,7 @@ require_once('functions.php');
 try
 {
 	$i18n = new varcavei18n(__DIR__ . '/../../lang/lang_{LANGUAGE}.ini',  __DIR__ . '/../../langcache/');
-	$i18n->setFallbackLang(); //set fallback lang to default one specified in config(by using no args)
+	$i18n->setFallbackLang(); //set fallback lang (by using no args) to default one specified in config
 	$i18n->setMergeFallback(true);
 	$i18n->init();
 }
@@ -574,12 +574,6 @@ class Varcave {
         $issues = false; 
         if ($this->getConfigElement('loglevel') == 0){
             $issues[] = L::alertIssues_debugSet;
-        }
-        
-        //check log dir
-        if( file_exists($this->ROOT_DIR . '/logs') )
-        {
-            $issues[] = L::alertIssues_defaultLogDir ;
         }
         
         //check some read/write folders

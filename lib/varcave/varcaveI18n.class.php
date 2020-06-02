@@ -60,8 +60,13 @@
 		}
 		
 		protected function getConfigFilename($langcode) {
-        return str_replace('{LANGUAGE}', strtolower($langcode), $this->filePath);
-    }
+            return str_replace('{LANGUAGE}', strtolower($langcode), $this->filePath);
+        }
+        
+        public function getFilePath()
+        {
+            return $this->filePath;
+        }
 	
 
 	}

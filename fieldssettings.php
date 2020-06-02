@@ -29,6 +29,7 @@ if ( !$auth->isSessionValid() || !$auth->isMember($acl[0]))
     $html->stopWithMessage(L::errors_ERROR, L::errors_pageAccessDenied, 401, 'Unauthorized ');
 }
 
+//show form to edit fields display order
 if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $html = new VarcaveHtml(L::pagename_fieldssettings);
 
@@ -41,11 +42,12 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
 
     $htmlstr .= '<div id="fieldssettings_table">';
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>NOM</h2></div>';
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>SHOW ON DISPLAY</h2></div>';
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>SHOW ON SEARCH</h2></div>';
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>SHOW ON EDIT</h2></div>';
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>ORDRE</h2></div>' ;
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>'. L::fieldssettings_fieldName . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnDisplay . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnSearch . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnEdit . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_order . '</h2></div>' ;
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_fieldGroup . '</h2></div>' ;
 
     foreach($fieldsData as $key => $field){
         //prepare html settings for checkbox
@@ -69,6 +71,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_search" ' . $checked_search . '></input></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_edit" ' . $checked_edit . '></input></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="number" data-name="sort_order" value="' . $field['sort_order'] . '"></input></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell">' . $field['field_group'] . '</div>' ;
         
     }
 

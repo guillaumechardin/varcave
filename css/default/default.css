@@ -32,6 +32,12 @@ h2 {
 	color:white;
 }
 
+.footerMsg{
+max-width:25%;
+}
+    
+    
+
 .genFlexContainer,
 .genFlexContainerNowrap
 {
@@ -121,11 +127,6 @@ h2 {
 {
 	justify-content:space-between;
 	
-}
-
-.footer_text_box > a > img{
-	
-	margin:0 0.3em 0 0.3em ;
 }
 
 .topimg {
@@ -1260,7 +1261,7 @@ div[id^="ressources-filelink"]
 .fieldssettings_tableCell{
     box-sizing: border-box;
     flex-grow: 1;
-    width: 18%;  /* 5 col max */
+    width: 16%;  /* 5 col max */
     padding: 0.4em;
     overflow: hidden; /*Or flex might break */
     list-style: none;
