@@ -951,7 +951,7 @@ div[id^="edit-imgEl"]
 #ressources-uploadform > input, #ressources-uploadform > textarea,
 #fieldssettings-addNewField > input, #fieldssettings-addNewField > select  
 {
-	margin: 0.5em;
+	margin: 1.5em;
 	width: 100%;
 	padding: 0.5em;
 	display: inline-block;
@@ -1277,4 +1277,10 @@ div[id^="ressources-filelink"]
 #fieldssettings-addNewField{
    max-width:25em;
    margin: 1em;
+}
+
+#fieldssettings-addNewField > input,
+#fieldssettings-addNewField > select,
+#fieldssettings-addNewField > label {
+    margin: 0.5em;
 }

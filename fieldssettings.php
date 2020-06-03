@@ -41,8 +41,8 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '<h1>' . L::fieldssettings_title . '</h1>';
 
     // add field section
-    $htmlstr .= '<h2 >' . L::fieldssettings_addNewField . '</h2>';
     $htmlstr .= '<div id="fieldssettings-addNewField">';
+    $htmlstr .= '  <h2 >' . L::fieldssettings_addNewField . '</h2>';
     $htmlstr .= '  <label for="fieldName">' . L::fieldssettings_newFieldNameID . '</label>';
     $htmlstr .= '  <input type="text" id="fieldName" name="fieldName" maxlength="25"></input>';
     $htmlstr .= '  <label for="i18n-fieldName">' . L::fieldssettings_i18nNewFieldName . '</label>';
