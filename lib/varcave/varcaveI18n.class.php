@@ -67,6 +67,12 @@
         {
             return $this->filePath;
         }
+        
+        //getter for appliedLang
+        public function getAppliedLang(){
+            return $this->appliedLang;
+            
+        }
 	
 
 	}

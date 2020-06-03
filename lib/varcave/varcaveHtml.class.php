@@ -6,7 +6,7 @@ class VarcaveHtml extends Varcave {
 	//pagename used to be inserted in <title> tag
 	private $pageName = null ;
 	//lang used
-	private $language = null ;
+	private $language = '';
 	
 	private $html = '';
 	// force html entities convertion for user generated html
@@ -31,8 +31,7 @@ class VarcaveHtml extends Varcave {
     private function buildHeader()
 	{
 		$this->html .= '<!doctype html>';
-		//désactivé le 14/08/2019
-		//$this->html .= '<html lang="' . $this->language . '">';
+		$this->html .= '<html lang="' . $this->langcode . '">';
 		$this->html .= '<head>';
 		$this->html .= '<meta charset="utf-8">';
 		if($this->noindex)

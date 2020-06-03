@@ -5,7 +5,6 @@ require_once ('lib/varcave/varcaveAuth.class.php');
 require_once ('lib/varcave/varcaveCave.class.php');
 require_once ('lib/varcave/functions.php');
 
-
 $auth = new varcaveAuth();
 $logger = $auth->logger;
 
@@ -43,10 +42,13 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     // add field section
     $htmlstr .= '<div id="fieldssettings-addNewField">';
     $htmlstr .= '  <h2 >' . L::fieldssettings_addNewField . '</h2>';
+    $htmlstr .= ' <form>';
     $htmlstr .= '  <label for="fieldName">' . L::fieldssettings_newFieldNameID . '</label>';
-    $htmlstr .= '  <input type="text" id="fieldName" name="fieldName" maxlength="25"></input>';
+    $htmlstr .= '  <input type="text" id="fieldName" name="fieldName" maxlength="25" pattern="[^a-zA-Z]+" />';
+    $htmlstr .= '  <input type="submit">';
+    $htmlstr .= ' </form>';
     $htmlstr .= '  <label for="i18n-fieldName">' . L::fieldssettings_i18nNewFieldName . '</label>';
-    $htmlstr .= '  <input type="text" id="i18n-fieldName" name="i18n-fieldName"></input>';
+    $htmlstr .= '  <input type="text" id="i18n-fieldName" name="i18n-fieldName"/>';
    
     $htmlstr .= '  <label for="fieldGroup">' . L::fieldssettings_fieldGroup . '</label>';
     $options = ['main', 'files'];
@@ -97,10 +99,10 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
             $checked_edit = $checked;
         }
         $htmlstr .='   <div class="fieldssettings_tableCell"><h3>' . $field['display_name'] .'</h3></div>';
-        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_display" ' . $checked_display . '></input></div>' ;
-        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_search" ' . $checked_search . '></input></div>' ;
-        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_edit" ' . $checked_edit . '></input></div>' ;
-        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="number" data-name="sort_order" value="' . $field['sort_order'] . '"></input></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_display" ' . $checked_display . '/></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_search" ' . $checked_search . '/></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_edit" ' . $checked_edit . '/></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="number" data-name="sort_order" value="' . $field['sort_order'] . '"/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell">' . $field['field_group'] . '</div>' ;
         
     }
@@ -154,14 +156,15 @@ else{
                 throw new Exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
             }
             
-            //try to update db data and ini file data
-            try {
-                
+            $cave = new varcaveCave();
+            
+            //Update db data and ini file data
+            $dbupdate = $cave->addEndUserFields( $_POST['newField'], $_POST['fieldGroup'], $_POST['fieldType'] );
+            if( ! $dbupdate){
+                throw new exception('unable to update data');
             }
-            catch(Exception $e){
-                $logger->error('Unable to update db : ' . $e->getMessage() ); 
-                throw new exception('Unable to update db');
-            }
+            
+            
         }
         else{
             $message['stateStr'] = L::errors_badArgs . '[action]';

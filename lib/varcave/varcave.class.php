@@ -9,6 +9,8 @@ try
 	$i18n->setFallbackLang(); //set fallback lang (by using no args) to default one specified in config
 	$i18n->setMergeFallback(true);
 	$i18n->init();
+    
+    $i18nAppliedLang = $i18n->getAppliedLang();
 }
 catch (Exception $e)
 {
@@ -29,7 +31,7 @@ class Varcave {
 	
 	//end user config file to store some local info like DB users and passwd
 	private $configFile = __DIR__ . '/../../include/localconfig.php' ;
-		
+    
 	protected $engine;
 	protected $dbhost;
 	protected $dbname;
@@ -51,6 +53,8 @@ class Varcave {
     //initialize  timestamp to compute some stats
     protected $startInvoke = 0;
     
+    //langcode the currently applied i18n language
+    protected $langcode = '';
     
     function __construct(){
         $this->startInvoke = microtime(true);
@@ -69,6 +73,11 @@ class Varcave {
         #initiate logging to file
 		$this->logger = new Katzgrau\KLogger\Logger(__DIR__ . '/../../logs', $this->getLogLevel() );
 		
+        //set langcode 
+        global $i18nAppliedLang;
+        $this->langcode = $i18nAppliedLang;
+        
+        
 		//set fallback language for localization.
 		// ==> if user prefered lang is not found, i18n will use this translations.
 		
@@ -626,25 +635,58 @@ class Varcave {
      * @param $fieldName the field name
      * @param $value 
      * 
-     * @return true on success false on error
+     * @return last inserted line indexid on success, false on error
      */
-    public function addEndUserFields($fieldName, $fieldGroup){
+    public function addEndUserFields($fieldName, $fieldGroup, $fieldType){
         $this->logger->debug(__METHOD__ . ': Try to add a new end user field to DB');
         
         try{
+            $field = $this->PDO->quote($fieldName);
+            $field_group = $this->PDO->quote($fieldGroup);
+            $type = $this->PDO->quote($fieldType);
             // set some default data value for Varcave correct operation
-            $q = 'INSERT INTO ' . $this->dbtableprefix . 'end_user_fields ' . 
-                  '  (`indexid`, `field`, `type`, `sort_order`, `show_on_display`, `show_on_search`, `show_on_edit`, `field_group`) ' .
-                  'VALUES ' . 
-                  ' ( NULL,' . 
-                  $this->PDO->quote($fieldName).',' . 
-                  'testType, 9999, 0, 0, 0, xxxxx)';
+            $q = 'INSERT INTO ' . $this->bdtableprefix .'end_user_fields ' .
+                     ' (`indexid`, `field`, `type`, `sort_order`, `show_on_display`, `show_on_search`, `show_on_edit`, `field_group`) ' .
+                     ' VALUES('. 
+                                'NULL,'.
+                                $field .','.
+                                $type .','.
+                                '9999,'.
+                                '0,'.
+                                '0,'.
+                                '0,'.
+                                $field_group.
+                            ')';
+                $this->PDO->query($q);
+                return $this->PDO->lastInsertId();
         }
         catch(exception $e){
-        
+            $this->logger->error('Fail to update DB :' . $e->getmessage() );
+            $this->logg->debug('Full query:'. $q);
+            return false;
         }
     }
     
+    /*
+     * updatei18nIniVal()
+     * update i18n file in current language. If value do not exists it will be created
+     *
+     * @param $filename target ini file to read/write, must be writable
+     * @param $section ini section name to add/update data
+     * @param $inivar ini varname to update
+     * @param $value varname corresponding value
+     * 
+     * return true on success false on error
+     */
+     public function updatei18nIniVal($filename, $section, $inivar, $value){
+        $this->logger->debug(__METHOD__ . ': Updating ini file:[' . $filename . ']');
+        if ( ! file_exists($filename) || ! is_writable($filename) ){
+            $this->logger->error('File do not exist or not writable');
+            return false;
+        }
+        
+         
+     }
     
     /*
      * version
