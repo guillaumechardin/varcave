@@ -48,17 +48,28 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '  <label for="i18n-fieldName">' . L::fieldssettings_i18nNewFieldName . '</label>';
     $htmlstr .= '  <input type="text" id="i18n-fieldName" name="i18n-fieldName"></input>';
    
-    
+    $htmlstr .= '  <label for="fieldGroup">' . L::fieldssettings_fieldGroup . '</label>';
     $options = ['main', 'files'];
-    $htmlstr .= '  <select>';
+    $htmlstr .= '  <select name="fieldGroup" id="fieldGroup">';
     foreach($options as $option){
         $htmlstr .= '<option value="' . $option . '">' . $option . '</option>';
     }
     $htmlstr .= '  </select>';
-    $htmlstr .= '  <button id="fieldssettings-addNewField-send" name="fieldssettings-addNewField-send">OK</button>';
+    
+    $htmlstr .= '<p id="fieldType">';
+    $htmlstr .= ' <input type="radio" id="bool" name="fieldType" value="bool"/>';
+    $htmlstr .= '<label for="bool">bool</label>';
+    $htmlstr .= ' <input type="radio" id="dec" name="fieldType" value="dec"/>';
+    $htmlstr .= '<label for="dec">decimal</label>';
+    $htmlstr .= ' <input type="radio" id="text" name="fieldType" value="text"/>';
+    $htmlstr .= '<label for="text">text</label>';
+    $htmlstr .= '</p>';
+    
+    $htmlstr .= '  <p><button id="fieldssettings-addNewField-send" name="fieldssettings-addNewField-send">OK</button></p>';
     $htmlstr .= '</div>';
     //end addfield section
 
+    $htmlstr .= '  <h2 id="fieldssettings-orderandshow">' . L::fieldssettings_orderandshow . '</h2>';
     $htmlstr .= '<div id="fieldssettings_table">';
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>'. L::fieldssettings_fieldName . '</h2></div>';
@@ -66,7 +77,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnSearch . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnEdit . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_order . '</h2></div>' ;
-    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_fieldGroup . '</h2></div>' ;
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_fieldGroup . '</h2></div>';
 
     foreach($fieldsData as $key => $field){
         //prepare html settings for checkbox
@@ -111,43 +122,65 @@ else{
      * $_POST['id'] = indexid of corresponding row in DB
      * $_POST['field'] = field of row
      * $_POST['value'] = value to update
+     * $_POST['action'] = action type to execute, either updField | createNewField
      * 
      * Send back result to browser with json data
      * on sucess http 200
      */
-    $logger->debug(basename(__FILE__) . ' : try to update end_user_fields table') ;
-    if( empty( $_POST['id']) || empty( $_POST['field']) ){
-        throw new Exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
+    try{
+        /*update field with user given data*/
+        if($_POST['action' == 'updField']){
+            $logger->debug(basename(__FILE__) . ' : try to update end_user_fields table') ;
+            if( empty( $_POST['id']) || empty( $_POST['field']) ){
+                throw new Exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
+            }
+            try {
+                $varcave = new varcave();
+                $success = $varcave->updateEndUserFields($_POST['id'], $_POST['field'], $_POST['value']);
+            }
+            catch(Exception $e){
+                $logger->error('Unable to update db : ' . $e->getMessage() ); 
+                throw new exception('Unable to update db');
+            }
+
+            $message['message'] = 'OK';
+            $httpcode = 200;
+            $httpCodeStr = 'OK';
+        }
+        /* try to add new field to db and i18 info to lang file*/
+        elseif($_POST['action'] == 'createNewField' ){
+            //minimal args check
+            if( empty($_POST['newField']) || empty($_POST['fieldGroup']) || empty($_POST['i18nfield']) ){
+                throw new Exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
+            }
+            
+            //try to update db data and ini file data
+            try {
+                
+            }
+            catch(Exception $e){
+                $logger->error('Unable to update db : ' . $e->getMessage() ); 
+                throw new exception('Unable to update db');
+            }
+        }
+        else{
+            $message['stateStr'] = L::errors_badArgs . '[action]';
+            $message['title'] = L::errors_ERROR;
+            $httpcode = 500;
+            $httpCodeStr = 'Internal Server Error ';
+        }
     }
-    try {
-        $varcave = new varcave();
-        $success = $varcave->updateEndUserFields($_POST['id'], $_POST['field'], $_POST['value']);
-    }
-    catch(Exception $e){
-        $logger->error('Unable to update db : ' . $e->getMessage() ); 
-        $success = false;
-    }
-    
-    
-    if ($success)
-    {
-        $message['message'] = 'OK';
-        $httpcode = 200;
-        $httpCodeStr = 'OK';
-    }
-    else{
+    catch(exception $e){
         $message['stateStr'] = L::errors_unableToUpdateData;
         $message['title'] = L::errors_ERROR;
         $httpcode = 500;
         $httpCodeStr = 'Internal Server Error ';
     }
-    
+
     //format json and write back to end user agent 
     $json = json_encode($message,JSON_PRETTY_PRINT);
     jsonWrite($json, $httpcode, $httpCodeStr);
     exit();
 }
-
-
 
 ?>

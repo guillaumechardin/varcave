@@ -1274,7 +1274,9 @@ div[id^="ressources-filelink"]
     margin-left: 50%;
 }
 
-#fieldssettings-addNewField{
+#fieldssettings-addNewField,
+#fieldssettings-orderandshow
+{
    max-width:25em;
    margin: 1em;
 }
@@ -1283,4 +1285,28 @@ div[id^="ressources-filelink"]
 #fieldssettings-addNewField > select,
 #fieldssettings-addNewField > label {
     margin: 0.5em;
+}
+
+#fieldssettings-addNewField > input,
+#fieldssettings-addNewField > select, 
+#fieldssettings-addNewField > p > button {
+    margin-left: 1em;
+    font-size:1em;
+}
+
+/*center button*/
+#fieldssettings-addNewField > p{
+    margin: 0.5em auto 2em auto; 
+    width: 1em;
+    font-size:1em;
+}
+
+/* disable vertical align*/
+#fieldType{
+    display:inline;
+    margin-left: 1em;
+}
+
+#fieldType > input{
+    margin-left: 1.5em;
 }
