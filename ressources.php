@@ -48,7 +48,7 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 		$htmlstr .= '    <label for="display_name">' . L::table_files_ressources_field_display_name . '</label><input type=text maxlength="30" value="" id="display_name"></input>';
 		$htmlstr .= '    <label for="description">' . L::table_files_ressources_field_description . '</label><textarea type=text value="" id="description"></textarea>';
 		$htmlstr .= '    <input type="file" id="file">';
-		$htmlstr .= '    <button class="pure-button" disabled id="ressources-savefile">' . L::save . '</button>';
+		$htmlstr .= '    <button class="pure-button" disabled id="ressources-savefile">' . L::general_save . '</button>';
 		$htmlstr .= '  </div>';
 		$htmlstr .= '</div>';
         
@@ -231,7 +231,7 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
                 
                 //send back to browser OK state
                 $return = array(
-                    'title' => L::edit,
+                    'title' =>L::general_edit,
                     'stateStr'=> "build complete",
                     'newid' => $lastInsert,
                     'faIcon' => 'fas fa-map-marked-alt',
@@ -262,7 +262,7 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 		}
 		//prepare data feedback
 		$return = array(
-            'title' => L::edit,
+            'title' =>L::general_edit,
             'stateStr'=> L::ressources_fileaddedsuccess,
             'newid' => $lastinsertid,
             'newfile' => $httpFile, 

@@ -1490,6 +1490,35 @@ class VarcaveCave extends Varcave
             return false;
         }
     }
+    
+    /*
+     * deleteCave
+     * Delete specified cave and remove all data in caves/<guidv4> folder this include at least files/photos/docs.
+     * Remove changelog and statistic data. This process is non recoverable (except with backup).
+     * 
+     * @param string $guidv4 target cave guid to delete
+     * @return $mixed true on success, array of undeleted element, false critical error
+     */
+     
+     public function deleteCave($guidv4){
+         $this->logger->info(__METHOD__ . ': request cave deletion');
+         try{
+             if( strlen($guidv4) != 36 ){
+                 $this->logger->error('Bad cave guid format');
+                 return false;
+             }
+             
+             //check directory deletion
+             
+             if( !isWritable('./../../caves/' . $guidv4) ){
+                 $this->logger->error('Bad cave guid format');
+                 return false;
+             }
+         }
+         catch(exception $e){
+             
+         }
+     }
 	
 }    
 ?>

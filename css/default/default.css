@@ -462,7 +462,6 @@ div [class|="displaySciDataCol"]
 }
 
 #returnToList:hover,
-/*#display-adminBar:hover,*/
 .displayTitleWrapper > span:hover
 {
     color:white;
@@ -476,12 +475,11 @@ div [class|="displaySciDataCol"]
 }
 
 #returnToList:visited,
-#display-adminBar:visited,
-#display-adminBar
+#display-adminBar > a:visited,
+#display-adminBar > a 
 {
 	color:black;
 	text-decoration: none;
-	
 }
 
 
@@ -1114,7 +1112,8 @@ div[id^="ressources-filelink"]
 .display-gpx-dwnld:hover,
 .display-pdf-dwnld:hover,
 .display-files-dwnld:hover,
-.display-send-msg:hover
+.display-send-msg:hover,
+#display-adminBar > a:hover
 {
 	cursor:pointer;
 	background-color:grey;
@@ -1123,7 +1122,8 @@ div[id^="ressources-filelink"]
 .display-gpx-dwnld,
 .display-pdf-dwnld,
 .display-files-dwnld,
-.display-send-msg
+.display-send-msg,
+#display-adminBar > a
 {
 	margin: 0 0.2em 0 0.2em;
 	padding: 0 0.2em ;

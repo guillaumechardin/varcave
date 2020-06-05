@@ -44,7 +44,7 @@ if( isset($_GET['guid']) ){
          */
         $html = new VarcaveHtml(htmlentities($pageName) . ' : ' . htmlentities($cave['name']));
 		
-        $htmlstr .= '<h2>' . L::edit . '</h2>';
+        $htmlstr .= '<h2>' .L::general_edit . '</h2>';
 		$htmlstr .= '<fieldset>';
 		$htmlstr .=   '<legend>' . L::editcave_changelogTitle . '</legend>';
 		$htmlstr .=   '<input type="text" class="changeloginput edit-changelog-input-text" id="changelogEntry"   placeholder="' . L::editcave_changelogEditexemple . '">';
@@ -358,8 +358,7 @@ if( isset($_GET['guid']) ){
     }
    
 }
-elseif( isset($_POST['update'] ) )
-{
+elseif( isset($_POST['update'] ) ){
 	//update bd from input given by user, using ajax query
 	$logger->info('editpage.php: cave update requested (' . $_POST['guid'] . ')' );
 	$logger->debug('State of user POST input : ' . print_r($_POST, true) );
@@ -404,7 +403,7 @@ elseif( isset($_POST['update'] ) )
                     }
                 }
                 $return = array(
-                    'title' => L::edit,
+                    'title' =>L::general_edit,
                     'stateStr'=> L::editcave_success,
                     'newVal' => htmlentities($_POST['value']),
                     );
@@ -449,7 +448,7 @@ elseif( isset($_POST['update'] ) )
                     }
 					
                     $return = array(
-							'title' => L::edit,
+							'title' =>L::general_edit,
 							'stateStr'=> L::editcave_success,
 							'newVal' => htmlentities($_POST['value']),
 							'actionType' => $_POST['actionType'],
@@ -479,7 +478,7 @@ elseif( isset($_POST['update'] ) )
 					}
 					
                     $return = array(
-						'title' => L::edit,
+						'title' =>L::general_edit,
 						'stateStr'=> L::editcave_success,
 						'newVal' => htmlentities($_POST['value']),
 						'actionType' => $_POST['actionType'],
@@ -594,7 +593,7 @@ elseif( isset($_POST['update'] ) )
                     throw new exception('update json fail on file upload inscription');
                 }
                 $return = array(
-					'title' => L::edit,
+					'title' =>L::general_edit,
 					'stateStr'=> L::editcave_success,
 					'newVal' => $dstFullPath,
                     'insertIndex' => $lastInsertItem,
@@ -699,7 +698,7 @@ elseif( isset($_POST['update'] ) )
 				}
                
                 $return = array(
-                    'title' => L::edit,
+                    'title' =>L::general_edit,
                     'stateStr'=> L::editcave_success,
                     'newEntry' => $newEntry,
                     'actionType' => $actionType,
@@ -737,8 +736,40 @@ elseif( isset($_POST['update'] ) )
 		
 	}
 }
-else
-{    
+elseif( isset($_POST['delete']) ){
+    $logger->debug('user try to delete cave');
+    if( isset($_POST['guid']) && strlen($_POST['guid'] == 36) )
+    {
+        $logger->info('Start deletion process on cave: [' . $_POST['guid'] . ']');
+        try{
+            $caveObj->deleteCave($_POST['guid']);
+            
+        }
+        catch (Exception $e){
+            $logger->debug('Failed to delete cave:' . $e->getmessage);
+            $return = array(
+                    'title' => L::errors_ERROR,
+                    'stateStr' => L::editcave_cannotDeleteCave ,
+                    );
+            $httpError = 500;
+            $httpErrorStr = ' INTERNAL SERVER ERROR';
+        }
+    }
+    else{
+        $logger->debug('Failed to delete cave, incorrect guid');
+        $return = array(
+				'title' => L::errors_ERROR,
+				'stateStr' => L::errors_badArgs . ':' . L::errors_badGuid,
+				);
+        $httpError = 400;
+        $httpErrorStr = ' BAD REQUEST';
+    }
+    jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
+    exit();
+     
+    
+}
+else{    
 	header('HTTP/1.1 500 Internal Server Error');
     echo 'Internal Server Error<br>';
 	echo 'Bad request to page';

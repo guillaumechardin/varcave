@@ -71,7 +71,7 @@ if( !isset($_POST) || empty($_POST) )
 	$htmlstr .=     $cpySrcGuid;
 	$htmlstr .=   '</div>';
 	$htmlstr .=   '<div  class="newcave-savebtn">';
-	$htmlstr .=     '<span class="pure-button" id="newcave-btn">' . L::save . '</span>';
+	$htmlstr .=     '<span class="pure-button" id="newcave-btn">' . L::general_save . '</span>';
 	$htmlstr .=   '</div>';
 	$htmlstr .= '</fieldset>';
 
@@ -142,7 +142,7 @@ else //try to create new cave with user supplied infos
 	
         //setting up ajax return
         $return = array(
-                'title' => L::edit,
+                'title' =>L::general_edit,
                 'stateStr'=> L::newcave_creationSucceed,
                 'guid' => $newguid,
                 );

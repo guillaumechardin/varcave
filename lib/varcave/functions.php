@@ -296,7 +296,43 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
             }
             fclose($fp);
         }
-
     }
+    
+    function rrmdir($dir) {
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    if (filetype($dir."/".$object) == "dir"){ 
+                        rrmdir($dir."/".$object);
+                    }
+                    else{
+                        unlink($dir."/".$object);
+                    }
+                }
+                reset($objects);
+                rmdir($dir);
+            }
+        }
+    }
+    
+    function arrRmdir($dir, &$ret = array() ) {
 
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    if (filetype($dir."/".$object) == "dir"){ 
+                        arrRmdir($dir."/".$object, $ret);
+                    }
+                    else{
+                        $ret[$dir][] = basename($object);
+                    }
+                }
+                //reset($objects);
+                //rmdir($dir);
+            }
+        }
+        return $ret;
+    }
 ?>

@@ -289,7 +289,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	$htmlstr .= '   <input disabled type="hidden" name="aclId" id="aclId" value=""></input>';
 	$htmlstr .= '   <input disabled type="hidden" name="aclGuid" id="aclGuid" value=""></input>';
 	$htmlstr .= '   <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
-	$htmlstr .= '   <fieldset><legend>' . L::edit  . ' ACL</legend>';
+	$htmlstr .= '   <fieldset><legend>' . L::general_edit  . ' ACL</legend>';
     // >>groups handling
     $htmlstr .= '   <span id="aclDescription">' . L::table_acl_field_description  . '</span>';
 	$htmlstr .= '   <fieldset><legend>' . L::usermgmt_groups  . '</legend>';
@@ -469,7 +469,7 @@ else
 		
 		//preparing info back to user
 		$return = array(
-                    'title' => L::edit,
+                    'title' => L::general_edit,
                     'stateStr'=> L::editcave_success,
                     'userdata' => $data,
                     );

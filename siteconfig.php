@@ -224,7 +224,7 @@ else
 		
 		//preparing info back to user
 		$return = array(
-                    'title' => L::edit,
+                    'title' => L::general_edit,
                     'stateStr'=> L::editcave_success,
                     'newVal' => htmlentities($_POST['value']),
                     );

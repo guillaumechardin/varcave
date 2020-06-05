@@ -195,7 +195,7 @@ else{
                  $logger->info('col will not be added to `caves`since its json files element');
             }
             
-            $message['title'] = L::edit;
+            $message['title'] =L::general_edit;
             $message['message'] = L::fieldssettings_addComplete;
             $message['dbfieldID'] = $dbupdate;
             $message['i18nField'] = $writeIni;

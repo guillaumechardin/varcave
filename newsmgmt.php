@@ -263,7 +263,7 @@ elseif( ($_SERVER['REQUEST_METHOD']) == 'POST')
     else
     {
         $return = array(
-                'title' => L::edit,
+                'title' =>L::general_edit,
                 'stateStr'=> L::newsmgmt_editSuccess,
                 'userdata' => $data,
                 );

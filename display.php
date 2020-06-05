@@ -67,10 +67,20 @@ if (isset($_GET['guid']) )
 	if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) )
 	{
 		$logger->debug('Admin icons added to display.php');
-
-		$adminBar = '<a id="display-adminBar" title="' . L::edit . '" class="fa-3x" href="editcave.php?guid=' . $caveData['guidv4'] . '">';
-		$adminBar .= '  <i  class="fas fa-edit"></i>';
-		$adminBar .= '</a>';
+        $adminBar  = '<div id="display-adminBar" class="fa-3x">';
+		$adminBar .=   '<a  class="display-adminBar-item" title="' . L::general_edit . '" class="fa-3x" href="editcave.php?guid=' . $caveData['guidv4'] . '">';
+		$adminBar .=     '<i  class="fas fa-edit"></i>';
+		$adminBar .=   '</a>';
+        		
+        $adminBar .=   '<a id="delete-cave" class="display-adminBar-item" title="' . L::general_delete . '" data-guid="' . $caveData['guidv4'] . '">';
+		$adminBar .=     '<i  class="fas fa-trash-alt"></i>';
+		$adminBar .=   '</a>';
+        $adminBar .= '</div>';
+        $adminBar .= '<script>';
+        $adminBar .= 'var infoTitle = "' . L::general_info .'";';
+        $adminBar .= 'var deleteCaveMsg = "' . L::display_deleteCaveMsg .'";';
+        $adminBar .= 'var iAccept = "' . L::general_iAccept .'";';
+        $adminBar .= '</script>';
 	}
 	else
 	{
