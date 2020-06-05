@@ -256,21 +256,28 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
     /*
      * Functions to read/write to ini file:
      * taken from https://stackoverflow.com/questions/5695145/how-to-read-and-write-to-an-ini-file-with-php
-     */ 
-
+     */     
     function write_php_ini($array, $file){
-        $res = array();
+        $res = '';
+        $once = true;
         foreach($array as $key => $val){
             if(is_array($val)){
-                $res[] = "[$key]";
-                foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
+                //to have a pretty ini syntax when no section exists
+                ($once ? $res .= "\r\n" : $res .= '');
+                $once = false;
+                $res .= "[$key] \r\n";
+                foreach($val as $skey => $sval){
+                    $res  .= "$skey = ". (is_numeric($sval) ? $sval : '"'.$sval.'"') . "\r\n" ;
+                }
+                $res .= "\r\n";
             }
             else{
-                $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
+                $res .= "$key = ".(is_numeric($val) ? $val : '"'.$val.'"') . "\r\n";
             }
         }
-        safefilerewrite($file, implode("\r\n", $res));
+        safefilerewrite($file, $res);
     }
+    
 
     function safefilerewrite($fileName, $dataToSave){    
         if ($fp = fopen($fileName, 'w')){

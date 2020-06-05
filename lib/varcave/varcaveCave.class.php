@@ -243,35 +243,26 @@ class VarcaveCave extends Varcave
 		foreach($searchInput as $key=>$value)
 		{
 			
-			if ($value['field'] == 'CO2' | $value['field'] == 'airflow' | 
-                    $value['field'] =='anchors'| $value['field'] =='zone_natura_2000'| 
-                    $value['field'] =='noAccess'|$value['field'] =='PNR_SB')
-            {
+			if ( in_array( $value['field'], $this->getBooleanEndUserType() ) ){
                 $req .= ' ' . $value['field'] . ' = 1 ';
             }
-            elseif ($value['type'] == '=')
-            {
+            elseif ($value['type'] == '='){
                 $req .=  $value['field'] . ' = ' . $this->PDO->quote($value['value']) . ' ';
             }
-            elseif ($value['type'] == 'LIKE') 
-            {
+            elseif ($value['type'] == 'LIKE'){
                 //contient = LIKE '%xxxxx%'
                 $req .= $value['field'] . ' LIKE ' . $this->PDO->quote('%' . $value['value'] . '%') . ' ';
             }
-            elseif ($value['type'] == '>') 
-            {
+            elseif ($value['type'] == '>'){
                 //ajouter 'valeur' > valeur_champ
                 $req= ' ' . $value['field'] . ' > ' . $this->PDO->quote($value['value']) . ' ';
             }
-            elseif ($value['type'] == '<')
-            {
+            elseif ($value['type'] == '<'){
                 //ajouter < %'valeur'%
                 $req .= $value['field'] . ' < ' . $this->PDO->quote($value['value']) . ' ';
             }
-			elseif ( $value['type'] == 'BETWEEN')  //
-            {	
-				if($betweenFound)
-				{
+			elseif ( $value['type'] == 'BETWEEN'){	
+				if($betweenFound){
 					//should be the -BETWEEN2 field. Skipping
 					continue;
 				}
@@ -285,12 +276,10 @@ class VarcaveCave extends Varcave
 				$betweenFound = true;
             	
             }
-            elseif($value['type'] == '!=')
-            {
+            elseif($value['type'] == '!='){
                 $req .=  $value['field'] . ' != ' . $this->PDO->quote($value['value']) . ' ';
             }
-            else
-            {
+            else{
 				$this->logger->debug(__METHOD__ . ' : ERROR invalid choice : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
 				return false;
 				throw new Exception($msg,0);
@@ -641,6 +630,7 @@ class VarcaveCave extends Varcave
         {
             $this->logger->info('update `caves` field :[' . $colname  .']');
             $qUpdate = 'UPDATE ' . $this->getTablePrefix() . 'caves SET `' . $colname . '`=' . $this->PDO->quote($value) . ' WHERE guidv4=' . $this->PDO->quote($guid);
+            $this->logger->debug('Query : ' . $qUpdate);
             $this->PDO->query($qUpdate);
             return true;
         }
@@ -1453,6 +1443,52 @@ class VarcaveCave extends Varcave
             return true;
         }
             
+    }
+    
+    /*
+     * getFilesFieldList
+     * get an available list of type of document that are registered in table end_user_fields
+     * @return 1dim array of elements, false on error
+     */
+     public function getFilesFieldList(){
+        $this->logger->debug(__METHOD__ . ': get registered documents type from  `end_user_fields`');
+
+        try{
+            $q = 'SELECT field FROM ' .  $this->dbtableprefix . 'end_user_fields WHERE field_group="files"';
+            $pdoRes = $this->PDO->query($q);
+            
+            while($res = $pdoRes->fetch(PDO::FETCH_NUM)){
+                $r[] = $res[0];
+            }
+            return $r;
+        }catch(exeption $e){
+            $this->logger->error('Failed to get document list' . $e->getmessage() );
+            $this->logger->debug('Full query :' . $q);
+            return false;
+        }
+    }
+    
+    /*
+     * getBooleanEndUserType
+     * get a list of type of end user fields from `end_user_fields` where type is bool
+     * @return 1dim array of elements, false on error
+     */
+     public function getBooleanEndUserType(){
+        $this->logger->debug(__METHOD__ . ': get registered boolean elements from  `end_user_fields`');
+
+        try{
+            $q = 'SELECT field FROM ' .  $this->dbtableprefix . 'end_user_fields WHERE type="bool"';
+            $pdoRes = $this->PDO->query($q);
+            
+            while($res = $pdoRes->fetch(PDO::FETCH_NUM)){
+                $r[] = $res[0];
+            }
+            return $r;
+        }catch(exeption $e){
+            $this->logger->error('Failed to get boolean list' . $e->getmessage() );
+            $this->logger->debug('Full query :' . $q);
+            return false;
+        }
     }
 	
 }    

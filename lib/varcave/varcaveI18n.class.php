@@ -18,6 +18,7 @@
 		 */
 		protected function compile($config, $prefix = '') {
 			$code = '';
+            $once = true;
 			foreach ($config as $key => $value) {
 				if (is_array($value)) {
 					$code .= $this->compile($value, $prefix . $key . $this->sectionSeparator);

@@ -462,7 +462,7 @@ div [class|="displaySciDataCol"]
 }
 
 #returnToList:hover,
-#display-adminBar:hover,
+/*#display-adminBar:hover,*/
 .displayTitleWrapper > span:hover
 {
     color:white;

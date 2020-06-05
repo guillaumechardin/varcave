@@ -63,7 +63,7 @@ if( isset($_GET['guid']) ){
 		$coordsHtml = '';
 		
         //set needles to permit edit items from a form.
-        $listOfFilesInput = ['biologyDocuments', 'cave_maps', 'documents', 'photos', 'sketch_access'];
+        $listOfFilesInput = $caveObj->getFilesFieldList();
         
         //build cave `files` from json
 		if(!empty($cave['files']) )
@@ -160,7 +160,7 @@ if( isset($_GET['guid']) ){
                 $coordsHtml .= '</div>'; //flexItem
                 
             }
-			//process bioDocs or cave_maps or documents and so on depending on $listOfFilesInput
+			//process files documents type depending on $listOfFilesInput
             elseif( strstr_from_arr($listOfFilesInput, $fieldInfo['field'] ) ) 
             {   
 

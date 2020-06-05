@@ -638,14 +638,19 @@ class Varcave {
      * @return last inserted line indexid on success, false on error
      */
     public function addEndUserFields($fieldName, $fieldGroup, $fieldType){
-        $this->logger->debug(__METHOD__ . ': Try to add a new end user field to DB');
+        $this->logger->debug(__METHOD__ . ': Try to add a new end user field to DB:[' . $fieldName . ']');
         
+        /*
+         * sanitize fieldName ; fieldgroup and field type are pre-registered data so no check on it
+         * remove keep only alpha char az-AZ
+         */
+        $fieldName = preg_replace( '/[^a-z_]/i', '', $fieldName);
         try{
             $field = $this->PDO->quote($fieldName);
             $field_group = $this->PDO->quote($fieldGroup);
             $type = $this->PDO->quote($fieldType);
             // set some default data value for Varcave correct operation
-            $q = 'INSERT INTO ' . $this->bdtableprefix .'end_user_fields ' .
+            $q = 'INSERT INTO ' . $this->dbtableprefix .'end_user_fields ' .
                      ' (`indexid`, `field`, `type`, `sort_order`, `show_on_display`, `show_on_search`, `show_on_edit`, `field_group`) ' .
                      ' VALUES('. 
                                 'NULL,'.
@@ -662,7 +667,7 @@ class Varcave {
         }
         catch(exception $e){
             $this->logger->error('Fail to update DB :' . $e->getmessage() );
-            $this->logg->debug('Full query:'. $q);
+            $this->logger->debug('Full query:'. $q);
             return false;
         }
     }
@@ -671,21 +676,103 @@ class Varcave {
      * updatei18nIniVal()
      * update i18n file in current language. If value do not exists it will be created
      *
-     * @param $filename target ini file to read/write, must be writable
-     * @param $section ini section name to add/update data
-     * @param $inivar ini varname to update
-     * @param $value varname corresponding value
+     * @param string $filename target ini file to read/write, must be writable
+     * @param string $section ini section name to add/update data
+     * @param string $inivar ini varname to update
+     * @param string $value varname corresponding value
      * 
-     * return true on success false on error
+     * @return string the effective written string value false on error
      */
      public function updatei18nIniVal($filename, $section, $inivar, $value){
         $this->logger->debug(__METHOD__ . ': Updating ini file:[' . $filename . ']');
-        if ( ! file_exists($filename) || ! is_writable($filename) ){
+        
+        $section = preg_replace( '/[^a-z_]/i', '', $section);
+        $inivar = preg_replace( '/[^a-z_]/i', '', $inivar);
+        
+        
+        if( is_Writable($filename) == false ){
             $this->logger->error('File do not exist or not writable');
             return false;
         }
         
-         
+        $this->logger->debug('get current ini file data');
+        $ini_array = parse_ini_file($filename, true);
+        if($ini_array == false){
+            $this->logger->error('fail to load ini file. Check syntax.');
+            return false;
+        }
+        
+        $safeVal = str_replace ( '"' , '' , $value);
+
+        //update var but escape double quote char
+        $ini_array[$section][$inivar] = $safeVal;
+        
+        $this->logger->debug('Writing new value to file');
+        write_php_ini($ini_array, $filename );
+        
+        $this->logger->debug('Operation success');
+        
+        return $ini_array[$section][$inivar];
+     }
+     
+     /*
+     * addCaveCol()
+     * update table caves to add an additionnal col.
+     *
+     * @param string $filename target ini file to read/write, must be writable
+     * @param string $section ini section name to add/update data
+     * @param string $inivar ini varname to update
+     * @param string $value varname corresponding value
+     * 
+     * @return string the effective written string value false on error
+     */
+     public function addCaveCol($colName, $colType, $colDefault = ''){
+        //remove non standard chars
+        $colName = preg_replace( '/[^a-z_]/i', '', $colName);
+        
+        $this->logger->debug(__METHOD__ . ': Adding new col: [' . $colName .'] to caves table');
+        
+        if( empty($colName) || empty($colType) ){
+            $this->logger->error(L::errors_ERROR . ':' . L::errors_badArgs . ':'. L::errors_emptyVal);
+            return false;
+        }
+        
+        $default ='';
+        if($colDefault){
+            $default =  'DEFAULT ' . $this->PDO->quote($colDefault);
+        }
+        
+        //prepare sql statement 
+        switch($colType){
+            case 'text':
+                $colType = 'TEXT';
+                break;
+            case 'decimal':
+                $colType = 'DECIMAL (10,3)'; //number from -9999999.999 to +9999999.999
+                break;
+            case 'bool':
+                $colType = 'BOOLEAN';
+                break;
+            default:
+            $this->logger->error(L::errors_ERROR . ':' . L::errors_badArgs . ' : coltype : [' . $colType .']' );
+            return false;
+        }
+        
+        try{
+            $this->logger->debug('alter database...');
+            $q = 'ALTER TABLE ' . $this->dbtableprefix .'caves ' .
+                 'ADD `' . $colName . '` ' . $colType . ' NOT NULL ' .
+                 $default ;
+            
+            $this->PDO->query($q);
+            $this->logger->debug('success !');
+            return true;
+        }
+        catch(exception $e){
+            $this->logger->error('Fail to alter database ' . $e->getmessage() );
+            $this->logger->debug('full query :' . $q);
+            return false;
+        }
      }
     
     /*
