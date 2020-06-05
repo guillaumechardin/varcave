@@ -1503,20 +1503,86 @@ class VarcaveCave extends Varcave
      public function deleteCave($guidv4){
          $this->logger->info(__METHOD__ . ': request cave deletion');
          try{
-             if( strlen($guidv4) != 36 ){
+            if( strlen($guidv4) != 36 ){
                  $this->logger->error('Bad cave guid format');
                  return false;
-             }
-             
-             //check directory deletion
-             
-             if( !isWritable('./../../caves/' . $guidv4) ){
-                 $this->logger->error('Bad cave guid format');
-                 return false;
-             }
+            }
+
+            
+            $cavePath[0] = './caves/' . $guidv4;
+            
+            //get content of cave directory as an array
+            $dirListingArr = dirListingArr($cavePath[0]) ;
+            
+            //add root dir of dirpath
+            $dirListingArr = array_merge($cavePath, $dirListingArr );
+            
+            //reverse to have deletion in right order
+            $dirListingArr = array_reverse($dirListingArr);
+        
+            $this->PDO->beginTransaction();
+            
+            //get cave info to get cave indexid
+            $caveData = $this->selectByGUID($guidv4);
+            if($caveData == false){
+                $this->logger->error('Cave not found in database');
+                return false;
+            }
+            $caveID = $caveData['indexid'];
+            
+            $q  = 'DELETE FROM ' . $this->dbtableprefix . 'changelog WHERE  indexid_caves = "' . $caveID . '";';
+            $q .= 'DELETE FROM ' . $this->dbtableprefix . 'stats WHERE  cave_id = "' . $caveID . '";';
+            $q .= 'DELETE FROM ' . $this->dbtableprefix . 'caves WHERE  indexid = "' . $caveID . '";';
+            
+            $this->PDO->query($q);
+            
+            //check if deletion possible 
+            $unWrFiles = false;
+            
+            foreach($dirListingArr as $key => $path)
+            {
+                if(filetype($path) == 'dir')
+                {
+                    $this->logger->debug('check dir rw mode: [' . $path .']');
+                    if( is_writable($path) == false ){
+                                $unWrFiles[] = $path;
+                    }
+                    else{
+                        $this->logger->info('dir deleted [' . $path .']');
+                        rmdir($path);
+                    }
+                }
+                else{ //is a file
+                    if( is_writable($path) == false ){
+                            $unWrFiles[] = $path;
+                    }
+                    else{
+                        $this->logger->info('file deleted [' . $path .']');
+                        unlink($path);
+                    }
+                }
+            }
+            
+            //commit db changes
+            $this->PDO->commit();
+            
+            $this->logger->info('*** cave deleted ***');
+            //send back to user success status
+            if($unWrFiles === false){
+                return true;
+            }
+            else{
+                return $unWrFiles;
+            }
          }
          catch(exception $e){
-             
+            $this->logger->error('Unable to delete cave: ' . $e->getmessage() );
+            $this->logger->debug('Full query :' . $q);
+            if(!empty($unWrFiles) ){
+                $this->logger->error('Some files could not be deleted, check access rights: ' . print_r($unWrFiles,true) );
+            }
+            $this->PDO->rollBack();
+            return false;    
          }
      }
 	
