@@ -1534,8 +1534,8 @@ class VarcaveCave extends Varcave
             $q .= 'DELETE FROM ' . $this->dbtableprefix . 'stats WHERE  cave_id = "' . $caveID . '";';
             $q .= 'DELETE FROM ' . $this->dbtableprefix . 'caves WHERE  indexid = "' . $caveID . '";';
             
-            $this->PDO->query($q);
-            
+            $error = $this->PDO->query($q);
+
             //check if deletion possible 
             $unWrFiles = false;
             
@@ -1572,6 +1572,7 @@ class VarcaveCave extends Varcave
                 return true;
             }
             else{
+                $this->logger->info('Some files where not deleted');
                 return $unWrFiles;
             }
          }
