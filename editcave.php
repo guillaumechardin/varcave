@@ -743,6 +743,11 @@ elseif( isset($_POST['delete']) ){
         $logger->info('Start deletion process on cave: [' . $_POST['guid'] . ']');
         try{
             $deletionState = $caveObj->deleteCave($_POST['guid']);
+            if($deletionState === false)
+            {
+                throw new exception('error .while delete.');
+            }
+            
             if(is_array($deletionState)){
                 $leftToDel = $deletionState;
             }

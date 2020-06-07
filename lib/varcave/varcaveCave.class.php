@@ -1531,10 +1531,14 @@ class VarcaveCave extends Varcave
             $caveID = $caveData['indexid'];
             
             $q  = 'DELETE FROM ' . $this->dbtableprefix . 'changelog WHERE  indexid_caves = "' . $caveID . '";';
-            $q .= 'DELETE FROM ' . $this->dbtableprefix . 'stats WHERE  cave_id = "' . $caveID . '";';
-            $q .= 'DELETE FROM ' . $this->dbtableprefix . 'caves WHERE  indexid = "' . $caveID . '";';
-            
             $error = $this->PDO->query($q);
+            
+            $q  = 'DELETE FROM ' . $this->dbtableprefix . 'stats WHERE  cave_id = "' . $caveID . '";';
+            $error = $this->PDO->query($q);
+            
+            $q  = 'DELETE FROM ' . $this->dbtableprefix . 'caves WHERE  indexid = "' . $caveID . '";';
+            $error = $this->PDO->query($q);
+
 
             //check if deletion possible 
             $unWrFiles = false;
@@ -1564,7 +1568,8 @@ class VarcaveCave extends Varcave
             }
             
             //commit db changes
-            $this->PDO->commit();
+            $var = $this->PDO->commit();
+            
             
             $this->logger->info('*** cave deleted ***');
             //send back to user success status
