@@ -737,26 +737,44 @@ elseif( isset($_POST['update'] ) ){
 	}
 }
 elseif( isset($_POST['delete']) ){
-    $logger->debug('user try to delete cave');
-    if( isset($_POST['guid']) && strlen($_POST['guid'] == 36) )
+    $logger->debug('editcave.php : user try to delete cave');
+    if( isset($_POST['guid']) && strlen($_POST['guid']) == 36 )
     {
         $logger->info('Start deletion process on cave: [' . $_POST['guid'] . ']');
         try{
-            $caveObj->deleteCave($_POST['guid']);
+            $deletionState = $caveObj->deleteCave($_POST['guid']);
+            if($deletionState === false)
+            {
+                throw new exception('error .while delete.');
+            }
             
+            if(is_array($deletionState)){
+                $leftToDel = $deletionState;
+            }
+            else{
+                $leftToDel = '';
+            }
+            
+            $return = array(
+                    'title' => L::general_delete,
+                    'stateStr' => L::editcave_caveDeleteSucceed,
+                    'leftToDel' => $leftToDel,
+                    );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
         }
         catch (Exception $e){
             $logger->debug('Failed to delete cave:' . $e->getmessage);
             $return = array(
                     'title' => L::errors_ERROR,
-                    'stateStr' => L::editcave_cannotDeleteCave ,
+                    'stateStr' => L::editcave_cannotDeleteCave,
                     );
             $httpError = 500;
             $httpErrorStr = ' INTERNAL SERVER ERROR';
         }
     }
     else{
-        $logger->debug('Failed to delete cave, incorrect guid');
+        $logger->debug('Failed to delete cave : incorrect guid');
         $return = array(
 				'title' => L::errors_ERROR,
 				'stateStr' => L::errors_badArgs . ':' . L::errors_badGuid,

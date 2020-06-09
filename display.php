@@ -80,6 +80,8 @@ if (isset($_GET['guid']) )
         $adminBar .= 'var infoTitle = "' . L::general_info .'";';
         $adminBar .= 'var deleteCaveMsg = "' . L::display_deleteCaveMsg .'";';
         $adminBar .= 'var iAccept = "' . L::general_iAccept .'";';
+        $adminBar .= 'var notDeletedItems = "' . L::display_notDeletedItems . '";';
+        
         $adminBar .= '</script>';
 	}
 	else
@@ -163,6 +165,8 @@ if (isset($_GET['guid']) )
 	
 	try
 	{
+        $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
+        
 		//getting list of fields to display
 		$fields = $cave->getI18nCaveFieldsName('ONDISPLAY');
 		
@@ -386,9 +390,6 @@ if (isset($_GET['guid']) )
 		$htmlstr .= '</div>';
 		$htmlstr .= '<script src="lib/lightbox/2.10.0/dist/js/lightbox.min.js"></script>';
 		$htmlstr .= '<link href="lib/lightbox/2.10.0/dist/css/lightbox.css" rel="stylesheet">';
-		$htmlstr .= '</div>';
-		
-
 		
 
         

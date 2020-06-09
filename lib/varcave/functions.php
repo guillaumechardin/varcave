@@ -298,6 +298,8 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
         }
     }
     
+    
+    /* recursive delete directory *//*
     function rrmdir($dir) {
         if (is_dir($dir)) {
             $objects = scandir($dir);
@@ -315,18 +317,34 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
             }
         }
     }
+    */
     
-    function arrRmdir($dir, &$ret = array() ) {
+    /*
+     * this function build a 2dim array of files and folder as is:
+     * array (
+     *          [my/dirpath] =array(
+     *              0 => 'file_in_dir.file',
+     *              1 => 'file_in_dir2.txt'
+     *          ),
+     *          [my/other/dirpath2] =array(
+     *              0 => 'file_in_dir3.file',
+     *              1 => 'file_in_dir4.txt'
+     *          ),
+     * );
+     *              
+     */             
+    function dirListingArr($dir, &$ret = array() ) {
 
         if (is_dir($dir)) {
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
                     if (filetype($dir."/".$object) == "dir"){ 
-                        arrRmdir($dir."/".$object, $ret);
+                        $ret[] = $dir."/".$object;
+                        dirListingArr($dir."/".$object, $ret);
                     }
                     else{
-                        $ret[$dir][] = basename($object);
+                        $ret[] = $dir."/".$object;
                     }
                 }
                 //reset($objects);
