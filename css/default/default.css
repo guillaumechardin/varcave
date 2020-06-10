@@ -920,7 +920,7 @@ div[id^="edit-imgEl"]
 
 #usermgmt-dialogFormUser > fieldset input[name="password"]
 {
-	width: 60%	
+	width: 55%	
 }
 
 #usermgmt-dialogFormUser > fieldset input[id="changepwd"]
@@ -949,8 +949,8 @@ div[id^="edit-imgEl"]
 #ressources-uploadform > input, #ressources-uploadform > textarea,
 #fieldssettings-addNewField > input, #fieldssettings-addNewField > select  
 {
-	margin: 1.5em;
-	width: 100%;
+    margin: 0.2em 0.7em 0.5em 0.7em;
+	width: 95%;
 	padding: 0.5em;
 	display: inline-block;
 	border: 1px solid #ccc;
