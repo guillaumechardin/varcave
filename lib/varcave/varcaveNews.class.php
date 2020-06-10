@@ -46,29 +46,29 @@ class varcaveNews extends Varcave
                 $where = ' deleted = 0 ';
             }
 			
-            $q = <<<"EOT"
-SELECT news.indexid,
-	   news.deleted,
-	   news.content,
-	   news.title,
-	   news.creation_date,
-	   news.edit_date,
-	   u2.username as editor_username,
-	   u2.firstname as editor_firstname,
-	   u2.lastname as editor_lastname,
-	   u.username,
-	   u.firstname,
-	   u.lastname
-FROM {$this->dbtableprefix}`news` 
-LEFT JOIN {$this->dbtableprefix}users as u 
-  ON news.creator = u.indexid 
-LEFT JOIN {$this->dbtableprefix}users as u2
-  ON news.last_editor = u2.indexid 
-WHERE $where
-ORDER BY creation_date DESC
-LIMIT $_start,$_end
-EOT;
-
+            $q = 'SELECT news.indexid,  ' .
+                        'news.deleted, '.
+                        'news.content, '.
+                        'news.title, '.
+                        'news.creation_date, '.
+                        'news.edit_date, '.
+                        'u2.username as editor_username, '.
+                        'u2.firstname as editor_firstname, '.
+                        'u2.lastname as editor_lastname, '.
+                        'u.username, '.
+                        'u.firstname, '.
+                        'u.lastname ' .
+                ' FROM ' . $this->dbtableprefix . 'news as news' .
+                ' LEFT JOIN ' . $this->dbtableprefix . 'users as u ' .
+                '   ON news.creator = u.indexid ' .
+                ' LEFT JOIN ' . $this->dbtableprefix . 'users as u2 ' .
+                '  ON news.last_editor = u2.indexid ' .
+                'WHERE ' . $where . ' ' .
+                'ORDER BY creation_date DESC ' .
+                'LIMIT '. $_start . ',' . $_end ;
+            
+            $this->logger->debug('Query : ' . $q);
+            
 			$pdoStatement = $this->PDO->query($q);
             if($asNamedCol)
             {

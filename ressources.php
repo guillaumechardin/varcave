@@ -189,6 +189,23 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 				$faIcon = getFaIcon($fInfo['extension']);
 				
 			}
+            
+            //prepare data feedback
+            $return = array(
+                'title' =>L::general_edit,
+                'stateStr'=> L::ressources_fileaddedsuccess,
+                'newid' => $lastinsertid,
+                'newfile' => $httpFile, 
+                'actionType' => $_POST['action'],
+                'faIcon' => $faIcon,
+                'deleted' => 'true',
+                'display_name' => $_POST['display_name'],
+                'display_group' => $_POST['display_group'],
+                'description' => $_POST['description'],
+            );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+            jsonWrite(json_encode($return), $httpError, $httpErrorStr);
 			
 		}
 		elseif($_POST['action'] == 'delete')
@@ -238,12 +255,13 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
                     'actionType' => 'add',
                     'display_name' => L::ressources_gpxFile,
                     'description' => L::ressources_gpxCavesFile,
-                    'groupName' => 'SIG',
+                    'display_group' => 'SIG',
                     'newfile' => $filepath,
                     
                 );
                 $httpError = 200;
                 $httpErrorStr = ' OK';
+                jsonWrite(json_encode($return), $httpError, $httpErrorStr);
             }
             catch( exception $e){
                 $return = array(
@@ -254,7 +272,7 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
                 $httpErrorStr = 'Internal error';
             }
             
-            jsonWrite(json_encode($return), $httpError, $httpErrorStr);
+            
 		}
 		else
 		{

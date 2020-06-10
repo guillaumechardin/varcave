@@ -49,20 +49,20 @@ class VarcaveCave extends Varcave
 			// building req
 			if ($caveID) 
 			{
-				$where_indexid .= $this->dbtableprefix . ' caves.indexid=' . $caveID ; //no quote because int cast before
+				$where_indexid .= 'caves.indexid=' . $caveID ; //no quote because int cast before
 			}
 			else 
 			{
-				$where_indexid .= $this->dbtableprefix . ' caves.indexid IS NOT NULL';
+				$where_indexid .= 'caves.indexid IS NOT NULL';
 			}
 			
 			switch ($getAllLog) 
 			{
 				case 0:
-				   $where_changelog .= $this->dbtableprefix . ' changelog.isVisible=0';
+				   $where_changelog .= ' changelog.isVisible=0';
 					break;
 				case 1:
-					$where_changelog .= $this->dbtableprefix . ' changelog.isVisible=1';
+					$where_changelog .= 'changelog.isVisible=1';
 					break;
 				case 2:
 					$where_changelog .= '(' . $this->dbtableprefix . 'changelog.isVisible=1 OR ' . $this->dbtableprefix .  'changelog.isVisible=0)';
@@ -72,10 +72,10 @@ class VarcaveCave extends Varcave
 			 
 			}
   
-            $req = 'SELECT name,indexid_caves,chgLogTxt,guidv4,date,' . $this->dbtableprefix . 'changelog.indexid,isVisible  
-                        FROM  ' . $this->dbtableprefix . 'caves join  ' . $this->dbtableprefix . 'changelog
-                        WHERE ' . $this->dbtableprefix . 'caves.indexid=indexid_caves AND ' . $where_indexid . ' AND ' . $where_changelog . '
-                        ORDER BY ' . $this->dbtableprefix . 'changelog.date DESC limit 0,' . $max ;
+            $req = 'SELECT name,indexid_caves,chgLogTxt,guidv4,date,changelog.indexid,isVisible  
+                        FROM  ' . $this->dbtableprefix . 'caves as caves join  ' . $this->dbtableprefix . 'changelog as changelog
+                        WHERE caves.indexid=indexid_caves AND ' . $where_indexid . ' AND ' . $where_changelog . '
+                        ORDER BY changelog.date DESC limit 0,' . $max ;
             
             $this->logger->debug('request : ' . $req);
             
@@ -85,8 +85,9 @@ class VarcaveCave extends Varcave
         catch (Exception $e)
         {
             $this->setErrorMsg(__METHOD__,time(), L::varcaveCave_failToFetchChangelog );
-			$this->logger->debug('Fail to find mods : ' . $e->getmessage());
-			
+			$this->logger->error('Fail to find mods : ' . $e->getmessage());
+			$this->logger->debug('Full query : '. $req);
+            
 			return false;
         }
 		

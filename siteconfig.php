@@ -226,7 +226,7 @@ else
 		$return = array(
                     'title' => L::general_edit,
                     'stateStr'=> L::editcave_success,
-                    'newVal' => htmlentities($_POST['value']),
+                    'newVal' => htmlentities($_POST['itemvalue']),
                     );
 		$httpError = 200;
 		$httpErrorStr = ' OK';
