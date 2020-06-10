@@ -783,7 +783,7 @@ class Varcave {
      */
     public function version(){
         try{
-            $qdbv = 'SELECT * FROM dbversion WHERE id = 1';
+            $qdbv = 'SELECT * FROM ' . $this->dbtableprefix . 'dbversion WHERE id = 1';
             $rPDOStmt = $this->PDO->query($qdbv);
             $dbver = $rPDOStmt->fetch(PDO::FETCH_ASSOC);
             $r = array(
