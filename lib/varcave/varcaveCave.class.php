@@ -65,7 +65,7 @@ class VarcaveCave extends Varcave
 					$where_changelog .= 'changelog.isVisible=1';
 					break;
 				case 2:
-					$where_changelog .= '(' . $this->dbtableprefix . 'changelog.isVisible=1 OR ' . $this->dbtableprefix .  'changelog.isVisible=0)';
+					$where_changelog .= '(changelog.isVisible=1 OR changelog.isVisible=0)';
 					break;
 				default:
 				throw new exception ("findlastModifiedCave: Method not supported: $getAllLog");
@@ -77,7 +77,7 @@ class VarcaveCave extends Varcave
                         WHERE caves.indexid=indexid_caves AND ' . $where_indexid . ' AND ' . $where_changelog . '
                         ORDER BY changelog.date DESC limit 0,' . $max ;
             
-            $this->logger->debug('request : ' . $req);
+            //$this->logger->debug('request : ' . $req);
             
             $pdoStatement = $this->PDO->query($req);
             $result = $pdoStatement->fetchall(PDO::FETCH_BOTH);
@@ -1173,7 +1173,9 @@ class VarcaveCave extends Varcave
 	{
 		try
 		{
-			$q = 'SELECT stats.indexid as indexid ,view_count,caves.name as name FROM ' . $this->dbtableprefix . 'stats,' . $this->dbtableprefix . 'caves WHERE caves.indexid = cave_id ORDER BY view_count DESC LIMIT ' . (int) $this->config['displayedStats'] ;
+			$q = 'SELECT stats.indexid as indexid ,view_count,caves.name as name ' .
+                 'FROM ' . $this->dbtableprefix . 'stats as stats,' . $this->dbtableprefix . 'caves as caves ' .
+                 'WHERE caves.indexid = cave_id ORDER BY view_count DESC LIMIT ' . (int) $this->config['displayedStats'] ;
 			$statsPdoStmt = $this->PDO->query($q);
 			return $statsPdoStmt->fetchall(PDO::FETCH_ASSOC);
 		}
@@ -1326,6 +1328,7 @@ class VarcaveCave extends Varcave
             session_write_close(); //end admin sess
 
             //Create a dummy session to obfuscate coords for end users
+            session_name($this->cookieSessionName);
             session_id('system-session');
             session_start();
             $_SESSION = array();
@@ -1408,6 +1411,7 @@ class VarcaveCave extends Varcave
             //delete dummy session
             session_destroy();
             //restore admin session settings
+            session_name($this->cookieSessionName);
             session_id($admin_sessionid);
             session_start();
             $_SESSION = $admin_SESSION;
@@ -1428,7 +1432,7 @@ class VarcaveCave extends Varcave
      * @result true if some document type are registered, false if nothing is registered
      */
     public function documentExists($caveDocs, $docType){
-        $this->logger->debug(__METHOD__ . ': check if documents are registered for cave');
+        $this->logger->debug(__METHOD__ . ': check if documents [' . $docType . '] are registered for cave');
         
         $filesObj = json_decode($caveDocs);
         if( ! isset($filesObj->$docType) ){

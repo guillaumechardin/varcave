@@ -531,7 +531,7 @@ if (isset($_GET['guid']) )
 		}
 		else
 		{
-			$htmlstr .= L::nodataavailable;
+			$htmlstr .= L::display_nodataavailable;
 		}
 		$htmlstr .= '</div>';
 		$htmlstr .= '<script src="lib/varcave/display.js"></script>';

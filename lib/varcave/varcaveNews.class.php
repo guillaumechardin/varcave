@@ -102,14 +102,13 @@ class varcaveNews extends Varcave
     {
         $this->logger->debug(__METHOD__ . ' : try to get news with ID:[' . $_newsIndexid .']');
 		$q = 'SELECT '.
-                  $this->dbtableprefix . 'news.*,' .
-                  $this->dbtableprefix . 'users.username '.
+                  'news.*, users.username ' .
                 'FROM ' .
-                  $this->dbtableprefix . 'news,users '.
+                    $this->dbtableprefix . 'news as news,' .  $this->dbtableprefix . 'users as users '.
                 'WHERE ' .
-                  $this->dbtableprefix . 'users.indexid = news.creator '.
+                  'users.indexid = news.creator '.
                 'AND ' .
-                  $this->dbtableprefix . 'news.indexid = ' .  $this->PDO->quote($_newsIndexid) ;
+                  'news.indexid = ' .  $this->PDO->quote($_newsIndexid) ;
 		try
 		{
             $this->logger->debug('query:'.$q);

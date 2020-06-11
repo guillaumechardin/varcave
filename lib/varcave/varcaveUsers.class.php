@@ -70,41 +70,41 @@ class VarcaveUsers extends Varcave
 			$Def_datatablesMaxItems = 10;
             
             
-			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . '
-							users (username, groups, password, expire, created,
-									lastUpdate, firstname, lastname, theme,
-									geo_api, last_php_session, datatablesMaxItems, 
-                                    disabled, emailaddr, streetNum,
-									address1,address2,postCode, town,country,licenceNumber,
-									phoneNum,cavingGroup,notes,uiLanguage) 
+			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . 'users(' .
+                            'username, groups, password, expire, created,' .
+                            'lastUpdate, firstname, lastname, theme,'.
+                            'geo_api, last_php_session, datatablesMaxItems,'.
+                            'disabled, emailaddr, streetNum,'.
+                            'address1,address2,postCode, town,country,licenceNumber,'.
+                            'phoneNum,cavingGroup,notes,uiLanguage) '. 
 									
-									VALUES (' . 
-									$this->PDO->quote( strtolower($userSettings['username']) )  . ','.
-									$this->PDO->quote($userSettings['groups']) . ','.
-									$this->PDO->quote($userSettings['password']) . ','.
-									-1 . ','. //expire
-									time() . ','. //creation date
-									time() . ',' . //last update
-									$this->PDO->quote($userSettings['firstname']) . ','.
-									$this->PDO->quote( strtoupper( $userSettings['lastname'] )) . ','.
-									'\'default\','. //theme
-									$this->PDO->quote($this->config['default_geo_api']) . ',' .
-									$this->PDO->quote($userSettings['last_php_session']) . ',' .
-									$Def_datatablesMaxItems . ','.
-									$this->PDO->quote($userSettings['disabled']) . ','.
-									$this->PDO->quote($userSettings['emailaddr']) . ','.
-									$this->PDO->quote($userSettings['streetNum']) . ','.
-									$this->PDO->quote($userSettings['address1']) . ','.
-									$this->PDO->quote($userSettings['address2']) . ','.
-									$this->PDO->quote($userSettings['postCode']) . ','.
-									$this->PDO->quote($userSettings['town']) . ','.
-									$this->PDO->quote($userSettings['country']) . ','.
-									$this->PDO->quote($userSettings['licenceNumber']) . ','.
-									$this->PDO->quote($userSettings['phoneNum']) . ','.
-									$this->PDO->quote($userSettings['cavingGroup']) . ','.
-									$this->PDO->quote($userSettings['notes']) . ','.
-									$this->PDO->quote($userSettings['uiLanguage']) .
-																')';
+                        'VALUES (' . 
+                            $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
+                            $this->PDO->quote($userSettings['groups']) . ','.
+                            $this->PDO->quote($userSettings['password']) . ','.
+                            strtotime('+1 year') . ','. //expire one year late by default
+                            time() . ','. //creation date
+                            time() . ',' . //last update
+                            $this->PDO->quote($userSettings['firstname']) . ','.
+                            $this->PDO->quote( strtoupper( $userSettings['lastname'] )) . ','.
+                            '\'default\','. //theme
+                            $this->PDO->quote($this->config['default_geo_api']) . ',' .
+                            $this->PDO->quote($userSettings['last_php_session']) . ',' .
+                            $Def_datatablesMaxItems . ','.
+                            $this->PDO->quote($userSettings['disabled']) . ','.
+                            $this->PDO->quote($userSettings['emailaddr']) . ','.
+                            $this->PDO->quote($userSettings['streetNum']) . ','.
+                            $this->PDO->quote($userSettings['address1']) . ','.
+                            $this->PDO->quote($userSettings['address2']) . ','.
+                            $this->PDO->quote($userSettings['postCode']) . ','.
+                            $this->PDO->quote($userSettings['town']) . ','.
+                            $this->PDO->quote($userSettings['country']) . ','.
+                            $this->PDO->quote($userSettings['licenceNumber']) . ','.
+                            $this->PDO->quote($userSettings['phoneNum']) . ','.
+                            $this->PDO->quote($userSettings['cavingGroup']) . ','.
+                            $this->PDO->quote($userSettings['notes']) . ','.
+                            $this->PDO->quote($userSettings['uiLanguage']) .
+                    ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qNewUser);
 			$userIndexid = $this->PDO->lastinsertid();
@@ -157,13 +157,12 @@ class VarcaveUsers extends Varcave
 				}
 			}
 			
-			$q = 'INSERT INTO ' . $this->dbtableprefix . '
-							groups (groupName, description) 
-									
-									VALUES (' . 
-									$this->PDO->quote($groupSettings['groupName']) . ','.
-									$this->PDO->quote($groupSettings['description']) .
-									')';
+			$q = 'INSERT INTO ' . $this->dbtableprefix . 'groups' . 
+                        '(groupName, description) '.
+                'VALUES (' . 
+                            $this->PDO->quote($groupSettings['groupName']) . ','.
+                            $this->PDO->quote($groupSettings['description']) .
+                ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($q);
 			$grpIndexid = $this->PDO->lastinsertid();

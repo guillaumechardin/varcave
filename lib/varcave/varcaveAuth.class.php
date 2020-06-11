@@ -28,6 +28,7 @@ class VarcaveAuth extends Varcave
 			
 			//restart a new session because it has been deleted above by logout()
 			//session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
+            session_name($this->cookieSessionName);
 			session_start();
 			
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );
@@ -380,6 +381,7 @@ class VarcaveAuth extends Varcave
 
 		//load user session
 		session_id( $userInfos['last_php_session'] );
+        session_name($this->cookieSessionName);
 		session_start();
         
 		$this->logger->debug('Imported SESSION info :' . print_r($_SESSION,true) );
@@ -391,6 +393,7 @@ class VarcaveAuth extends Varcave
 		
 		//reload admin session
 		session_id($admin_sessionid);
+        session_name($this->cookieSessionName);
 		session_start();
 		$_SESSION = $admin_SESSION;
         $this->logger->debug('reload admin session :' . session_id(). ' $_SESSION:' . print_r($_SESSION,true) );

@@ -56,6 +56,9 @@ class Varcave {
     //langcode the currently applied i18n language
     protected $langcode = '';
     
+    //cookie session name 
+    protected $cookieSessionName = 'VARCAVEID';
+    
     function __construct(){
         $this->startInvoke = microtime(true);
         #loading local configuration
@@ -93,6 +96,7 @@ class Varcave {
 			$this->logger->debug("No session exist for current browser. Creating or resuming one");
 			//set sessions directory
 			//session_save_path(__DIR__ . '/../../' . $this->config['sessiondir'] );
+            session_name($this->cookieSessionName);
 			session_start();
 
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );
@@ -462,7 +466,7 @@ class Varcave {
             //$cs_list = $this->getListElement('list_coordinates_systems');
 			$q = ''.
             'SELECT lists.indexid as indexid,list_name,list_item as name,js_lib_filename,php_lib_filename ' .
-            'FROM  `' . $this->dbtableprefix . 'lists` ' . 
+            'FROM  `' . $this->dbtableprefix . 'lists` as lists ' . 
             'INNER JOIN `' . $this->dbtableprefix . 'list_coordinates_systems` as lcs ' .
             'ON lists.indexid = lcs.indexid_lists  ' . 
             'WHERE `list_name` =   "list_coordinates_systems"';
@@ -486,6 +490,7 @@ class Varcave {
 		{
 			//on failure we send back default data
 			$this->logger->error('Fetch failed :' . $e->getmessage() );
+			$this->logger->debug('Full query:' . $q );
 			return false;
 		}
 	}

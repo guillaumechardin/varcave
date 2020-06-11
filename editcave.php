@@ -133,18 +133,20 @@ if( isset($_GET['guid']) ){
                     $coordList = json_decode($cave['json_coords']);
                     // print_r($coordList->features[0]->geometry->coordinates);
                     $i=0;
+                    $jsCoordArray='';
                     foreach($coordList->features[0]->geometry->coordinates as $coord )
                     {
-                        $coordsHtml .= '<div class="editCoords" data-elNumber="' . $i . '">'; 
+                        $coordsHtml .= '<div class="editCoords" data-coordSet="' . $i . '">'; 
                         $coordsHtml .= '   X:<input type="text" class="coords" data-elNumber="0" value="' . $coord[0] . '" />';
                         $coordsHtml .= '   Y:<input type="text" class="coords" data-elNumber="1" value="' . $coord[1] . '" />';
                         $coordsHtml .= '   Z:<input type="text" class="coords" data-elNumber="2" value="' . $coord[2] . '" />';
                         $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg"  id="edit-delCoordSet-' . $i . '"></span>';
                         $coordsHtml .= '</div>';
-                        
                         $i++;
                     }
                     $coordsHtml .= '</div>'; //edit-json_coords
+                    $coordsHtml .= '<script>var coordinatesList = ' . $cave['json_coords'] . ' ;</script>'; 
+                    $coordsHtml .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
                     $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
                     $coordsHtml .= '    <i class="fas fa-plus fa-lg"></i>';
                     $coordsHtml .= '  </span>';
@@ -364,8 +366,7 @@ elseif( isset($_POST['update'] ) ){
 	$logger->debug('State of user POST input : ' . print_r($_POST, true) );
 	
 	//update <input text or textarea data for cave
-    if(!isset($_POST['guid']) || !isset($_POST['item']) || !isset($_POST['value']) ||  empty($_POST['item'] )  ) 
-	{
+    if(!isset($_POST['guid']) || !isset($_POST['item']) || !isset($_POST['value']) ||  empty($_POST['item'] )  ){
 		//show error if user do not provides sufficients informations
 		$logger->error('edit details failed. args error');
 		$return = array(
@@ -423,13 +424,10 @@ elseif( isset($_POST['update'] ) ){
 
 			}
 		}
-		elseif( isset($_POST['json']) && !isset($_FILES['file']) && $_POST['item'] != 'changelog' )  //json value to handle like json_coords and files
-		{
-			$logger->debug('Processing json values like coords and files');
-			try
-            {
-                if( $_POST['item'] == 'jsonCoords' )
-                {
+		elseif( isset($_POST['json']) && !isset($_FILES['file']) && $_POST['item'] != 'changelog' ){  //json value to handle like json_coords and files
+			$logger->debug('Processing json values like coords');
+			try{
+                if( $_POST['item'] == 'jsonCoords' ){
 					$valueIdx = '';
 					$value = '';
 					$insertIndex = false;
@@ -457,8 +455,7 @@ elseif( isset($_POST['update'] ) ){
 				$httpError = 200;
 				$httpErrorStr = ' OK';
                 }
-                else
-                {
+                else{
                     switch($_POST['actionType'])
 					{
 						case "add":
@@ -489,8 +486,7 @@ elseif( isset($_POST['update'] ) ){
                 
                 
 			}
-			catch (exception $e)
-			{
+			catch (exception $e){
 				$logger->error('fail to update db : ' . $e->getmessage() );
 				$return = array(
 					'title' => L::errors_ERROR,
@@ -500,10 +496,8 @@ elseif( isset($_POST['update'] ) ){
 				$httpError = 500;
 				$httpErrorStr = ' Internal server error';
 			}
-			
 		}
-		elseif( isset($_FILES['file']) ) //file input form like documents or cave_maps
-        {
+		elseif( isset($_FILES['file']) ) {//file input form like documents or cave_maps
             $caveInfo = $caveObj->selectByGuid($_POST['guid']);
             //we want to upload some files
             $logger->info('uploading file');
@@ -620,8 +614,7 @@ elseif( isset($_POST['update'] ) ){
             
             
         }
-        elseif( isset($_POST['rotate']) && isset($_POST['imgPath']) ) //image rotation only
-        {
+        elseif( isset($_POST['rotate']) && isset($_POST['imgPath']) ) {//image rotation only
             $rotate = $_POST['rotate'];
             $imgPath = $_POST['imgPath'];
             
@@ -670,8 +663,7 @@ elseif( isset($_POST['update'] ) ){
             }
             
         }
-        elseif($_POST['item'] == 'changelog')
-		{
+        elseif($_POST['item'] == 'changelog'){
 			try
 			{
 				$logger->info('update changelog');
@@ -720,8 +712,7 @@ elseif( isset($_POST['update'] ) ){
 
 			}	
 		}
-		else //cannot process
-		{
+		else{ //cannot process
 			$return = array(
 				'title' => 'bad type',
 				'stateStr'=> 'not json or text, bad args',
