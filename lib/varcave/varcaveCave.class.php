@@ -745,10 +745,11 @@ class VarcaveCave extends Varcave
                     $geoJsonObj->features[0]->geometry = new stdClass();
                     $geoJsonObj->features[0]->geometry->coordinates = array();
 					$nextCoordSetIndex = 0;
+                    // set a default value of 1 to prevent conversion errors
 					$geoJsonObj->features[0]->geometry->coordinates[$nextCoordSetIndex] = array(
-																		0=>'',
-																		1=>'',
-																		2=>'',
+																		0=>'1',
+																		1=>'1',
+																		2=>'1',
 																		);
                     
                     $this->logger->debug('new json object content : ' . print_r($geoJsonObj, true) );

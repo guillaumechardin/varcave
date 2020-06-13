@@ -145,6 +145,8 @@ if( isset($_GET['guid']) ){
                         $i++;
                     }
                     $coordsHtml .= '</div>'; //edit-json_coords
+                    //coordinatesList is a js temp var containing an exact copie of json_coords from db. It is 
+                    // used by js conversion operations
                     $coordsHtml .= '<script>var coordinatesList = ' . $cave['json_coords'] . ' ;</script>'; 
                     $coordsHtml .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
                     $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
