@@ -758,7 +758,7 @@ class VarcaveCave extends Varcave
                 {
                     $nextCoordSetIndex = max($indexes) + 1;
                     $this->logger->debug('Adding  data to existing object, current value will be :' . $nextCoordSetIndex);
-                    $geoJsonObj->features[0]->geometry->coordinates[$nextCoordSetIndex] = ['', '', ''];
+                    $geoJsonObj->features[0]->geometry->coordinates[$nextCoordSetIndex] = ['1', '1', '1'];
                     $this->logger->debug('new json object content : ' . print_r($geoJsonObj, true) );
                 }
                 
