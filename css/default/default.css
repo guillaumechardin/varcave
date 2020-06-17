@@ -87,6 +87,10 @@ max-width:25%;
 
 }
 
+.flexSpaceBetween{
+    justify-content: space-between;
+}
+
 .flexWrap
 {
 	flex-wrap: wrap;
@@ -386,10 +390,15 @@ input[name^="value_"] {
 
 .displayCaveAccessImg
 {
-	max-width: 35%;
+	max-width: 40%;
 	/*min-width: 20em; */
 	float:left;
 	margin: 0 1em 0 0 ;
+}
+
+.sketchAccessTxt
+{
+	max-width: 55%;
 }
 
 .displaySketchAccessImg

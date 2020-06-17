@@ -394,7 +394,7 @@ else
 		$htmlstr .= '  </table>';
 		$htmlstr .= '</div>'; //end resultTableDiv
 		$htmlstr .= '<form id="caveSearchForm">';
-		$htmlstr .= '<div class="flexContainer">';
+		$htmlstr .= '<div class="flexContainer flexSpaceBetween">';
 		
 		//counter for col number
 		$i = 0;

@@ -766,7 +766,7 @@ class Varcave {
         try{
             $this->logger->debug('alter database...');
             $q = 'ALTER TABLE ' . $this->dbtableprefix .'caves ' .
-                 'ADD `' . $colName . '` ' . $colType . ' NOT NULL ' .
+                 'ADD `' . $colName . '` ' . $colType . ' DEFAULT NULL ' .
                  $default ;
             
             $this->PDO->query($q);
