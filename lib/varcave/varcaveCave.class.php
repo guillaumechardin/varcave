@@ -225,8 +225,7 @@ class VarcaveCave extends Varcave
 		$this->logger->debug(print_r($searchInput,true));
 		$this->logger->debug('sortFields :');
 		$this->logger->debug(print_r($sortField,true));
-	
-	
+    
 		if (IsNullOrEmptyString($sortField) | IsNullOrEmptyString($ascDesc) )
 		{
 			$this->logger->debug('fail : bad argument');
@@ -286,14 +285,18 @@ class VarcaveCave extends Varcave
 				throw new Exception($msg,0);
             }
             
-            //adding separator for each searh element
+            //adding separator for each search elements
             $req .= ' AND ';
 			
 		}
 		
 		$req .= ' 1 '; //reques will be malformed : SELECT .... AND 1
 		$limit = ' LIMIT ' . $limitOffset . ',' . $limitMax;
-        $colsReq = '`name`, `guidv4`';
+        
+        //get search field that will be returned back to user
+        //$searchFields = array_map('trim', explode(',', $this->getConfigElement('searchFields') ) )
+        $colsReq = trim( $this->getConfigElement('returnSearchFields') );
+    
 		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//prepare a list of cave for next/previs in display.php
@@ -1597,6 +1600,5 @@ class VarcaveCave extends Varcave
             return false;    
          }
      }
-	
 }    
 ?>

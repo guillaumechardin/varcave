@@ -1,0 +1,19 @@
+{
+ "m_name": "",
+ "m_isActive": false,
+ "m_importFileSpec": "*.php;*.php5;*.inc;*.phtml;*.js;*.html;*.css;*.scss;*.less;*.json;*.xml;*.ini;*.md;*.txt;*.text;.htaccess;*.ctp;*.sql",
+ "m_excludeFolders": ".git;.svn;.codelite;.clang",
+ "settings": {
+  "m_runAs": 0,
+  "m_phpExe": "",
+  "m_indexFile": "C:\\webdev\\varcave\\lib\\varcave\\search.js",
+  "m_args": "",
+  "m_workingDirectory": "C:\\webdev",
+  "m_projectURL": "",
+  "m_includePath": "",
+  "m_ccIncludePath": "",
+  "m_flags": 5,
+  "m_phpIniFile": "",
+  "m_fileMapping": []
+ }
+}
