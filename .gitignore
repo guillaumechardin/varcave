@@ -6,6 +6,8 @@ caves/*
 !caves/readme.md
 img/cavites
 include/localconfig.php
+lang/local/*
+!lang/local/readme.md
 langcache/*
 !langcache/readme.md
 ressources/*

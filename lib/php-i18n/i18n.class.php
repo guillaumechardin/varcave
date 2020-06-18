@@ -17,6 +17,12 @@ class i18n {
      */
     protected $filePath = './lang/lang_{LANGUAGE}.ini';
 
+    /* Custom language file
+     * This can be use to add a custom lang file that can be merge into main file (this must be ini file for now)
+     * It will be automatically setup on init if file exists by default : $langfiledir/custom/$langcode.ini
+     * @var string
+     */
+    protected $customAppliedLang = false;
     /**
      * Cache file path
      * This is the path for all the cache files. Best is an empty directory with no other files in it.
@@ -64,7 +70,6 @@ class i18n {
      * @var string
      */
     protected $sectionSeparator = '_';
-
 
     /*
      * The following properties are only available after calling init().
@@ -132,6 +137,13 @@ class i18n {
             $this->langFilePath = $this->getConfigFilename($langcode);
             if (file_exists($this->langFilePath)) {
                 $this->appliedLang = $langcode;
+
+                //custom lang handling
+                $customAppliedLang = dirname($this->langFilePath) . '/custom/custom_' . $langcode . '.ini';
+                if( file_exists( $customAppliedLang ) ){
+                    $this->customAppliedLang = $customAppliedLang;
+                }
+                
                 break;
             }
         }
@@ -139,11 +151,13 @@ class i18n {
             throw new RuntimeException('No language file was found.');
         }
 
-        // search for cache file
+        // search for cache file        
         $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $this->prefix . '_' . $this->appliedLang . '.cache.php';
+
 
         // whether we need to create a new cache file
         $outdated = !file_exists($this->cacheFilePath) ||
+            filemtime($this->cacheFilePath) < filemtime($this->customAppliedLang) || //custom lang was updated
             filemtime($this->cacheFilePath) < filemtime($this->langFilePath) || // the language config was updated
             ($this->mergeFallback && filemtime($this->cacheFilePath) < filemtime($this->getConfigFilename($this->fallbackLang))); // the fallback language config was updated
 
@@ -297,7 +311,17 @@ class i18n {
         switch ($ext) {
             case 'properties':
             case 'ini':
-                $config = parse_ini_file($filename, true);
+                $configMain = parse_ini_file($filename, true);
+                
+                if($this->customAppliedLang){
+                    $configCustom = parse_ini_file($this->customAppliedLang, true);
+                    $config = $this->mergeConfigs($configMain, $configCustom);
+                    //print_r($config);
+                }else{
+                    $config = $configMain;
+                }
+                
+                
                 break;
             case 'yml':
             case 'yaml':
@@ -335,5 +359,26 @@ class i18n {
         if ($this->isInitialized()) {
             throw new BadMethodCallException('This ' . __CLASS__ . ' object is already initalized, so you can not change any settings.');
         }
+    }
+    
+    /*
+     * Merge main ini config file and custom config file
+     */
+    private function mergeConfigs(&$main, $custom){
+        foreach($custom as $section => $value)
+        {
+            if(is_array($value) ){
+                echo 'find new section';
+                echo 'add $main['.$var.']'.'='.$val;
+                foreach($value as $var => $val){
+                    $main[$section][$var] = $val;
+                }
+            }
+            else{
+                //$section is not a section at all !
+                $main[$section] = $value;
+            }
+        }
+        print_r($main);
     }
 }
