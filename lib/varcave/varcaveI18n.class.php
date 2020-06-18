@@ -2,7 +2,8 @@
 	//	require_once 'i18n.class.php';
 	require_once(__DIR__ . '/../php-i18n/i18n.class.php');
 	require_once(__DIR__ . '/varcave.class.php');
-	
+	// test
+		
 	class varcavei18n extends i18n {
 
 		/**
