@@ -80,13 +80,6 @@ max-width:25%;
 	text-align:center;
 }
 
-.flexContainer div[class^="flexColDisplay-"]
-{
-	width:32%;
-	margin: 0 0.3em 0 0;
-
-}
-
 .flexSpaceBetween{
     justify-content: space-between;
 }
