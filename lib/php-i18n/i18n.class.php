@@ -313,10 +313,10 @@ class i18n {
             case 'ini':
                 $configMain = parse_ini_file($filename, true);
                 
+                //merge custom lang file and main file if needed
                 if($this->customAppliedLang){
                     $configCustom = parse_ini_file($this->customAppliedLang, true);
                     $config = $this->mergeConfigs($configMain, $configCustom);
-                    //print_r($config);
                 }else{
                     $config = $configMain;
                 }
