@@ -326,6 +326,7 @@ else
 	if( isset($_GET['quicksearch'])  &&  $_GET['quicksearch'] != '')
 	{
 		$quickSearchJs .= 'console.log("processing resume search request:");';
+		$quickSearchJs .= '$(".loadingSpiner").show();';
 		$quickSearchJs .= 'var form_data = new FormData();';
 		$quickSearchJs .= 'form_data.append("type_name","LIKE");';
 		$quickSearchJs .= 'form_data.append("value_name","' . $_GET['quicksearch'] . '");';
