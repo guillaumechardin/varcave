@@ -183,6 +183,27 @@ class varcavei18n extends i18n {
         return $config;
     }
 
+    /*
+     * Merge main ini config file and custom config file
+     */
+    private function mergeConfigs($main, $custom){
+        foreach($custom as $section => $value)
+        {
+            if(is_array($value) ){
+                foreach($value as $var => $val){
+                    $main[$section][$var] = $val;
+                }
+            }
+            else{
+                //$section is not a section at all !
+                // just a single item in top of ini file
+                $main[$section] = $value;
+            }
+        }
+        return($main);
+    }
+
+
 }
 	
 ?>

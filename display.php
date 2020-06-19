@@ -106,7 +106,7 @@ if (isset($_GET['guid']) )
 		* isset($_SESSION['nextPreviousCaveList'] is not set no recent search done.
 		* SO no cave navbar
 		*/
-		$htmlstr .= '  <h1>'. $caveData['name'] . '</h1>';
+		$htmlstr .= '  <h1>' . $caveData['name'] . '</h1>';
         $htmlstr .= '  <span  id="display-dummynext"></span>'; //add a dummy next item to set right space between icons
 	}
     //add some icons to cave
