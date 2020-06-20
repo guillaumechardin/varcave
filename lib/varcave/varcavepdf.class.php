@@ -428,7 +428,7 @@ class VarcavePdf extends TCPDF {
 				}
 				else
 				{
-					$this->addpage();
+					$this->addpage('P');
 				}
 				
 				//img left over space

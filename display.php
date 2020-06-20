@@ -176,54 +176,76 @@ if (isset($_GET['guid']) )
         //keep only required fields; here is "main" section
         $results = filter_by_value($fields, 'field_group', 'main'); 
         
-        
-		foreach($results as $subArray)
-		{
-			if( empty( $caveData[ $subArray['field'] ] ) )
-			{ 
-				//skip empty fields
-				continue;
-			}
-			/**
-			 * subArray is defined as: 
-			 *    $array( 
-			 * 			 [field]  => non localized fieldname,
-			 *           [display_name] => localized name,
-			 * 			 [type] => text);
-			 **/
-			
-			/*
-			 * changing to human readable some info like bool(1) as YES or bool(0) = NO
-			 */
-			if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'bool') )
-			{
-				if ( $caveData[ $subArray['field'] ] == 1) 
-				{
-					$caveData[ $subArray['field'] ] = L::_yes ;
-				}
-				else
-				{
-					$caveData[ $subArray['field'] ] = L::_no ;
-				}
-			}
-			
-			/*
-			 * Format editDate unixtimestamp to human readable date
-			 */
-			if($subArray['field'] == 'editDate')
-			{
-				$caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
-				
-			}
-			
-				
-			$htmlstr .= '<div class="flexColDisplay-0">';
-			$htmlstr .= '  <div class="displayItem">' . $subArray['display_name'] . '</div> ';
-			$htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
-			$htmlstr .= '</div>'; 
-		}
-		
-		
+        //main column size an item numbering
+        $total = 0;
+        foreach($results as $subArray)
+        {
+            if( !empty( $caveData[ $subArray['field'] ] ) )
+            { 
+                $total++;
+            }
+        }
+        $cols = 4;
+        $itemPerCol = ceil( $total / $cols) ;
+    
+        $i=1;
+        $colNum = 1;
+        foreach($results as $subArray)
+        {
+            if( empty( $caveData[ $subArray['field'] ] ) )
+            { 
+                //skip empty fields
+                continue;
+            }
+            /**
+             * subArray is defined as: 
+             *    $array( 
+             * 			 [field]  => non localized fieldname,
+             *           [display_name] => localized name,
+             * 			 [type] => text);
+             **/
+            
+            /*
+             * changing to human readable some info like bool(1) as YES or bool(0) = NO
+             */
+            if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'bool') )
+            {
+                if ( $caveData[ $subArray['field'] ] == 1) 
+                {
+                    $caveData[ $subArray['field'] ] = L::_yes ;
+                }
+                else
+                {
+                    $caveData[ $subArray['field'] ] = L::_no ;
+                }
+            }
+            
+            /*
+             * Format editDate unixtimestamp to human readable date
+             */
+            if($subArray['field'] == 'editDate')
+            {
+                $caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
+                
+            }
+                //create/open col wrapper
+                if($i == 1){
+                     $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
+                     $colNum++;
+                }
+                $htmlstr .= '<div class="flexColDisplay-0">';
+                $htmlstr .= '  <div class="displayItem">' . $subArray['display_name'] . '</div> ';
+                $htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
+                $htmlstr .= '</div>';
+                
+                $i++;
+                //close  col wrapper
+                if($i-1 == $itemPerCol){
+                     $htmlstr .= '</div>'; //displayMainCol-x
+                     $i=1;
+                }
+        }
+
 		$htmlstr .= '</div>' ;//flexContainer
 	
 		/**

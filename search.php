@@ -174,7 +174,8 @@ elseif( !IsNullOrEmptyArray($_POST) )
 		/*
 		 * filtering colnames to send back to user. We do not send indexid col
 		 */
-        $searchTableFields = array('guidv4','name','maxDepth','length','town','topographer');
+        //$searchTableFields = array('guidv4','name','maxDepth','length','town','topographer');
+        $searchTableFields = array_map('trim',  explode(',', $cave->getConfigElement('returnSearchFields') ) );
 		$i18nColNamesFilter = array();
 		
         foreach ($searchTableFields as $key => $field)
@@ -217,7 +218,8 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	{	
         //$start = microtime(true);  //for optimization purpose
     
-        $res = $cave->selectByGUID( $valArr['guidv4'] );
+        //$res = $cave->selectByGUID( $valArr['guidv4'] );
+        $res = $valArr;
 
         // add data to list
         foreach($searchTableFields as $idx => $colname){
@@ -394,7 +396,7 @@ else
 		$htmlstr .= '  </table>';
 		$htmlstr .= '</div>'; //end resultTableDiv
 		$htmlstr .= '<form id="caveSearchForm">';
-		$htmlstr .= '<div class="flexContainer">';
+		$htmlstr .= '<div class="flexContainer flexSpaceBetween">';
 		
 		//counter for col number
 		$i = 0;

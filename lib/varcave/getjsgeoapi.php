@@ -129,7 +129,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail')
 		$js .=  '     },';
 		$js .=  '     tileSize: new google.maps.Size(256,256),';
 		$js .=  '     name: "Cartes IGN",';
-		$js .=  '     maxZoom: 18';
+		$js .=  '     maxZoom: 16';
 		$js .=  '});';
 		 
 		$js .= 'map.mapTypeControlOptions.mapTypeIds.push("IGNMapLayer");';
