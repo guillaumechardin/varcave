@@ -312,7 +312,7 @@ if (isset($_GET['guid']) )
         }
 		$htmlstr .= '</select>';
 		
-		if ($caveData['random_coordinates'])
+		if ( $caveData['random_coordinates'] || ( !isset($_SESSION['isauth']) && $cave->getconfigelement('anon_get_obfsuc_coords')  ))
 		{
 			$htmlstr .= '<div class="disclaimRandomCoords red italic">' . L::disclaimRandomCoords . '</div>';
 			$htmlstr .= '';
