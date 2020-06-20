@@ -1,9 +1,9 @@
 <?php
 
-require_once ('lib/varcave/varcaveHtml.class.php');
-require_once ('lib/varcave/varcaveAuth.class.php');
-require_once ('lib/varcave/varcaveCave.class.php');
-require_once ('lib/varcave/functions.php');
+require_once (__DIR__ . '/lib/varcave/varcaveHtml.class.php');
+require_once (__DIR__ . '/lib/varcave/varcaveAuth.class.php');
+require_once (__DIR__ . '/lib/varcave/varcaveCave.class.php');
+require_once (__DIR__ . '/lib/varcave/functions.php');
 
 $auth = new varcaveAuth();
 $logger = $auth->logger;
@@ -179,7 +179,7 @@ else{
                 throw new exception('unable to update data');
             }
 
-            $writeIni = $varcave->updatei18nIniVal('lang/lang_fr.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
+            $writeIni = $varcave->updatei18nIniVal('lang/custom/custom_fr.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
             if( ! $writeIni){
                 throw new exception('unable to write ini file');
             }
