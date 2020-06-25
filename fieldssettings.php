@@ -179,7 +179,7 @@ else{
                 throw new exception('unable to update data');
             }
 
-            $writeIni = $varcave->updatei18nIniVal('lang/custom/custom_fr.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
+            $writeIni = $varcave->updatei18nIniVal('lang/local/custom_fr.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
             if( ! $writeIni){
                 throw new exception('unable to write ini file');
             }

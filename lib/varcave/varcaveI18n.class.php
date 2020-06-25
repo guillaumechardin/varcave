@@ -101,7 +101,7 @@ class varcavei18n extends i18n {
             $this->appliedLang = $langcode;
 
             //custom lang handling
-            $customAppliedLang = dirname($this->langFilePath) . '/custom/custom_' . $langcode . '.ini';
+            $customAppliedLang = dirname($this->langFilePath) . '/local/custom_' . $langcode . '.ini';
             if( file_exists( $customAppliedLang ) ){
                 $this->customAppliedLang = $customAppliedLang;
             }

@@ -176,7 +176,11 @@ if (isset($_GET['guid']) )
         //keep only required fields; here is "main" section
         $results = filter_by_value($fields, 'field_group', 'main'); 
         
-        //main column size an item numbering
+        /* main column size an item numbering */
+        //remove Name field from dataset
+        unset($caveData['name']);
+        
+        //count non empty values
         $total = 0;
         foreach($results as $subArray)
         {
@@ -185,67 +189,83 @@ if (isset($_GET['guid']) )
                 $total++;
             }
         }
+        
         $cols = 4;
         $itemPerCol = ceil( $total / $cols) ;
-    
-        $i=1;
         $colNum = 1;
-        foreach($results as $subArray)
-        {
-            if( empty( $caveData[ $subArray['field'] ] ) )
-            { 
-                //skip empty fields
-                continue;
-            }
-            /**
-             * subArray is defined as: 
-             *    $array( 
-             * 			 [field]  => non localized fieldname,
-             *           [display_name] => localized name,
-             * 			 [type] => text);
-             **/
+        $lastEl = end($results);
+        $lastEl = $lastEl['field'];
+        reset($results);
+        ini_set("max_execution_time",3);
+        for($i=1 ; $i <= $cols ; $i++){
             
-            /*
-             * changing to human readable some info like bool(1) as YES or bool(0) = NO
-             */
-            if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'bool') )
-            {
-                if ( $caveData[ $subArray['field'] ] == 1) 
-                {
-                    $caveData[ $subArray['field'] ] = L::_yes ;
+            //create/open col wrapper
+            $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
+            $colNum++;
+            for($p=1 ; $p <= $itemPerCol ; $p++){
+                $subArray = current($results);
+                if( empty( $caveData[ $subArray['field'] ] ) )
+                { 
+                    //skip empty fields
+                    //but decrease $p to have right numbering per col
+                    $p--;
+                    $abs[] = $subArray['field'];
+                    if($subArray['field']  == $lastEl){
+                        //$p = $itemPerCol +1; //force loop to stop
+                        break;
+                    }
+                    next($results);
+                    continue;
                 }
-                else
-                {
-                    $caveData[ $subArray['field'] ] = L::_no ;
-                }
-            }
-            
-            /*
-             * Format editDate unixtimestamp to human readable date
-             */
-            if($subArray['field'] == 'editDate')
-            {
-                $caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
                 
-            }
-                //create/open col wrapper
-                if($i == 1){
-                     $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
-                     $colNum++;
+                /**
+                 * subArray is defined as: 
+                 *    $array( 
+                 * 			 [field]  => non localized fieldname,
+                 *           [display_name] => localized name,
+                 * 			 [type] => text);
+                 **/
+                 
+                 /*
+                 * changing to human readable some info like bool(1) as YES or bool(0) = NO
+                 */
+                if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'bool') )
+                {
+                    if ( $caveData[ $subArray['field'] ] == 1) 
+                    {
+                        $caveData[ $subArray['field'] ] = L::_yes ;
+                    }
+                    else
+                    {
+                        $caveData[ $subArray['field'] ] = L::_no ;
+                    }
                 }
+                
+                /*
+                 * Format editDate unixtimestamp to human readable date
+                 */
+                if($subArray['field'] == 'editDate')
+                {
+                    $caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
+                }
+                
                 $htmlstr .= '<div class="flexColDisplay-0">';
                 $htmlstr .= '  <div class="displayItem">' . $subArray['display_name'] . '</div> ';
                 $htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
                 $htmlstr .= '</div>';
-                
-                $i++;
-                //close  col wrapper
-                if($i-1 == $itemPerCol){
-                     $htmlstr .= '</div>'; //displayMainCol-x
-                     $i=1;
+                next($results);
+                //reach end of array stop populating column 
+                if($subArray['field']  == $lastEl){
+                    //$p = $itemPerCol +1; //force loop to stop
+                    break;
                 }
-        }
 
+            }
+            //close  col wrapper
+            $htmlstr .= '</div>'; //displayMainCol-x
+            
+        }
+        //close cave data wrapper
 		$htmlstr .= '</div>' ;//flexContainer
 	
 		/**
