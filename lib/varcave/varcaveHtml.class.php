@@ -1,6 +1,7 @@
 <?php 
 require_once ('varcave.class.php');
 require_once ('varcaveAuth.class.php');
+require_once ('varcaveCave.class.php');
 
 class VarcaveHtml extends Varcave {
 	//pagename used to be inserted in <title> tag
@@ -76,6 +77,34 @@ class VarcaveHtml extends Varcave {
         $this->html .= '  var login_pwdAreNotSame ="' . L::login_pwdAreNotSame . '";';
         $this->html .= '</script>';
         
+        /* 
+         * Manage usage of quick search
+         */
+        $useJQueryQuickSearch = true;
+        if($useJQueryQuickSearch){
+            $cave = new varcaveCave();
+            $search = array(
+                array(
+                    "field"=>'indexid',
+                    'type' => '!=',
+                    'value' => '',
+                ),
+              );
+            $res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
+            $cave->setConfigSettings('returnSearchFields','name');
+
+            $this->html .= "\n" . '<script>var availableNames = ['."\n";
+            while($caveName = $res[0]->fetch(PDO::FETCH_ASSOC) ){
+                //print_r($caveName);
+                $this->html .= "'". addslashes ($caveName['name']) . '\','."\n";
+            }
+            $this->html .= '];' . "\n";
+            $this->html .= '</script>';
+        }
+        else{
+            //disabling usage of quick search
+            $this->html .= '<script>var availableNames = false </script>';
+        }
 		$this->html .= '<link rel="shortcut icon" href="img/favicon.png" />';
 		$this->html .= '</head>';
 		$this->html .= '<body>';
