@@ -127,8 +127,17 @@ if (isset($_GET['guid']) )
         
         //link to cave files
         //check if files exists
-        $json = json_decode($caveData['files']);
-        if( count( (array)$json) ){
+        $json = json_decode($caveData['files'], true);
+        //remove cave_maps or photos data as it is not 'real' linked files
+        if( $json['cave_maps']){
+            unset($json['cave_maps']);
+        }
+        if( $json['photos']){
+            unset($json['photos']);
+        }        
+        
+        //show goto linked files button
+        if( count($json) ){
         $htmlstr .= '   <div class="fa-3x display-files-dwnld">
 		                  <span href="#filesSection" class="fas fa-file-download" title="' . L::display_gotoFiles . '">
 						  </span>

@@ -82,6 +82,8 @@ class VarcaveHtml extends Varcave {
          */
         $useJQueryQuickSearch = true;
         if($useJQueryQuickSearch){
+            $this->html .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
+            $this->html .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
             $cave = new varcaveCave();
             $search = array(
                 array(

@@ -208,6 +208,8 @@ class VarcaveCave extends Varcave
 	* @param $ascDesc : ascending or descending
 	* @param $limitOffset : offset to select 
 	* @param $limitMax max number of entry to search
+    * @param $noSaveSearch do not save user search for later use
+    * @param $reqFields a csv value with requested fields. Beware that this function do not obfucate coords and generaly do not alter source data !
 	*
 	* @return on error : false - on success  array of infos
 	* ex :
@@ -218,7 +220,7 @@ class VarcaveCave extends Varcave
 	*	$return[4] => list of col and their respective localized name
 	* 
     */
-	function search($searchInput, $sortField, $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false)
+	function search($searchInput, $sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false, $reqFields = false)
 	{
 		$this->logger->debug('Start search for cave');
 		$this->logger->debug('requested info :');
@@ -294,8 +296,12 @@ class VarcaveCave extends Varcave
 		$limit = ' LIMIT ' . $limitOffset . ',' . $limitMax;
         
         //get search field that will be returned back to user
-        //$searchFields = array_map('trim', explode(',', $this->getConfigElement('searchFields') ) )
-        $colsReq = trim( $this->getConfigElement('returnSearchFields') );
+        if (!$reqFields){
+            $colsReq = trim( $this->getConfigElement('returnSearchFields') );
+        }
+        else{
+            $colsReq = $reqFields;
+        }
     
 		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	

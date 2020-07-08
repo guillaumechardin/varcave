@@ -52,7 +52,6 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $options = ['main', 'files'];
     $htmlstr .= '  <label for="fieldGroup">' . L::fieldssettings_fieldGroup . '</label>';
     $htmlstr .= '  <select name="fieldGroup" id="fieldGroup">';
-    $htmlstr .= '    <option value="" selected></option>';
     foreach($options as $option){
         $htmlstr .= '<option value="' . $option . '">' . $option . '</option>';
     }
