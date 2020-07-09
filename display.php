@@ -134,7 +134,10 @@ if (isset($_GET['guid']) )
         }
         if( $json['photos']){
             unset($json['photos']);
-        }        
+        }
+        if( $json['sketch_access']){
+            unset($json['sketch_access']);
+        } 
         
         //show goto linked files button
         if( count($json) ){
