@@ -602,7 +602,7 @@ class VarcaveCave extends Varcave
             }
             else
             {
-                $this->logger->debug('Erase coords data from result set');
+                $this->logger->debug('Yes : Erase coords data from result set');
                 $result['json_coords'] = '';
             }
 			return $result;			

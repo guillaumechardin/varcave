@@ -238,7 +238,8 @@ class VarcavePdf extends TCPDF {
 		$this->SetFont('dejavusans', '', self::sizeS);
         
 		$sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'sketch_access');
-
+        
+        // ** SKETCH ACCESS IMAGE **
         // add an image if one exists or if Google maps api can be used
         // user images have priority over gMaps API. You need to enable the 'Google static MAPS API'
         $maxImgWidth = 70; // resiz img to to 7cm width
@@ -250,7 +251,7 @@ class VarcavePdf extends TCPDF {
             
         if( !empty($sketchAccessArr) ) {
             $this->varcave->logger->debug('Add access sketch image from user file');
-            $this->Image($sketchAccessArr[0],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
+            $this->Image($sketchAccessArr[1],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
 		}
         elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) ) {
             $this->varcave->logger->debug('Add access sketch image from gAPI');
@@ -366,7 +367,8 @@ class VarcavePdf extends TCPDF {
                 $cave->logger->debug('Do not load lib for system ' . $system['name']);
             }
         }            
-        
+
+        print_r($convCoords);
         //Sources coords format is long/lat
         //show coords in the right system
         $this->multicell($remWidth, 0, LNE::display_caveCoords . ':',0,'L');
