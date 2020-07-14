@@ -191,6 +191,13 @@ class VarcavePdf extends TCPDF {
 						$this->cavedata[ $field['field'] ]  = LNE::_no;
 					}
 				}
+
+                //change editDate format
+                if ( $field['field'] == 'editDate' ){
+                    $date = new DateTime();
+                    $date->setTimestamp($this->cavedata['editDate']);
+                    $this->cavedata['editDate']  = $date->format('d/m/Y') ;
+                }
 				
 				$tbl .= '<td><i>' . $field['display_name'] . '</i>: ' .$this->cavedata[ $field['field'] ] . '</td>';
 				if ($i == 1 || $last['field'] == $field['field'] ) //if at end of 3rd row or if at end of i18n array
