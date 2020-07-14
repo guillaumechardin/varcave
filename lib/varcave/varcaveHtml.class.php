@@ -80,8 +80,7 @@ class VarcaveHtml extends Varcave {
         /* 
          * Manage usage of quick search
          */
-        $useJQueryQuickSearch = true;
-        if($useJQueryQuickSearch){
+        if($this->getConfigElement('useSearchAutocomplete') ){
             $this->html .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
             $this->html .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
             $cave = new varcaveCave();

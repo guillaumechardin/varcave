@@ -516,7 +516,7 @@ class Varcave {
 				
 				$fh  = fopen($localFilepath, 'w+'); 
 				
-				if(! $fh)
+				if(! $fh || !$file)
 				{
 					$this->logger->error('Unable to open file ' . $localFilepath);
 					return false;

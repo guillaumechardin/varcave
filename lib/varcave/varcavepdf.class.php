@@ -286,18 +286,22 @@ class VarcavePdf extends TCPDF {
 			$imgStaticName = $this->cavedata['guidv4'] . '_gAPI.jpg';
 			$cachedir = $cave->getConfigElement('cache_dir');
 			$imgStaticFilePath = __DIR__ . '/../../' . $cachedir . '/' . $imgStaticName ;
-			if( !file_exists( $imgStaticFilePath ) )
+            
+			if( !file_exists( $imgStaticFilePath ))
 			{
 				$this->varcave->logger->debug('inexistent file cache [ '. $imgStaticFilePath . '], creating one from url:[' . $url . ']');
-				
+                
 				if( ! $cave->createCacheFile('url',$url,$imgStaticFilePath) )
 				{
 					//fail with error message !
-					echo 'Fail to create google cache file';
+					echo 'Fail to create google cache file</br>';
 				}
 				
 			}
 			else{
+                if( filesize($imgStaticFilePath) == 0 ){
+                    echo 'Cache file empty. Unable to load pdf file<br/>' ;
+                }
 				$this->varcave->logger->debug('file cache exists');
 			}
 			
