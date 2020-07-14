@@ -368,7 +368,6 @@ class VarcavePdf extends TCPDF {
             }
         }            
 
-        print_r($convCoords);
         //Sources coords format is long/lat
         //show coords in the right system
         $this->multicell($remWidth, 0, LNE::display_caveCoords . ':',0,'L');
