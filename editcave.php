@@ -155,6 +155,22 @@ if( isset($_GET['guid']) ){
                 }
                 else
                 {
+                    $coordsHtml .= '<script>var coordinatesList = {';
+                    $coordsHtml .= '   "features": [
+                                    {
+                                        "type": "Feature",
+                                        "properties": {
+                                            "prop0": ""
+                                        },
+                                        "geometry": {
+                                            "coordinates": [
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }';
+
+                    $coordsHtml .= '</script>'; 
                     $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '"></div>';
                     $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
                     $coordsHtml .= '    <i class="fas fa-plus fa-lg"></i>';
