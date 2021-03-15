@@ -120,8 +120,8 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail')
 		$js .=  '    getTileUrl: function(tileCoord,zoom)';
 		$js .=  '    {';
 		$js .=  '        url="https://wxs.ign.fr/' . $cave->getConfigElement('geoportail_api_key') . '/geoportail/wmts?"+
-                                "LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS"+
-                                "&FORMAT=image/jpeg&SERVICE=WMTS&VERSION=1.0.0"+
+                                "LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"+
+                                "&FORMAT=image/png&SERVICE=WMTS&VERSION=1.0.0"+
                                 "&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM"+
                                 "&TILEMATRIX="+zoom+"&TILEROW="+tileCoord.y+
                                 "&TILECOL="+tileCoord.x;';

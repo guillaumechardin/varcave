@@ -346,7 +346,7 @@ if (isset($_GET['guid']) )
             $htmlstr .=  '<div id="display-noaccess">' . $cave->getConfigElement('noAccessDisclaimer') . '</div>';
             
         }
-		$htmlstr .= '		<span>' . htmlentities($caveData['accessSketchText']) . '</span>';
+		$htmlstr .= '		<span>' . nl2br( htmlentities($caveData['accessSketchText']) ) . '</span>';
 		
 		
 		//show cave coords
@@ -405,7 +405,7 @@ if (isset($_GET['guid']) )
 		 **/
 		$htmlstr .= '<h2>' .  L::display_caveDescription . '</h2>';
 		$htmlstr .= '<div class="flexContainer flexWrap displayShortDescription">';
-		$htmlstr .= '	<p>' . htmlentities($caveData['shortDescription']) . '</p>';
+		$htmlstr .= '	<p>' . nl2br( htmlentities($caveData['shortDescription']) ) . '</p>';
 		
 		if( ! IsNullOrEmptyString($caveData['annex']) )
 		{
