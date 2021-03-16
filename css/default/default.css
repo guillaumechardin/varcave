@@ -357,6 +357,7 @@ input[name^="value_"] {
 .displayItemValue
 {
 	margin: 0.1em 0.3em;
+    max-width: 30em;
 }
 
 .displayItemValue:hover
