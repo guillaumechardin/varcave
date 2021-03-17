@@ -188,54 +188,38 @@ if (isset($_GET['guid']) )
         //keep only required fields; here is "main" section
         $results = filter_by_value($fields, 'field_group', 'main'); 
         
+        
+        
         /* main column size an item numbering */
         //remove Name field from dataset
         unset($caveData['name']);
+        $keyName = array_search('name',array_column($results, 'field'));
+        unset($results[$keyName]);
         
-        //count non empty values
-        $total = 0;
-        foreach($results as $subArray)
-        {
-            if( !empty( $caveData[ $subArray['field'] ] ) )
-            { 
-                $total++;
-            }
-        }
-        
-        $cols = 4;
-        $itemPerCol = ceil( $total / $cols) ;
-        $colNum = 1;
-        $lastEl = end($results);
-        $lastEl = $lastEl['field'];
-        reset($results);
+        $maxColInPage = 4;
+        $itemPerCol = ceil( count($results)/$maxColInPage );
+        $colNum = 0;
+        $newCol = true;
+        $currentItem = 0;
         ini_set("max_execution_time",3);
-        for($i=1 ; $i <= $cols ; $i++){
-            
+        $end = end($results);
+        
+        foreach($results as $subArray) {
             //create/open col wrapper
-            $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
-            $colNum++;
-            for($p=1 ; $p <= $itemPerCol ; $p++){
-                $subArray = current($results);
-                if( empty( $caveData[ $subArray['field'] ] ) )
-                { 
-                    //skip empty fields
-                    //but decrease $p to have right numbering per col
-                    $p--;
-                    $abs[] = $subArray['field'];
-                    if($subArray['field']  == $lastEl){
-                        //$p = $itemPerCol +1; //force loop to stop
-                        break;
-                    }
-                    next($results);
-                    continue;
-                }
-                
+            if($newCol == true ){
+                $newCol = false;
+                $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
+                $colNum++;
+            }
+            
                 /**
                  * subArray is defined as: 
                  *    $array( 
                  * 			 [field]  => non localized fieldname,
+                 *           [field_group] => fiel grouping data
                  *           [display_name] => localized name,
-                 * 			 [type] => text);
+                 * 			 [type] => text|decimal,
+                 *    );
                  **/
                  
                  /*
@@ -261,30 +245,40 @@ if (isset($_GET['guid']) )
                     $caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
                 }
                 
-                $htmlstr .= '<div class="flexColDisplay-0">';
+                $htmlstr .= '<div class="flexColDisplay-' . $currentItem . '">';
                 $htmlstr .= '  <div class="displayItem">' . $subArray['display_name'] . '</div> ';
-                $htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
-                $htmlstr .= '</div>';
-                next($results);
-                //reach end of array stop populating column 
-                if($subArray['field']  == $lastEl){
-                    //$p = $itemPerCol +1; //force loop to stop
+                if ( empty($caveData[ $subArray['field'] ] ) ){
+                    $htmlstr .= '  <div class="displayItemValue">---</div>';
+                }
+                else{
+                    $htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
+                }
+                $htmlstr .= '</div>'; //close flexColDisplay-X
+                $currentItem++;
+
+                if($end['field'] == $subArray['field']){
+                    //last element of array exit for loop
                     break;
                 }
-
+                
+                if ($currentItem >= $itemPerCol){
+                    $htmlstr .= '</div>'; //close displayMainCol-
+                    $currentItem = 0;
+                    $newCol = true;
+                    
+                }
             }
-            //close  col wrapper
-            $htmlstr .= '</div>'; //displayMainCol-x
             
-        }
+        //close displayMainCol-
+        $htmlstr .= '</div>';
+        
         //close cave data wrapper
 		$htmlstr .= '</div>' ;//flexContainer
 	
 		/**
 		 * Cave access
 		 **/
-		
-		 		
+			
 		/*
 		 * fetching coords from DB see beelow usage of $coordList
 		 * geoJson store multipoint coord in this namespace
