@@ -57,13 +57,16 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     }
     $htmlstr .= '  </select>';
     
+    //build a list of field type for user to select
     $htmlstr .= '<p id="fieldType">';
-    $htmlstr .= '  <input type="radio" id="bool" name="fieldType" value="bool"/>';
-    $htmlstr .= '  <label for="bool">bool</label>';
-    $htmlstr .= '  <input type="radio" id="dec" name="fieldType" value="decimal"/>';
-    $htmlstr .= '  <label for="dec">decimal</label>';
-    $htmlstr .= '  <input type="radio" id="text" name="fieldType" value="text"/>';
-    $htmlstr .= '  <label for="text">text</label>';
+    $fieldsTypeList = $cave->getListElements('cave_field_type');
+    foreach($fieldsTypeList as $field){
+        print_r($field);
+        
+        $htmlstr .= '  <input type="radio" id="' . $field['list_item'] . '" name="fieldType" value="' . $field['list_item'] . '"/>';
+        $htmlstr .= '  <label for="' . $field['list_item'] . '">' . $field['list_item'] . '</label>';
+    }
+
     $htmlstr .= '</p>';
     $htmlstr .= '  <p><button id="fieldssettings-addNewField-send" name="fieldssettings-addNewField-send">OK</button></p>';
     $htmlstr .= '</div>';
@@ -78,6 +81,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnEdit . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_order . '</h2></div>' ;
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_fieldGroup . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_fieldType . '</h2></div>';
 
     foreach($fieldsData as $key => $field){
         //prepare html settings for checkbox
@@ -102,6 +106,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_edit" ' . $checked_edit . '/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="number" data-name="sort_order" value="' . $field['sort_order'] . '"/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell">' . $field['field_group'] . '</div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell">' . $field['type'] . '</div>' ;
         
     }
 

@@ -694,19 +694,23 @@ class Varcave {
         $section = preg_replace( '/[^a-z_]/i', '', $section);
         $inivar = preg_replace( '/[^a-z_]/i', '', $inivar);
         
-        
-        if( is_Writable($filename) == false ){
-            $this->logger->error('File do not exist or not writable');
-            return false;
+        if( file_exists($filename) ){
+            if(is_Writable($filename) == false ){
+                $this->logger->error('File is not writable');
+                return false;
+            }
+            $this->logger->debug('get custom_xx.ini file data');
+            $ini_array = parse_ini_file($filename, true);
+            if($ini_array == false){
+                $this->logger->error('fail to load ini file. Check syntax.');
+                return false;
+            }
+        }else{
+             $this->logger->notice('File do not exist. A new one will be created later');
         }
         
-        $this->logger->debug('get current ini file data');
-        $ini_array = parse_ini_file($filename, true);
-        if($ini_array == false){
-            $this->logger->error('fail to load ini file. Check syntax.');
-            return false;
-        }
         
+
         $safeVal = str_replace ( '"' , '' , $value);
 
         //update var but escape double quote char
@@ -757,6 +761,9 @@ class Varcave {
                 break;
             case 'bool':
                 $colType = 'BOOLEAN';
+                break;
+            case 'timestamp':
+                $colType = 'INT';
                 break;
             default:
             $this->logger->error(L::errors_ERROR . ':' . L::errors_badArgs . ' : coltype : [' . $colType .']' );

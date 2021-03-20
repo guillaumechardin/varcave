@@ -389,7 +389,7 @@ else
 		
 		$logger->debug(basename(__FILE__) . ": Request to get localized col name from db in advanced search \n" . print_r($reqCols,true) );
 		
-		$htmlstr .= '<h2>Rechercher des cavités</h2>';
+		$htmlstr .= '<h2>' . L::search_title . '</h2>';
 		$htmlstr .= '<div id="resultTableDiv">';
         $htmlstr .= '  <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 		$htmlstr .= '  <table id="tableSearch" class="display" >';
@@ -432,16 +432,20 @@ else
 				}
 				else //Decimal values and other
 				{
-					
+					//if data type is timestamp, prepara stuff to hold a datepicker
+                    $datepicker = '';
+                    if( strstr( $field[1] , 'timestamp') ){
+                        $datepicker = 'data-datepicker="1"'; //mark field as a datepicker JQueryUi ; will be processed by javascript 
+                    }
 					$htmlstr .= '<select name="type_' . $field[0] . '">';
 					$htmlstr .= '  <option value="=">=</option>';
 					$htmlstr .= '  <option value="&lt">&lt;</option>';
 					$htmlstr .= '  <option value="&gt">&gt;</option>';
 					$htmlstr .= '  <option value="BETWEEN">' . L::search_fieldtypeBETWEEN . '</option>';
 					$htmlstr .= '</select>';
-					$htmlstr .= '<input type="text"  size="10" name="value_' . $field[0] . '">';
-					$htmlstr .= '<input type="text" style="display:none;background:red" value="" size="10" name="value_' . $field[0] . '-BETWEEN1"><span style="display:none" name="value_' . $field[0] . '-SEPARATOR"> AND </span>';
-					$htmlstr .= '<input type="text" style="display:none;background:red" value="" size="10" name="value_' . $field[0] . '-BETWEEN2">';
+					$htmlstr .= '<input type="text" ' . $datepicker . ' size="10" name="value_' . $field[0] . '">';
+					$htmlstr .= '<input type="text" ' . $datepicker . ' style="display:none;background:red" value="" size="10" name="value_' . $field[0] . '-BETWEEN1"><span style="display:none" name="value_' . $field[0] . '-SEPARATOR"> AND </span>';
+					$htmlstr .= '<input type="text" ' . $datepicker . ' style="display:none;background:red" value="" size="10" name="value_' . $field[0] . '-BETWEEN2">';
 				}
 				
 				$htmlstr .= '</div>'; //end  $fields[$fieldCounter][0]
