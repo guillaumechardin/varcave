@@ -193,6 +193,7 @@ if (isset($_GET['guid']) )
         /* main column size an item numbering */
         //remove Name field from dataset
         unset($caveData['name']);
+        $caveDataCpy = $caveData;
         $keyName = array_search('name',array_column($results, 'field'));
         unset($results[$keyName]);
         
@@ -202,7 +203,7 @@ if (isset($_GET['guid']) )
         $newCol = true;
         $currentItem = 0;
         ini_set("max_execution_time",3);
-        $end = end($results);
+        $end = end($results);  //last element of i18n array
         
         foreach($results as $subArray) {
             //create/open col wrapper
@@ -227,13 +228,13 @@ if (isset($_GET['guid']) )
                  */
                 if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'bool') )
                 {
-                    if ( $caveData[ $subArray['field'] ] == 1) 
+                    if ( $caveDataCpy[ $subArray['field'] ] == 1) 
                     {
-                        $caveData[ $subArray['field'] ] = L::_yes ;
+                        $caveDataCpy[ $subArray['field'] ] = L::_yes ;
                     }
                     else
                     {
-                        $caveData[ $subArray['field'] ] = L::_no ;
+                        $caveDataCpy[ $subArray['field'] ] = L::_no ;
                     }
                 }
                 
@@ -242,16 +243,16 @@ if (isset($_GET['guid']) )
                  */
                 if($subArray['field'] == 'editDate')
                 {
-                    $caveData[ 'editDate' ] = date('d/m/Y', $caveData[ 'editDate'] );
+                    $caveDataCpy[ 'editDate' ] = date('d/m/Y', $caveDataCpy[ 'editDate'] );
                 }
                 
                 $htmlstr .= '<div class="flexColDisplay-' . $currentItem . '">';
                 $htmlstr .= '  <div class="displayItem">' . $subArray['display_name'] . '</div> ';
-                if ( empty($caveData[ $subArray['field'] ] ) ){
+                if ( empty($caveDataCpy[ $subArray['field'] ] ) ){
                     $htmlstr .= '  <div class="displayItemValue">---</div>';
                 }
                 else{
-                    $htmlstr .= '  <div class="displayItemValue">' . $caveData[ $subArray['field'] ] . '</div>';
+                    $htmlstr .= '  <div class="displayItemValue">' . $caveDataCpy[ $subArray['field'] ] . '</div>';
                 }
                 $htmlstr .= '</div>'; //close flexColDisplay-X
                 $currentItem++;
@@ -274,7 +275,7 @@ if (isset($_GET['guid']) )
         
         //close cave data wrapper
 		$htmlstr .= '</div>' ;//flexContainer
-	
+        unset($caveDataCpy);
 		/**
 		 * Cave access
 		 **/
@@ -360,6 +361,10 @@ if (isset($_GET['guid']) )
         }
 		$htmlstr .= '</select>';
 		
+        var_dump( $caveData['random_coordinates'] );
+        var_dump( !isset($_SESSION['isauth']) );
+        var_dump( (bool)$cave->getconfigelement('anon_get_obfsuc_coords') );
+        
 		if ( $caveData['random_coordinates'] || ( !isset($_SESSION['isauth']) && $cave->getconfigelement('anon_get_obfsuc_coords')  ))
 		{
 			$htmlstr .= '<div class="disclaimRandomCoords red italic">' . L::disclaimRandomCoords . '</div>';
