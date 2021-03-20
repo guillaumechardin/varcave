@@ -360,11 +360,7 @@ if (isset($_GET['guid']) )
             $htmlstr .= '<script src="/lib/varcave/' . $value['js_lib_filename'] . '"></script>';
         }
 		$htmlstr .= '</select>';
-		
-        var_dump( $caveData['random_coordinates'] );
-        var_dump( !isset($_SESSION['isauth']) );
-        var_dump( (bool)$cave->getconfigelement('anon_get_obfsuc_coords') );
-        
+		        
 		if ( $caveData['random_coordinates'] || ( !isset($_SESSION['isauth']) && $cave->getconfigelement('anon_get_obfsuc_coords')  ))
 		{
 			$htmlstr .= '<div class="disclaimRandomCoords red italic">' . L::disclaimRandomCoords . '</div>';
