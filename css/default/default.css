@@ -1320,3 +1320,18 @@ div[id^="ressources-filelink"]
 #fieldType > input{
     margin-left: 1.5em;
 }
+
+
+#home-legalNotice {
+    background-color: lightgrey;
+    border-radius: 1em;
+    padding: 0.5em;
+}
+
+#home-legalNotice > p {
+    width: 75%;
+    text-align: center;
+    margin: auto;
+    font-style: italic;
+    font-weight: bold;
+}

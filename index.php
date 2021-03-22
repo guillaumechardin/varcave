@@ -10,9 +10,14 @@ $html = new varcaveHtml(L::pagename_index);
 
 $news = new varcaveNews();
 $newsList = $news->getNews(0,$html->getconfigelement('max_news_homepage'),false,true);
+
+$htmlstr .= '  <div id="home-legalNotice"><p>';
+$htmlstr .=       $html->getconfigelement('legal_notice');
+$htmlstr .= '  </p></div>';
+
 /**** NEWS DIV CONTAINER ****/
-//$htmlstr .= '<div class="flexContainer">';
 $htmlstr .= '<div class="genFlexContainerNowrap home-colContainer">';
+
 $htmlstr .= '  <div class="home-col-1">' ;
 $htmlstr .= '<h1>' . L::home_newsFeedTitle . '</h1>';
 	
