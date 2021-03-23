@@ -103,7 +103,6 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	 */
 	foreach($search as $key=>$value)
 	{
-		
 		if ( $value == ''  | strpos($key, 'type_') !== false ) //we do not process the value if empty or is the type of search. This last can be computed later
 		{
 			continue;
@@ -118,7 +117,6 @@ elseif( !IsNullOrEmptyArray($_POST) )
 								'value' => $value,
 								'type'=> 'BETWEEN', //defining type field
 							);
-				
 			}
 			else
 			{
@@ -421,11 +419,16 @@ else
 					$htmlstr .= '<select name="type_' . $field[0] . '">';
 					$htmlstr .= '  <option value="=">=</option>';
 					$htmlstr .= '  <option selected value="LIKE">' . L::search_fieldtypeLIKE . '</option>';
+                    $htmlstr .= '  <option  value="NOTEQUAL">' . L::search_fieldtypeNOTEQUAL . '</option>';
 					$htmlstr .= '</select>';
 					$htmlstr .= '<input type="text" size="25" value="" name="value_' . $field[0] . '">';
 				}
 				elseif ( strstr( $field[1] , 'bool') )
 				{
+                    $htmlstr .= '<select name="type_' . $field[0] . '">';
+					$htmlstr .= '  <option selected value="=">=</option>';
+					$htmlstr .= '  <option  value="NOTEQUAL">' . L::search_fieldtypeNOTEQUAL . '</option>';
+					$htmlstr .= '</select>';
 					$htmlstr .= '<input type="checkbox" name="value_' . $field[0] . '">';
 				}
 				else //Decimal values and other

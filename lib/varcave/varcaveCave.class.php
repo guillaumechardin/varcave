@@ -246,7 +246,20 @@ class VarcaveCave extends Varcave
 		{
 			
 			if ( in_array( $value['field'], $this->getBooleanEndUserType() ) ){
-                $req .= ' ' . $value['field'] . ' = 1 ';
+                //depending field type, adapt query
+                if( $value['type'] == '=' ){
+                        $req .= ' ' . $value['field'] . ' = 1 ';
+                }
+                elseif( $value['type'] == 'NOTEQUAL'){
+                    $req .= ' ' . $value['field'] . ' != 1 ';
+                }
+                else{
+                    //not supported req
+                    $this->logger->debug(__METHOD__ . ' : ERROR invalid choice on boolean value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                    return false;
+                    throw new Exception($msg,0);
+                }
+                
             }
             elseif ($value['type'] == '='){
                 $req .=  $value['field'] . ' = ' . $this->PDO->quote($value['value']) . ' ';
@@ -262,6 +275,10 @@ class VarcaveCave extends Varcave
             elseif ($value['type'] == '<'){
                 //ajouter < %'valeur'%
                 $req .= $value['field'] . ' < ' . $this->PDO->quote($value['value']) . ' ';
+            }
+            elseif( $value['type'] == 'NOTEQUAL'){
+                //
+                $req .=  $value['field'] . ' != ' . $this->PDO->quote($value['value']) . ' ';
             }
 			elseif ( $value['type'] == 'BETWEEN'){	
 				if($betweenFound){
