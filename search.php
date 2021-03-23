@@ -50,6 +50,7 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	$htmlstr .= '<div id="resultTableDiv">';
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 	$htmlstr .= '<table id="tableSearch" class="display">';
+    $htmlstr .= '   <tfoot><tr><th></th></tr></tfoot>';
 	$htmlstr .= '</table>';
 	$htmlstr .= '</div>'; //end resultTableDiv
 
@@ -139,9 +140,6 @@ elseif( !IsNullOrEmptyArray($_POST) )
 				);
 			$httpError = 400;
 			$httpErrorStr = ' Bad Request';
-			
-			//set last search for later use (even if search is bad)
-			//$_SESSION['lastSearch'] = $_POST;
 			
 			jsonWrite(json_encode($return), $httpError, $httpErrorStr);
 			exit();
