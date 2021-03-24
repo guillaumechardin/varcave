@@ -323,6 +323,12 @@ if (isset($_GET['guid']) )
 			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
 			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=geoportail"></script>';	
 		}
+        elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'openstreetmaps')
+		{
+			$logger->debug("using osm API");
+			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=openstreetmaps"></script>';	
+		}
 		else
 		{
 			$logger->error("No geo api defined");

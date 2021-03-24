@@ -60,9 +60,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     //build a list of field type for user to select
     $htmlstr .= '<p id="fieldType">';
     $fieldsTypeList = $cave->getListElements('cave_field_type');
-    foreach($fieldsTypeList as $field){
-        print_r($field);
-        
+    foreach($fieldsTypeList as $field){        
         $htmlstr .= '  <input type="radio" id="' . $field['list_item'] . '" name="fieldType" value="' . $field['list_item'] . '"/>';
         $htmlstr .= '  <label for="' . $field['list_item'] . '">' . $field['list_item'] . '</label>';
     }

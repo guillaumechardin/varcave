@@ -38,7 +38,7 @@ catch (Exception $e)
 
 
 //if using googlemaps or geoportail data, 
-if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail')
+if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api'] == 'openstreetmaps')
 {
     $cave->logger->debug('getjsgeoapi.js : selected Geoapi is :' . $_GET['api']);
     $cave->logger->debug('getjsgeoapi.js :  coord list : ' . print_r($coordList,true) );
@@ -143,6 +143,41 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail')
 
 		
 	}
+    if ($_GET['api'] == 'openstreetmaps')
+	{
+        /*
+		 * source cartes OSM
+		 */
+		$js .= 'var OSMaps=new google.maps.ImageMapType(';
+		$js .= '{';
+		$js .=  '    getTileUrl: function(tileCoord,zoom)';
+		$js .=  '    {';
+		$js .=  '        var url = "http://tile.openstreetmap.org/" + zoom + "/" + tileCoord.x + "/" + tileCoord.y + ".png";';
+		$js .=  '        return url; ';                    
+		$js .=  '     },';
+		$js .=  '     tileSize: new google.maps.Size(256,256),';
+		$js .=  '     name: "OpenStreetMap",';
+		$js .=  '     maxZoom: 18';
+		$js .=  '});';
+		 
+		$js .= 'map.mapTypeControlOptions.mapTypeIds.push("OSMapLayers");';
+		$js .= 'map.mapTypes.set("OSMapLayers",OSMaps);';
+        
+        $js .= 'var OSMtopomap=new google.maps.ImageMapType(';
+		$js .= '{';
+		$js .=  '    getTileUrl: function(tileCoord,zoom)';
+		$js .=  '    {';
+		$js .=  '        var url = "https://a.tile.opentopomap.org/" + zoom + "/" + tileCoord.x + "/" + tileCoord.y + ".png";';
+		$js .=  '        return url; ';                    
+		$js .=  '     },';
+		$js .=  '     tileSize: new google.maps.Size(256,256),';
+		$js .=  '     name: "OpentopoMaps",';
+		$js .=  '     maxZoom: 18';
+		$js .=  '});';
+		 
+		$js .= 'map.mapTypeControlOptions.mapTypeIds.push("OSMOTP");';
+		$js .= 'map.mapTypes.set("OSMOTP",OSMtopomap);';
+    }
 	$js .= '}';
 	
 	echo $js;
