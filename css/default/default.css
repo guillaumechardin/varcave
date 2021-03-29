@@ -1271,7 +1271,7 @@ div[id^="ressources-filelink"]
 .fieldssettings_tableCell{
     box-sizing: border-box;
     flex-grow: 1;
-    width: 13%;  /* 7 col max */
+    width: 12%;  /* 7 col max */
     padding: 0.4em;
     overflow: hidden; /*Or flex might break */
     list-style: none;

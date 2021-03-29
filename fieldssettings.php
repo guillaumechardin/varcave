@@ -75,6 +75,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>'. L::fieldssettings_fieldName . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnDisplay . '</h2></div>';
+    $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnPdf . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnSearch . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_showOnEdit . '</h2></div>';
     $htmlstr .= '   <div class="fieldssettings_tableCell"><h2>' . L::fieldssettings_order . '</h2></div>' ;
@@ -86,6 +87,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
         $checked_display = '';
         $checked_search = '';
         $checked_edit = '';
+        $checked_pdf = '';
         $checked = 'checked';
         if($field['show_on_display']){
             $checked_display = $checked;
@@ -98,8 +100,13 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
         if($field['show_on_edit']){
             $checked_edit = $checked;
         }
+        
+        if($field['show_on_pdf']){
+            $checked_pdf = $checked;
+        }
         $htmlstr .='   <div class="fieldssettings_tableCell"><h3>' . $field['display_name'] .'</h3></div>';
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_display" ' . $checked_display . '/></div>' ;
+        $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_pdf" ' . $checked_pdf . '/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_search" ' . $checked_search . '/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="checkbox" data-name="show_on_edit" ' . $checked_edit . '/></div>' ;
         $htmlstr .='   <div class="fieldssettings_tableCell"><input  data-id="' . $field['indexid'] . '" type="number" data-name="sort_order" value="' . $field['sort_order'] . '"/></div>' ;

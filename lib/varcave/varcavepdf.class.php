@@ -150,7 +150,7 @@ class VarcavePdf extends TCPDF {
         $this->varcave->logger->debug('Create PDF cave info');
 		//get i18n fields name
 		$cave = new varcavecave();
-		$i18nfields = $cave->getI18nCaveFieldsName('ONDISPLAY');
+		$i18nfields = $cave->getI18nCaveFieldsName('ONPDF');
 		
 		$last =  end($i18nfields);
 		//reset($i18nfields);
@@ -281,12 +281,12 @@ class VarcavePdf extends TCPDF {
             
             $center = 'center=' . $coordList[0][1] . ',' . $coordList[0][0];
             $zoom = 'zoom=' . $cave->getConfigElement('gApi_zoom_lvl');
-            $mapType = 'maptype=satellite';
+            $mapType = 'terrain';
             $key = 'key=' . $cave->getConfigElement('googlemaps_api_key');
             $size = 'size=370x265'; //   an approximate size of 97x70mm //previously 420*300
             
             $url = 'https://maps.googleapis.com/maps/api/staticmap?' . $center  . '&' . $zoom . '&' . $mapType . '&' . $key . '&' . $size . '&' . $markers .'&v=3';
-            
+            //$url = 'https://staticmap.openstreetmap.de/staticmap.php?' . $center . '&zoom=14&size=370x265&maptype=topo';
             //insert the google maps API image
             $this->varcave->logger->debug( 'gmapApi static url : [' . $url . ']' );
 			

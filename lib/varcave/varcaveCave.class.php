@@ -496,6 +496,9 @@ class VarcaveCave extends Varcave
 				case 'ONDISPLAY':
 					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_display=1 ORDER BY sort_order,field ASC';
 					break;
+                case 'ONPDF':
+					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_pdf=1 ORDER BY sort_order,field ASC';
+					break;
                 case 'ONEDIT':
 					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_edit=1 ORDER BY sort_order,field ASC';
 					break;
