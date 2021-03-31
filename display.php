@@ -29,7 +29,6 @@ if (isset($_GET['guid']) )
 	try
 	{
 		$caveData = $cave->selectByGUID($_GET['guid'], 0, false);
-
 	}
 	catch (Exception $e)
 	{

@@ -18,7 +18,7 @@ require_once (__DIR__ . '/../phpGPX/vendor/autoload.php');
 class VarcaveCave extends Varcave
 {
     
-	/**
+    /**
 	 * this function get the last n modified lines from changelog.
 	 * @param $max : max number of row return
 	 * @param $caveID : if true, look for change log for specific cave
@@ -558,10 +558,28 @@ class VarcaveCave extends Varcave
         //exec query and validation
         try 
         {
-			$req2 = 'SELECT * FROM ' . $this->dbtableprefix  . 'caves WHERE guidv4=' . $this->PDO->quote($guid);
-			$PDOstmt2 = $this->PDO->query($req2);
-			$result = $PDOstmt2->fetch(PDO::FETCH_ASSOC);
-			
+			$reqCave = 'SELECT * FROM ' . $this->dbtableprefix  . 'caves WHERE guidv4=' . $this->PDO->quote($guid);
+			$PDOstmtCave = $this->PDO->query($reqCave);
+			$result = $PDOstmtCave->fetch(PDO::FETCH_ASSOC);
+            
+            
+            $reqCoords = 'SELECT id,guidv4,name,ST_X(location) lat,ST_Y(location) "long", z FROM ' . $this->dbtableprefix  . 'caves ' . 
+                         ' INNER JOIN caves_coordinates ' .
+                         ' ON ' .  $this->dbtableprefix . 'caves.indexid = ' .  $this->dbtableprefix . 'caves_coordinates.caveid ' .  
+                         ' WHERE guidv4=' . $this->PDO->quote($guid);
+            $PDOstmtCoords = $this->PDO->query($reqCoords);
+            $resultCoords = $PDOstmtCoords->fetchall(PDO::FETCH_ASSOC);
+            
+            //define an empty geoJson objet
+            $geoJsonObj = new stdClass();
+            $geoJsonObj->features = array();
+            $geoJsonObj->features[0] = new stdClass();
+            $geoJsonObj->features[0]->type = 'Feature';
+            $geoJsonObj->features[0]->properties = new stdClass();
+            $geoJsonObj->features[0]->properties->prop0 = '';
+            $geoJsonObj->features[0]->geometry = new stdClass();
+            $geoJsonObj->features[0]->geometry->coordinates = array();
+            
 			if (!$result)
 			{
 				$this->logger->debug( __METHOD__ . ' : Cave ID :' . $guid . ' selection failed');
@@ -604,27 +622,36 @@ class VarcaveCave extends Varcave
                 
                 if( $obfuscateCoords )
                 {
-                    $this->logger->debug('*YES* Request coordinate obfuscation');
-                    $coordsObj = json_decode($result['json_coords']);		
-                    //geoJson store multipoint coord in this namespace
-                    //Obj->features[0]->geometry->coordinates[0];
-                    foreach($coordsObj->features[0]->geometry->coordinates	 as &$coordSet)
+                    $this->logger->debug('*YES* Request coordinate obfuscation');	
+
+                    foreach($resultCoords as &$coordSet)
                     {
-                        $this->logger->debug('source coords are : ' . $coordSet[1] . ' ' . $coordSet[0]);
-                        $coordSet[0] = round($coordSet[0],2);
-                        $coordSet[1] = round($coordSet[1],2);
-                        $this->logger->debug('new coords are : ' . $coordSet[1] . ' ' . $coordSet[0]);
+                        $this->logger->debug('source coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
+                        $coordSet['long'] = round( $coordSet['long'], 2);
+                        $coordSet['lat'] = round( $coordSet['lat'], 2);
+                        $this->logger->debug('new coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
                     }
-                    
-                    //insert new coords in json object
-                    $result['json_coords'] = json_encode((array)$coordsObj);
                 }
             }
             else
             {
                 $this->logger->debug('Yes : Erase coords data from result set');
-                $result['json_coords'] = '';
+                $resultCoords = '';
             }
+            //insert a new geoJson object in cavedata
+            foreach($resultCoords as $coordSet){
+            $geoJsonObj->features[0]->geometry->coordinates[]=array(
+                                                0 => $coordSet['lat'],
+                                                1 => $coordSet['long'],
+                                                2 => $coordSet['z'],
+                                                );
+                                                
+            }
+            //store original coords php formated data 
+            $result['caveCoords'] = $resultCoords;
+            unset($resultCoords);
+            //store data for users in json_coords "data field"
+            $result['json_coords'] = json_encode($geoJsonObj);
 			return $result;			
         }
         catch (Exception $e) 
@@ -706,162 +733,70 @@ class VarcaveCave extends Varcave
         
     }
     
-    function updateCaveGeoJsonProperty($guid, $actionType, $coordSetIndex, $valueIdx = false, $value = false)
-    {
-        try
+    /*
+     * updateCaveCoords update coordinates data for a specific cave.
+     * 
+     * @param     guidv4 : target cave guid
+	 * @param     actionType : Action to run add | delete | edit
+     * @param     targetCoordsetId id of coord set to edit/delete if set
+     * @param     new values as a named array(long, lat, z)
+     * 
+	 * @return on success  : new id on add or true
+	 * 		   on error  :  return false  or throw exception
+     */
+    function updateCaveCoords($guidv4, $actionType, $targetCoordsetId = false, $values = false){
+         //CHECK cave existence
+        $this->logger->info('caveClass::updateCaveCoords try to update coords of : ' . $guidv4);
+        $cavedata = $this->selectByGUID($guidv4);
+        if(  $cavedata == false)
         {
-            //CHECK cave existence
-            $this->logger->info('caveClass::updateCaveGeoJsonProperty try to update geo json : ' . $guid);
-            if( $this->selectByGUID($guid) == false)
-            {
-                 $this->logger->error('Update fail, cave not found');
-                 return false;
-            }
-            
-            $qItem = 'SELECT `json_coords` FROM ' . $this->getTablePrefix() . 'caves WHERE guidv4=' . $this->PDO->quote($guid);
-            $itemPdoStmt = $this->PDO->query($qItem);
-            $itemRes = $itemPdoStmt->fetch(PDO::FETCH_NUM);
-            $resTxt = $itemRes[0];
-            
-            //check json object existence for add action
-            //(for delete $jsonEmpty should stay to false !)
-            $jsonEmpty = false;
-            if( empty($itemRes[0]) )
-            {
-                $this->logger->debug('inexistant json object for column: json_coords');
-                $jsonEmpty = true;
-                //object will be created later
-            }
-            else
-            {
-                //check wich column is fetch, depending col,
-                //final array is not the same.
-                $this->logger->debug('decoding json object');
-                $geoJsonObj = json_decode($resTxt);
-                $this->logger->debug('json object : ' . print_r($geoJsonObj,true) );
-                //count element in array of object
-                $i = 0;
-                $indexes = array();
-                foreach($geoJsonObj->features[0]->geometry->coordinates as $key=>$data)
-                {
-                    $i++;
-                    $indexes[] = $key; //build a list of obj indexes to get the max later when adding elements
-                    
-                }
-                $elCount = $i;
-                $this->logger->debug('Count : ' . $elCount . ' elements');
-            }
-
-            
-            /*
-             * depending user request we add item or remove elements
-             * of the json object
-             */
-            if($actionType == 'add' )
-            {
-                $this->logger->info('Adding data [' . $value . '] to json object');
-                //get last entry index of existing json data
-                if ($jsonEmpty)
-                {
-                    $this->logger->debug('object do not contain any data, creating new one');
-                    //$geoJsonObj->features[0]->geometry->coordinates[$idx][$valueIdx] = $value;
-                    $geoJsonObj = new stdClass();
-                    $geoJsonObj->features = array();
-                    $geoJsonObj->features[0] = new stdClass();
-					$geoJsonObj->features[0]->type = 'Feature';
-					$geoJsonObj->features[0]->properties = new stdClass();
-					$geoJsonObj->features[0]->properties->prop0 = '';
-                    $geoJsonObj->features[0]->geometry = new stdClass();
-                    $geoJsonObj->features[0]->geometry->coordinates = array();
-					$nextCoordSetIndex = 0;
-                    // set a default value of 1 to prevent conversion errors
-					$geoJsonObj->features[0]->geometry->coordinates[$nextCoordSetIndex] = array(
-																		0=>'1',
-																		1=>'1',
-																		2=>'1',
-																		);
-                    
-                    $this->logger->debug('new json object content : ' . print_r($geoJsonObj, true) );
-                }
-                else
-                {
-                    $nextCoordSetIndex = max($indexes) + 1;
-                    $this->logger->debug('Adding  data to existing object, current value will be :' . $nextCoordSetIndex);
-                    $geoJsonObj->features[0]->geometry->coordinates[$nextCoordSetIndex] = ['1', '1', '1'];
-                    $this->logger->debug('new json object content : ' . print_r($geoJsonObj, true) );
-                }
-                
-            }
-            elseif($actionType == 'delete' )
-            {
-                $idx = intval($coordSetIndex);
-            
-                //Remove mysql data if needed (last element in list)
-                if($elCount > 1)
-                {
-                    //not the last element of object
-                    //remove index entry from json Array
-                    unset( $geoJsonObj->features[0]->geometry->coordinates[$idx] );
-					//renumber array to have keet json format and avoid an array to named array conversion
-					$geoJsonObj->features[0]->geometry->coordinates = array_values($geoJsonObj->features[0]->geometry->coordinates);
-                    $this->logger->debug('removing one of the array element:[' . $idx . ']');
-                    $this->logger->debug('geoJson after deletion :' . print_r($geoJsonObj,true) );
-                    
-                }
-                else
-                {
-                    //last element of json obj, delete the col content
-                     $this->logger->debug('removing last array element');
-                     //reseting geojsonObj to zero
-                     $geoJsonObj = new stdClass();
-                }
-            }
-            elseif($actionType == 'modify')
-            {
-                $idx = intval($coordSetIndex);
-                $this->logger->info('Edit data [' . $idx . '][' . $valueIdx . '] with value:' . $value);
-				$geoJsonObj->features[0]->geometry->coordinates[$idx][$valueIdx] = $value;
-                $this->logger->debug('new json object content : ' . print_r($geoJsonObj, true) );
-            }
-            else
-            {
-                throw new exception('Add or delete action not supported : ' . $actionType);
-            }
-            
-            try
-            {
-                $json = json_encode($geoJsonObj,  JSON_PRETTY_PRINT|JSON_NUMERIC_CHECK );
-                //clear content of json if empty object
-                if($json == '{}')
-                {
-                    $json ='';
-                }
-                
-                $qUpdate = 'UPDATE ' . $this->getTablePrefix() . 'caves SET json_coords = ' . $this->PDO->quote($json) . ' WHERE guidv4=' . $this->PDO->quote($guid);
-                $this->logger->debug('update query : ' . $qUpdate);
-                $this->PDO->beginTransaction();
-                $this->PDO->query($qUpdate);
+             $this->logger->error('Update fail, cave not found');
+             return false;
+        }
+        
+        switch ($actionType) {
+            case 'add':
+                $values = json_decode($values,true); //convert js string to php array
+                $q = 'INSERT INTO ' . $this->dbtableprefix . 'caves_coordinates (id,caveid,z,location) '.
+                     ' VALUES( null,' . (int)$cavedata['indexid'] . ', ' . (int)$values['z'] . ', ST_PointFromText("POINT(' . (float)$values['lat'] . ' ' . (float)$values['long'] .')", 4326) )';
+                break;
+            case 'edit':
+                $values = json_decode($values,true); //convert js string to php array
+                $q = 'UPDATE ' . $this->dbtableprefix . 'caves_coordinates SET ' .
+                     '  location = ST_PointFromText("POINT(' . (float)$values['lat'] . ' ' . (float)$values['long'] .')",4326),'.
+                     '  z = '. (int)$values['z'] . 
+                     '  WHERE `caves_coordinates`.`id` = ' . (int)$targetCoordsetId;
+                break;
+            case 'del':
+                $q = 'DELETE FROM ' . $this->dbtableprefix . 'caves_coordinates WHERE id =' . (int)$targetCoordsetId;
+                break;
+            default:
+                $this->logger->error('Unsupported action : [' . $actionType . ']');
+                throw new exception('Unsupported action : [' . $actionType . ']');            
+        }
+        
+        //update DB
+        try{
+            $this->PDO->beginTransaction();
+            $this->logger->debug('update coords query:' . $q);
+            $this->PDO->query($q);
+            if ($actionType == 'add'){
+                $lastid = $this->PDO->lastinsertid();
                 $this->PDO->commit();
-                if($actionType == 'add')
-                {
-					$this->logger->debug('info returned to browser nextCoordSetIndex : ' . $nextCoordSetIndex);
-                    return $nextCoordSetIndex;
-                }
-                return true;
+                $this->logger->debug('update coords success. Last insertid :[' . $lastid . ']' );
+                return $lastid;
             }
-            catch(exception $e)
-            {
-                $this->logger->error('fail to update cave : ' . $e->getmessage() );
-                $this->logger->debug('update query : ' . $qUpdate);
-                return false;                
-            }
-        }
-        catch (Exception $e)
+            $this->PDO->commit();
+            $this->logger->debug('update coords success');
+            return true;
+        }catch(Exception $e)
         {
-            $this->logger->error('Update geo json fail : ' . $e->getmessage() );
-            throw new exception('Error on cave geo json update: ' . $e->getmessage() );
+            $this->logger->error('Updating coordinates fail : ' . $e->getmessage() );
+            $this->logger->debug('query : ' . $q );
+            throw new exception('Error while updating cave coordinate: ' . $e->getmessage() );
         }
-    } 
+        
+    }
     
 	 /*
      * This method get a list of files or other data from 
@@ -872,195 +807,7 @@ class VarcaveCave extends Varcave
 	 * @return on success  : array of data
 	 * 		   on error  :  throw exception
      */
-    function getCaveFileList($guidv4, $varObject)
-	{
-		$this->logger->debug(__METHOD__ . ' : Enumerating files for json object content :['. $varObject . ']');
-		$cave = $this->selectByGuid($guidv4);
-		if($cave === false)
-		{
-			throw new exception(L::varcaveCave_badArgGuid);
-		}
-		
-		if(empty($cave['files'] ) )
-		{
-			$this->logger->debug('Empty files list');
-			return false;	
-		}
-		else
-		{
-			$jsonFiles = json_decode($cave['files']);
-			$this->logger->debug('Object content : ' .print_r($jsonFiles,true) );
-		}
-		
-		if( isset($jsonFiles->$varObject) )
-		{
-			return (array)$jsonFiles->$varObject;
-		}
-		else
-		{
-			$this->logger->debug('Requested object is empty');
-			return array();
-		}
-	}
-	
-	/* 
-	 * update 
-     * This function update json `files->Element` properties
-     * 
-     * @param     guid = hex format like   dbe6f8e0a-2323-4986-b79d-d5ec5e46a1c3
-     * @param     varObject : final json object name identifier
-	 * @return on success : (int) item number in the list
-	 * 		   on error  :  throw exception
-     * 
-     * @exemple addDataToCaveFileList(myguid, "picture_file", "path/to/pic" )
-     */
-	function addDataToCaveFileList($guidv4, $varObject, $data )
-	{
-		$this->logger->debug(__METHOD__ . 'Add data for field :['. $varObject . '] with data :[' . $data . '].');
-		
-		$cave = $this->selectByGuid($guidv4);
-		if($cave === false)
-		{
-			throw new exception(L::varcaveCave_badArgGuid);
-		}
-		
-		if(empty($cave['files'] ) )
-		{
-			$this->logger->debug('Empty files list, will create blank one');
-			$files = new stdClass();
-			$files->$varObject = new stdClass();
-			$lastItemIndex = 1;
-			$nextItemIndex =  1;
-		}
-		else
-		{
-			$files = json_decode($cave['files']);
-			 foreach($files->$varObject as $key=>$_data)
-			{
-				//$i++;
-				$indexes[] = $key; //build a list of obj indexes to get the max later when adding elements	
-			}
-			$lastItemIndex = max($indexes);
-			$nextItemIndex = $lastItemIndex + 1;
-			$this->logger->debug('Files list exist, contains ' . $lastItemIndex .  ' elements');
-		}
-		//appending data to existing object
-		if ($varObject == "photos")
-		{	
-			//special case for photo it contains sub array
-			$el = explode ( ",",$data);
-			$files->$varObject->{$nextItemIndex} = $el;
-			
-		}
-		else
-		{
-			$files->$varObject->{$nextItemIndex} = $data;
-		}
-		//reverting back to json
-		$filesJson = json_encode($files, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-		
-		//writing to db
-		$this->logger->debug('Updating db with new elements.\n' . print_r($filesJson, true) );
-		if (! $this->updateCaveProperty($guidv4, 'files', $filesJson) )
-		{
-			throw new exception(L::varcaveCave_failToAddFileList);
-		}
-		return $nextItemIndex;
-
-	}
-	
-	
-	/*  
-     * This function delete an json `files->Element` properties
-     * 
-     * @param     guid = hex format like   dbe6f8e0a-2323-4986-b79d-d5ec5e46a1c3
-     * @param     varObject : final json object element
-	 * @param     itemNbr =  number in the list  
-	 * @return on success : true
-	 * 		   on error  :  throw exception
-     * 
-     */
-	function delDataCaveFileList($guidv4, $varObject, $itemNbr )
-	{
-		$this->logger->debug(__METHOD__ . ' : delete data for field :['. $varObject . '] with index :[' . $itemNbr . '].');
-		
-		$cave = $this->selectByGuid($guidv4);
-		if($cave === false)
-		{
-			throw new exception(L::varcaveCave_badArgGuid);
-		}
-		
-		$files = json_decode($cave['files']);
-		
-		//deleting db data and file of existing object
-		if ($varObject == "photos")
-		{
-			$this->deleteCaveFile($files->$varObject->$itemNbr[0]);
-		}
-		else{	
-			$this->deleteCaveFile($files->$varObject->$itemNbr);
-		}
-		unset ($files->$varObject->$itemNbr);
-		
-		//reverting back to json
-		$filesJson = json_encode($files, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-		
-		//writing to db
-		$this->logger->debug('Updating db with removed elements.\n' . print_r($filesJson, true) );
-		if (! $this->updateCaveProperty($guidv4, 'files', $filesJson) )
-		{
-			throw new exception(L::varcaveCave_failToAddFileList);
-		}
-		return true;
-
-	}
-	
-	/*  
-     * This function edit an existing json `files->Element` properties
-     * 
-     * @param     guid = hex format like   dbe6f8e0a-2323-4986-b79d-d5ec5e46a1c3
-     * @param     varObject : final json object element
-	 * @param     value =   new value to update  
-	 * @return on success : true
-	 * 		   on error  :  throw exception
-     * 
-     */
-	function editDataCaveFileList($guidv4, $varObject, $itemNbr, $value)
-	{
-		$this->logger->debug(__METHOD__ . ' : update cave data file list field :['. $varObject . '] with index :[' . $itemNbr . '] and value[.' . $value . ']');
-		
-		$cave = $this->selectByGuid($guidv4);
-		if($cave === false)
-		{
-			throw new exception(L::varcaveCave_badArgGuid);
-		}
-		
-		$files = json_decode($cave['files']);
-		
-		//deleting db data and file of existing object
-		if ($varObject == "photos")
-		{
-			//update  comment of photo
-			$files->$varObject->$itemNbr[1] = $value;
-		}
-		else
-		{	
-			$files->$varObject->$itemNbr = $value;
-		}
-		
-		//reverting back to json
-		$filesJson = json_encode($files, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-		
-		//writing to db
-		$this->logger->debug('Updating db with new elements.\n' . print_r($filesJson, true) );
-		if (! $this->updateCaveProperty($guidv4, 'files', $filesJson) )
-		{
-			throw new exception(L::varcaveCave_failToAddFileList);
-		}
-		return true;
-
-	}
-	
+   
 	/*
 	 * This function create a new empty cave
      * 

@@ -30,8 +30,7 @@ if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
 
 if( isset($_GET['guid']) ){
 	//display editing form
-    try
-    {
+    try{
         $cave = $caveObj->selectByGuid($_GET['guid'], false, false);
         if ($cave === false)
         {
@@ -106,7 +105,7 @@ if( isset($_GET['guid']) ){
             elseif(  $fieldInfo['field'] == 'json_coords' )
             {
                 $logger->debug('editcave.php : process field edit elements: json_coords' );
-                $coordsHtml = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
+                $coordsHtml .= '<div class="edit-flexItem"><span class="editDisplayName-Title">'
                 . $fieldInfo['display_name'] . ':</span>';
                 $coordsHtml .= '<div>';
                 $coordsHtml .=    L::editcave_showCoordsAs;
@@ -126,57 +125,36 @@ if( isset($_GET['guid']) ){
 
                 $coordsHtml .= '</div>';
                 
+                //mind this not  real json coords. 
+                $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '">';
                 if ( !empty ($cave['json_coords']) )
                 {
-                    $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '">';
-                    
-                    $coordList = json_decode($cave['json_coords']);
-                    // print_r($coordList->features[0]->geometry->coordinates);
                     $i=0;
-                    $jsCoordArray='';
-                    foreach($coordList->features[0]->geometry->coordinates as $coord )
+                    foreach($cave['caveCoords'] as $coord )
                     {
-                        $coordsHtml .= '<div class="editCoords" data-coordSet="' . $i . '">'; 
-                        $coordsHtml .= '   X:<input type="text" class="coords" data-elNumber="0" value="' . $coord[0] . '" />';
-                        $coordsHtml .= '   Y:<input type="text" class="coords" data-elNumber="1" value="' . $coord[1] . '" />';
-                        $coordsHtml .= '   Z:<input type="text" class="coords" data-elNumber="2" value="' . $coord[2] . '" />';
-                        $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg"  id="edit-delCoordSet-' . $i . '"></span>';
+                        $coordsHtml .= '<div class="editCoords" data-coordSet="' . $coord['id'] . '">'; 
+                        $coordsHtml .= '   X:<input type="text" class="coords" data-coord="lat"  value="' .   $coord['lat'] . '" />';
+                        $coordsHtml .= '   Y:<input type="text" class="coords" data-coord="long" value="' .   $coord['long'] . '" />';
+                        $coordsHtml .= '   Z:<input type="text" class="coords" data-coord="z"    value="' .   $coord['z'] . '" />';
+                        $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg" data-coordSet="' . $coord['id'] . '" id="edit-delCoordSet-' . $coord['id'] . '"></span>';
                         $coordsHtml .= '</div>';
                         $i++;
                     }
-                    $coordsHtml .= '</div>'; //edit-json_coords
-                    //coordinatesList is a js temp var containing an exact copie of json_coords from db. It is 
-                    // used by js conversion operations
-                    $coordsHtml .= '<script>var coordinatesList = ' . $cave['json_coords'] . ' ;</script>'; 
-                    $coordsHtml .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
-                    $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
-                    $coordsHtml .= '    <i class="fas fa-plus fa-lg"></i>';
-                    $coordsHtml .= '  </span>';
-                }
-                else
-                {
-                    $coordsHtml .= '<script>var coordinatesList = {';
-                    $coordsHtml .= '   "features": [
-                                    {
-                                        "type": "Feature",
-                                        "properties": {
-                                            "prop0": ""
-                                        },
-                                        "geometry": {
-                                            "coordinates": [
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }';
 
-                    $coordsHtml .= '</script>'; 
-                    $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '"></div>';
-                    $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
-                    $coordsHtml .= '    <i class="fas fa-plus fa-lg"></i>';
-                    $coordsHtml .= '  </span>';
                 }
 
+                $coordsHtml .= '</div>'; //edit-json_coords
+                $coordsHtml .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
+                $coordsHtml .= '  <span id="edit-addItem-' .  $fieldInfo['field'] . '">';
+                $coordsHtml .= '    <i class="fas fa-plus fa-lg"></i>';
+                $coordsHtml .= '  </span>';
+                $coordsHtml .= '  <span id="edit-add-coordset" style="display:none" data-isnewcoordset="1">';
+                $coordsHtml .= '    <div class="editCoords">'; 
+                $coordsHtml .= '       X:<input type="text" class="coords" data-coord="lat"  value="" />';
+                $coordsHtml .= '       Y:<input type="text" class="coords" data-coord="long" value="" />';
+                $coordsHtml .= '       Z:<input type="text" class="coords" data-coord="z"    value="" />';
+                $coordsHtml .= '    </div>';
+                $coordsHtml .= '  </span>';
                 $coordsHtml .= '</div>'; //flexItem
                 
             }
@@ -384,7 +362,7 @@ elseif( isset($_POST['update'] ) ){
 	$logger->debug('State of user POST input : ' . print_r($_POST, true) );
 	
 	//update <input text or textarea data for cave
-    if(!isset($_POST['guid']) || !isset($_POST['item']) || !isset($_POST['value']) ||  empty($_POST['item'] )  ){
+    if( !isset($_POST['guid']) ){
 		//show error if user do not provides sufficients informations
 		$logger->error('edit details failed. args error');
 		$return = array(
@@ -398,352 +376,313 @@ elseif( isset($_POST['update'] ) ){
 		jsonWrite(json_encode($return), $httpError, $httpErrorStr);
 		exit();
 	}
-	else
-	{
+    elseif( isset($_POST['target']) && $_POST['target'] == 'normal' ){
 		$logger->debug('update field : ' . $_POST['item'] . ', with value :[' . $_POST['value'] . ']' );
-		if ( !isset($_POST['json']) && !isset($_FILES['file']) && !isset($_POST['rotate']) && $_POST['item'] != 'changelog' )
-		{
 			//this is a normal text input or textarea and checkboxes if all criteria met
-			$logger->debug('Processing normal text input');
-			try
-			{
-                if( isset($_POST['checkbox']) )
+        $logger->debug('Processing normal text input');
+        try{
+            if( isset($_POST['checkbox']) )
+            {
+                if( ! $caveObj->updateCaveProperty($_POST['guid'], $_POST['item'], $_POST['checkboxValue'] ) )
                 {
-                    if( ! $caveObj->updateCaveProperty($_POST['guid'], $_POST['item'], $_POST['checkboxValue'] ) )
-                    {
-                        throw new exception('updateCaveProperty: checkbox fail');
-                    }
+                    throw new exception('updateCaveProperty: checkbox fail');
                 }
-                else
+            }
+            else{
+                if( ! $caveObj->updateCaveProperty($_POST['guid'], $_POST['item'], $_POST['value'] ) )
                 {
-                    if( ! $caveObj->updateCaveProperty($_POST['guid'], $_POST['item'], $_POST['value'] ) )
-                    {
-                        throw new exception('updateCaveProperty: text fail');
-                    }
+                    throw new exception('updateCaveProperty: text fail');
                 }
-                $return = array(
+            }
+            $return = array(
+                'title' =>L::general_edit,
+                'stateStr'=> L::editcave_success,
+                'newVal' => htmlentities($_POST['value']),
+                );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+        }
+        catch (exception $e){
+            $logger->error('fail to update db : ' . $e->getmessage() );
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::editcave_fail,
+                'state' => 1,
+                );
+            $httpError = 500;
+            $httpErrorStr = ' Internal server error';
+
+        }
+    }
+    elseif( isset($_POST['target']) && $_POST['target'] == 'coords' ){  //json value to handle like json_coords and files
+        $logger->info('updating coords : ['  . $_POST['coordSetIndex'] . '] with  values :[' . $_POST['values'] . ']');
+        $logger->info('update action type   : ' . $_POST['actionType'] );
+        try{
+            switch($_POST['actionType']){
+                case "add":
+                    $updateResult = $caveObj->updateCaveCoords($_POST['guid'], $_POST['actionType'], $_POST['coordSetIndex'], $_POST['values']);
+                    break;
+                    
+                case 'edit':
+                    $updateResult = $caveObj->updateCaveCoords($_POST['guid'], $_POST['actionType'], $_POST['coordSetIndex'], $_POST['values']);
+                    break;
+                    
+                case 'del':
+                    $updateResult = $caveObj->updateCaveCoords($_POST['guid'], $_POST['actionType'], $_POST['coordSetIndex'], $_POST['values']);
+                    break;
+                    
+                default:
+                    throw new Exception(L::errors_methodNotSupported);
+            }
+                    
+            if( $updateResult === false ){
+                throw new exception('adding new coords fail');
+            }
+            $return = array(
                     'title' =>L::general_edit,
                     'stateStr'=> L::editcave_success,
-                    'newVal' => htmlentities($_POST['value']),
-                    );
-                $httpError = 200;
-                $httpErrorStr = ' OK';
-            }
-			catch (exception $e)
-			{
-				$logger->error('fail to update db : ' . $e->getmessage() );
-				$return = array(
-					'title' => L::errors_ERROR,
-					'stateStr'=> L::editcave_fail,
-					'state' => 1,
-					);
-				$httpError = 500;
-				$httpErrorStr = ' Internal server error';
-
-			}
-		}
-		elseif( isset($_POST['json']) && !isset($_FILES['file']) && $_POST['item'] != 'changelog' ){  //json value to handle like json_coords and files
-			$logger->debug('Processing json values like coords');
-			try{
-                if( $_POST['item'] == 'jsonCoords' ){
-					$valueIdx = '';
-					$value = '';
-					$insertIndex = false;
-					if ($_POST['actionType'] == 'modify')
-					{
-						$valueIdx = $_POST['valueIdx'];
-						$value = $_POST['value'];
-					}
-          
-					$logger->info('update Geojson field : ['  . $_POST['coordSetIndex'] . ','. $valueIdx . '] with array index value :[' . $value . ']');
-					$logger->info('update action type   : ' . $_POST['actionType'] );
-					$insertIndex = $caveObj->updateCaveGeoJsonProperty($_POST['guid'], $_POST['actionType'], $_POST['coordSetIndex'], $valueIdx, $value ) ;
-					if( $insertIndex === false )
-                    {
-                        throw new exception('update geojson fail');
-                    }
-					
-                    $return = array(
-							'title' =>L::general_edit,
-							'stateStr'=> L::editcave_success,
-							'newVal' => htmlentities($_POST['value']),
-							'actionType' => $_POST['actionType'],
-							'insertIndex' => $insertIndex,
-						);
-				$httpError = 200;
-				$httpErrorStr = ' OK';
-                }
-                else{
-                    switch($_POST['actionType'])
-					{
-						case "add":
-							//addin data to the $file json object. $Item is the attribute name and value the resquested value.
-							$caveObj->addDataToCaveFileList($_POST['guid'], $_POST['item'], $_POST['value']);
-							break;
-						case "delete":
-							//for delete operation, $value is the index value of the element to remove
-							$caveObj->delDataCaveFileList($_POST['guid'], $_POST['item'], $_POST['value'] );
-							break;
-						case "edit":
-							$caveObj->editDataCaveFileList($_POST['guid'], $_POST['item'], $_POST['elNumber'], $_POST['value']);
-							break;
-
-						default:
-							throw new Exception(L::errors_methodNotSupported);
-					}
-					
-                    $return = array(
-						'title' =>L::general_edit,
-						'stateStr'=> L::editcave_success,
-						'newVal' => htmlentities($_POST['value']),
-						'actionType' => $_POST['actionType'],
-						);
-					$httpError = 200;
-					$httpErrorStr = ' OK';
-                }
-                
-                
-			}
-			catch (exception $e){
-				$logger->error('fail to update db : ' . $e->getmessage() );
-				$return = array(
-					'title' => L::errors_ERROR,
-					'stateStr'=> L::editcave_fail . '(' . $e->getmessage() . ')',
-					'state' => 1,
-					);
-				$httpError = 500;
-				$httpErrorStr = ' Internal server error';
-			}
-		}
-		elseif( isset($_FILES['file']) ) {//file input form like documents or cave_maps
-            $caveInfo = $caveObj->selectByGuid($_POST['guid']);
-            //we want to upload some files
-            $logger->info('uploading file');
-            $logger->debug(print_r($_FILES,true) );
-            
-            $fileInfo = pathinfo($_FILES['file']['name']);
-            
-            //check if file is authorized
-            $permitedFileTypes = array(
-                    'jpg', 'jpeg',
-                    'pdf',
-                    'doc', 'docx',
-                    'xls', 'xlsx',
-                    'png',
-                    'zip',
-                    'txt','csv'
-                    );
-                    
-            $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
-            if ( !  strstr_from_arr($permitedFileTypes, $fileInfo['extension'] ) )
-            {
-                $return = array(
-                    'title' => L::errors_ERROR,
-                    'stateStr'=> L::errors_badFileType,
-				);
-                $httpError = 400;
-                $httpErrorStr = ' BAD REQUEST';  
-                jsonWrite(json_encode($return), $httpError, $httpErrorStr);
-                $logger->error('bad filetype');
-                exit();
-            }
-            $logger->debug('filetype ok');
-            
-            switch($_POST['item'])
-            {
-               case 'cave_maps':
-                    $dstSubDir = 'maps';
-                    break;
-               case 'photos':
-                    $dstSubDir = 'photos';
-                    break;
-               default:
-                    $dstSubDir = 'documents';
-                    break;                 
-            }
-            $logger->debug('set subdir to:[' . $dstSubDir . ']');
-            
-            
-            try
-            {
-                //move file to destination and update DB
-                if ($_FILES['file']['error'] == UPLOAD_ERR_OK)
-                {
-                    $srcFile = $_FILES['file']['tmp_name'];
-                    
-                    $dstRootDir = $caveObj->getConfigElement('caves_files_path');
-                    $dstName = cleanStringFilename( $_FILES['file']['name'] );
-                    $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . $dstName;
-                    
-                    $logger->info('move uploaded file to [' .  $dstFullPath . ']');
-                    
-					//change filename if filealready exists to prevent a problem on deletion and have a kind of uniqueness
-                    if( file_exists($dstFullPath) )
-                    {
-                        $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . rand(100,999) . '_' . $dstName;
-                    }
-                    if( !file_exists( dirname($dstFullPath) ) )
-                    {
-                        $logger->debug('destination folder do not exists, creating');
-                        mkdir( dirname($dstFullPath), 0777, true);
-                    }
-                    if(! move_uploaded_file($srcFile, $dstFullPath) )
-                    {
-                        throw new exception('file upload fail');
-                    }
-                }
-				else
-				{
-					 throw new exception('Error on file upload, upload error $_FILES[file][error] :' . $_FILES['file']['error']);
-				}
-                
-				//update json info in field `files`
-				$lastInsertItem = $caveObj->addDataToCaveFileList($_POST['guid'], $_POST['item'], $dstFullPath );
-				
-				if( $lastInsertItem === false )
-                {
-                    throw new exception('update json fail on file upload inscription');
-                }
-                $return = array(
-					'title' =>L::general_edit,
-					'stateStr'=> L::editcave_success,
-					'newVal' => $dstFullPath,
-                    'insertIndex' => $lastInsertItem,
-					'actionType' => 'add',
-                    'extension' => $fileInfo['extension'],
-                    'filename' => $fileInfo['filename'].'.'.$fileInfo['extension'],
-					);
-				$httpError = 200;
-				$httpErrorStr = ' OK';
-                
-			}
-			catch (exception $e)
-			{
-				$logger->error('fail to update db : ' . $e->getmessage() );
-				$return = array(
-					'title' => L::errors_ERROR,
-					'stateStr'=> L::editcave_fail . '(json)',
-					'state' => 1,
-					);
-				$httpError = 500;
-				$httpErrorStr = ' Internal server error';
-			}
-            
-            
-            
+                    'actionType' => $_POST['actionType'],
+                    'insertIndex' => $updateResult,
+            );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
         }
-        elseif( isset($_POST['rotate']) && isset($_POST['imgPath']) ) {//image rotation only
-            $rotate = $_POST['rotate'];
-            $imgPath = $_POST['imgPath'];
-            
-            //extract filename if contain url separator (added previously to force browser refresh)
-            if ( $realName = strstr ( $imgPath , '?' , true ) )
-            {
-                $logger->debug('filepath contains ?');
-                $imgPath = $realName;
-            }
-            
-            $logger->info('user request image rotation [' . $imgPath . ']');
-            switch($rotate)
-            {
-                case 'left':
-                    $angle = 270;
-                    break;
-                case 'right':
-                    $angle = 90;
-                    break;
-            }
-            // Load the image in mem
-            $source = imagecreatefromjpeg($imgPath);
-            // Rotation
-            $rotate = imagerotate($source, $angle, 0);
-            //save to file
-            if( imagejpeg($rotate, $imgPath) )
-            {
-                $logger->info('image rotation successful');
-                $return = array(
-                    'newPath' => $imgPath . '?'. time(),
-                    );
-                $httpError = 200;
-                $httpErrorStr = ' OK';
+        catch (exception $e){
+            $logger->error('fail to update db : ' . $e->getmessage() );
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::editcave_fail . ' : ' . $e->getmessage(),
+                'state' => 1,
+                );
+            $httpError = 500;
+            $httpErrorStr = ' Internal server error';
+        }
+    }
+    elseif( isset($_POST['target']) && $_POST['target'] == 'files' ) {//file input form like documents or cave_maps
+        $caveInfo = $caveObj->selectByGuid($_POST['guid']);
+        //we want to upload some files
+        $logger->info('uploading file');
+        $logger->debug(print_r($_FILES,true) );
+        
+        $fileInfo = pathinfo($_FILES['file']['name']);
+        
+        //check if file is authorized
+        $permitedFileTypes = array(
+                'jpg', 'jpeg',
+                'pdf',
+                'doc', 'docx',
+                'xls', 'xlsx',
+                'png',
+                'zip',
+                'txt','csv'
+                );
+                
+        $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
+        if ( !  strstr_from_arr($permitedFileTypes, $fileInfo['extension'] ) )
+        {
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::errors_badFileType,
+            );
+            $httpError = 400;
+            $httpErrorStr = ' BAD REQUEST';  
+            jsonWrite(json_encode($return), $httpError, $httpErrorStr);
+            $logger->error('bad filetype');
+            exit();
+        }
+        $logger->debug('filetype ok');
+        
+        switch($_POST['item'])
+        {
+           case 'cave_maps':
+                $dstSubDir = 'maps';
+                break;
+           case 'photos':
+                $dstSubDir = 'photos';
+                break;
+           default:
+                $dstSubDir = 'documents';
+                break;                 
+        }
+        $logger->debug('set subdir to:[' . $dstSubDir . ']');
+        
+        
+        try
+        {
+            //move file to destination and update DB
+            if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
+                $srcFile = $_FILES['file']['tmp_name'];
+                
+                $dstRootDir = $caveObj->getConfigElement('caves_files_path');
+                $dstName = cleanStringFilename( $_FILES['file']['name'] );
+                $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . $dstName;
+                
+                $logger->info('move uploaded file to [' .  $dstFullPath . ']');
+                
+                //change filename if filealready exists to prevent a problem on deletion and have a kind of uniqueness
+                if( file_exists($dstFullPath) )
+                {
+                    $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . rand(100,999) . '_' . $dstName;
+                }
+                if( !file_exists( dirname($dstFullPath) ) )
+                {
+                    $logger->debug('destination folder do not exists, creating');
+                    mkdir( dirname($dstFullPath), 0777, true);
+                }
+                if(! move_uploaded_file($srcFile, $dstFullPath) )
+                {
+                    throw new exception('file upload fail');
+                }
             }
             else
             {
-                $logger->error('fail to rotate image');
-				$return = array(
-					'title' => L::errors_ERROR,
-					'stateStr'=> L::editcave_fail,
-					'state' => 1,
-					);
-				$httpError = 500;
-				$httpErrorStr = ' Internal server error';
-                
+                 throw new exception('Error on file upload, upload error $_FILES[file][error] :' . $_FILES['file']['error']);
             }
             
-        }
-        elseif($_POST['item'] == 'changelog'){
-			try
-			{
-				$logger->info('update changelog');
-				
-				$newEntry = false;
-				$logData = 'false';
-				switch($_POST['actionType'])
-				{
-					case 'add':
-						$newEntry = $caveObj->AddLastModificationsLog($_POST['guid'], $_POST['value'], $_POST['visility']);
-						$logData = $caveObj->findLastModificationsLog(1, $cave['indexid'], 2,true);
-						$actionType = 'add';
-						break;
-					
-					case 'delete':
-						$caveObj->delLastModificationsLog($_POST['value']);
-						$newEntry = 'false';
-						$actionType = 'delete';
-						break;
-					
-					default:
-						throw new exception ("changelog:" . L::errors_methodNotSupported);
-					
-				}
-               
-                $return = array(
-                    'title' =>L::general_edit,
-                    'stateStr'=> L::editcave_success,
-                    'newEntry' => $newEntry,
-                    'actionType' => $actionType,
-					'logData' => $logData,
-                    );
-                $httpError = 200;
-                $httpErrorStr = ' OK';
+            //update json info in field `files`
+            $lastInsertItem = $caveObj->addDataToCaveFileList($_POST['guid'], $_POST['item'], $dstFullPath );
+            
+            if( $lastInsertItem === false )
+            {
+                throw new exception('update json fail on file upload inscription');
             }
-			catch (exception $e)
-			{
-				$logger->error('fail to update db : ' . $e->getmessage() );
-				$return = array(
-					'title' => L::errors_ERROR,
-					'stateStr'=> L::editcave_fail,
-					'state' => 1,
-					);
-				$httpError = 500;
-				$httpErrorStr = ' Internal server error';
+            $return = array(
+                'title' =>L::general_edit,
+                'stateStr'=> L::editcave_success,
+                'newVal' => $dstFullPath,
+                'insertIndex' => $lastInsertItem,
+                'actionType' => 'add',
+                'extension' => $fileInfo['extension'],
+                'filename' => $fileInfo['filename'].'.'.$fileInfo['extension'],
+                );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+            
+        }
+        catch (exception $e)
+        {
+            $logger->error('fail to update db : ' . $e->getmessage() );
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::editcave_fail . '(json)',
+                'state' => 1,
+                );
+            $httpError = 500;
+            $httpErrorStr = ' Internal server error';
+        }
+        
+        
+        
+    }
+    elseif( isset($_POST['rotate']) && isset($_POST['imgPath']) ) {//image rotation only
+        $rotate = $_POST['rotate'];
+        $imgPath = $_POST['imgPath'];
+        
+        //extract filename if contain url separator (added previously to force browser refresh)
+        if ( $realName = strstr ( $imgPath , '?' , true ) )
+        {
+            $logger->debug('filepath contains ?');
+            $imgPath = $realName;
+        }
+        
+        $logger->info('user request image rotation [' . $imgPath . ']');
+        switch($rotate)
+        {
+            case 'left':
+                $angle = 270;
+                break;
+            case 'right':
+                $angle = 90;
+                break;
+        }
+        // Load the image in mem
+        $source = imagecreatefromjpeg($imgPath);
+        // Rotation
+        $rotate = imagerotate($source, $angle, 0);
+        //save to file
+        if( imagejpeg($rotate, $imgPath) )
+        {
+            $logger->info('image rotation successful');
+            $return = array(
+                'newPath' => $imgPath . '?'. time(),
+                );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+        }
+        else
+        {
+            $logger->error('fail to rotate image');
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::editcave_fail,
+                'state' => 1,
+                );
+            $httpError = 500;
+            $httpErrorStr = ' Internal server error';
+            
+        }
+        
+    }
+    elseif($_POST['item'] == 'changelog'){
+        try
+        {
+            $logger->info('update changelog');
+            
+            $newEntry = false;
+            $logData = 'false';
+            switch($_POST['actionType'])
+            {
+                case 'add':
+                    $newEntry = $caveObj->AddLastModificationsLog($_POST['guid'], $_POST['value'], $_POST['visility']);
+                    $logData = $caveObj->findLastModificationsLog(1, $cave['indexid'], 2,true);
+                    $actionType = 'add';
+                    break;
+                
+                case 'delete':
+                    $caveObj->delLastModificationsLog($_POST['value']);
+                    $newEntry = 'false';
+                    $actionType = 'delete';
+                    break;
+                
+                default:
+                    throw new exception ("changelog:" . L::errors_methodNotSupported);
+                
+            }
+           
+            $return = array(
+                'title' =>L::general_edit,
+                'stateStr'=> L::editcave_success,
+                'newEntry' => $newEntry,
+                'actionType' => $actionType,
+                'logData' => $logData,
+                );
+            $httpError = 200;
+            $httpErrorStr = ' OK';
+        }
+        catch (exception $e)
+        {
+            $logger->error('fail to update db : ' . $e->getmessage() );
+            $return = array(
+                'title' => L::errors_ERROR,
+                'stateStr'=> L::editcave_fail,
+                'state' => 1,
+                );
+            $httpError = 500;
+            $httpErrorStr = ' Internal server error';
 
-			}	
-		}
-		else{ //cannot process
-			$return = array(
-				'title' => 'bad type',
-				'stateStr'=> 'not json or text, bad args',
-				);
-			$httpError = 400;
-			$httpErrorStr = ' BAD REQUEST';
-			
-		}
-		
+        }	
+    }
+    else{ //cannot process
+        $return = array(
+            'title' => 'bad type',
+            'stateStr'=> 'not json or text, bad args',
+            );
+        $httpError = 400;
+        $httpErrorStr = ' BAD REQUEST';
+        
+    }
 		jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
 		exit();
-		
-	}
 }
 elseif( isset($_POST['delete']) ){
     $logger->debug('editcave.php : user try to delete cave');
