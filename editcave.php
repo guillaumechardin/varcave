@@ -454,6 +454,7 @@ elseif( isset($_POST['update'] ) ){
         $dstSubDir = $_POST['filetype']; 
         try
         {
+            //do some specific action when adding new file.
             if($_POST['actiontype'] == 'add'){
                 $logger->debug('action is add');
                 //upload file is action is add
@@ -533,7 +534,8 @@ elseif( isset($_POST['update'] ) ){
             if( isset($_POST['filenote']) ){
                 $values[1] = $_POST['filenote'];
             }
-
+            
+            //multipurpose function to add/delete/edit
             $lastInsertItem = $caveObj->updateCaveFileList($_POST['guid'], $_POST['actiontype'], $_POST['filetype'], $_POST['itemid'], $values);
             
             //send back data to browser

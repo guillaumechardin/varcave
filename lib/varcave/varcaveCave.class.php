@@ -638,7 +638,7 @@ class VarcaveCave extends Varcave
             else
             {
                 $this->logger->debug('Yes : Erase coords data from result set');
-                $resultCoords = '';
+                $resultCoords = array(); //build an empty array to avoid typeset errors
             }
             //insert a new geoJson object in cavedata
             foreach($resultCoords as $coordSet){
@@ -882,7 +882,7 @@ class VarcaveCave extends Varcave
      */
 	function updateCaveFileList($guidv4, $actionType, $filetype, $itemid, $values)
 	{
-		$this->logger->debug(__METHOD__ . ' : update cave data file list field :['. $filetype . '] with index :[' . $itemid . '] and values[.' . substr($values[0],0,10) .','.substr($values[1],0,10) . ']...');
+		$this->logger->debug(__METHOD__ . ' : action [' . $actionType . '] on file list. Field :['. $filetype . '] with index :[' . $itemid . '] and values[.' . substr($values[0],0,10) .','.substr($values[1],0,10) . ']...');
 		
 		$cave = $this->selectByGuid($guidv4);
 		if($cave === false)
