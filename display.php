@@ -124,22 +124,26 @@ if (isset($_GET['guid']) )
 						  </span>
                         </div>';
         
-        //link to cave files
-        //check if files exists
-        $json = json_decode($caveData['files'], true);
-        //remove cave_maps or photos data as it is not 'real' linked files
-        if( $json['cave_maps']){
-            unset($json['cave_maps']);
+        /*
+         * search if document exists for cave and show button 
+         * to jump to file section
+         */
+        $fields = $cave->getI18nCaveFieldsName('ONDISPLAY');
+         //keep only required fields; here is "files" section
+        $results = filter_by_value($fields, 'field_group', 'files'); 
+        $documentsFields = array();
+        
+        //detect if documents exists for cave and show section if some doc founds
+        $isDoc = false;
+        foreach($results as $key => $value){
+            $documentsFields[] = $value['field'];
+            if( $cave->documentExists($caveData['guidv4'], $value['field']) ) {
+                $isDoc = true;;
+            }
         }
-        if( $json['photos']){
-            unset($json['photos']);
-        }
-        if( $json['sketch_access']){
-            unset($json['sketch_access']);
-        } 
         
         //show goto linked files button
-        if( count($json) ){
+        if( $isDoc ){
         $htmlstr .= '   <div class="fa-3x display-files-dwnld">
 		                  <span href="#filesSection" class="fas fa-file-download" title="' . L::display_gotoFiles . '">
 						  </span>
@@ -296,7 +300,7 @@ if (isset($_GET['guid']) )
         $sketchAccessArr = $cave->getCaveFileList($caveData['guidv4'], 'sketch_access');
 		if ( ! empty($sketchAccessArr ) )
 		{
-			$htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr[1]. '"></img>';
+			$htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr['sketch_access'][0]['file_path']. '"></img>';
 			$htmlstr .= '<div id="miniMap" style="display:none"></div>';
 			$htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
 			$htmlstr .= '<script> var miniMapHidden=true;</script>';
@@ -409,7 +413,7 @@ if (isset($_GET['guid']) )
 		
 		if( ! IsNullOrEmptyString($caveData['annex']) )
 		{
-			$htmlstr .= '<p>' . htmlentities($caveData['annex']) . '</p>';
+			$htmlstr .= '<p>' . nl2br(htmlentities($caveData['annex']) ). '</p>';
 		}
 		$htmlstr .= '</div>'; //flexContainer
 		
@@ -419,7 +423,7 @@ if (isset($_GET['guid']) )
 		 * Cave's topos
 		 **/
 		$cave->logger->info('Getting cave_maps');		 
-		$topoArr = $cave->getCaveFileList($caveData['guidv4'], 'cave_maps');
+		$topoArr = $cave->getCaveFileList($caveData['guidv4'], 'cave_maps');;
 		
 		$htmlstr .= '<h2>' .  L::display_caveTopos . '</h2>';
 		$htmlstr .= '<div class="displayCaveMaps">';
@@ -429,16 +433,17 @@ if (isset($_GET['guid']) )
 		
 		//display a max number of $nbrOfRow per row
 		//while loop handle row creation
-		if( !empty($topoArr) )
-		{	foreach($topoArr as $key=>$mapPath)
+		if( !empty($topoArr['cave_maps']) )
+		{	foreach($topoArr['cave_maps'] as $key => $cave_maps)
 			{
 				$htmlstr .= '<div class="displayCaveMap">';
-				$htmlstr .= '  <a  href="' . $mapPath . '" data-lightbox="cave-maps">';
-				$htmlstr .= '    <img class="displayCaveMapsImg" src="' . $mapPath . '"></img>';
+				$htmlstr .= '  <a  href="' . $cave_maps['file_path'] . '" data-lightbox="cave-maps">';
+				$htmlstr .= '    <img class="displayCaveMapsImg" src="' . $cave_maps['file_path'] . '"></img>';
 				$htmlstr .= '  </a>';
 				$htmlstr .= '</div>';
 				$i++;
 			}
+            
 		}
         //lightbox is use for cave_maps and photos
 		$htmlstr .= '</div>';
@@ -462,24 +467,18 @@ if (isset($_GET['guid']) )
         }
         
 		
-		if ( ! isNullOrEmptyArray($photosArr) )
+		if ( ! isNullOrEmptyArray($photosArr['photos']) )
 		{   
             $htmlstr .= '<h2>' .  L::display_cavePhotos . '</h2>';
             $htmlstr .= '<div class="displayPhotos">';
 			$htmlstr .= '<div class="genFlexContainerWrap">';
-			foreach ($photosArr as $photo)
+			foreach ($photosArr['photos'] as $photo)
             {
                 $htmlstr .= '<div class="cavePhoto">';
-                
-                
-                /*$htmlstr .= '  <a  href="' . $mapPath . '" data-lightbox="cave-maps">';
-				$htmlstr .= '    <img class="displayCaveMapsImg" src="' . $mapPath . '"></img>';
-				$htmlstr .= '  </a>';
-                */
-                $htmlstr .= '    <a  href="' . $photo[0] . '" data-lightbox="cave-photos">';
-                $htmlstr .= '      <img class="displayCavePhotos" src="' . $photo[0] . '"/>';
+                $htmlstr .= '    <a  href="' . $photo['file_path'] . '" data-lightbox="cave-photos">';
+                $htmlstr .= '      <img class="displayCavePhotos" src="' . $photo['file_path'] . '"/>';
                 $htmlstr .= '    </a>';
-                $htmlstr .= '<p>' . htmlentities($photo[1]) . '</p>';
+                $htmlstr .= '<p>' . htmlentities($photo['file_note']) . '</p>';
                 $htmlstr .= '</div>';
             }
             $htmlstr .= '</div>'; //genFlexContainer
@@ -495,22 +494,8 @@ if (isset($_GET['guid']) )
         
 		
 		/**
-		 * Search and display Cave documents data
+		 * Show Cave documents data
 		 **/
-        
-        //keep only required fields; here is "files" section
-        $results = filter_by_value($fields, 'field_group', 'files'); 
-        $documentsFields = array();
-        
-        //detect if documents exists for cave and show section if some doc founds
-        $isDoc = false;
-        foreach($results as $key => $value){
-            $documentsFields[] = $value['field'];
-            if( $cave->documentExists($caveData['files'], $value['field']) ) {
-                $isDoc =true;;
-            }
-        }
-        
         if($isDoc){
             $htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
             $htmlstr .= '<div class="displaySciData">';
@@ -522,9 +507,8 @@ if (isset($_GET['guid']) )
                     //$allfields = $cave->getI18nCaveFieldsName('ALL');
                     $allfields = $fields;
                     
-                    $cave->logger->info('Getting biology docs');		 
+                    $cave->logger->info('Getting' . $docField . ' documents');		 
                     $docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
-                   
                 }
                 catch (exception $e)
                 {
@@ -542,11 +526,11 @@ if (isset($_GET['guid']) )
                     $htmlstr .= '<ul class="fa-ul">';
                     
                     //get file extension to get correct icon
-                    foreach ($docsArr as $key => $doc)
+                    foreach ($docsArr[$docField] as $key => $doc)
                     {
-                        $fileType = pathinfo($doc);
+                        $fileType = pathinfo($doc['file_path']);
                         $icon = '<i class="' . getFaIcon($fileType['extension'], 'far') . ' fa-2x"></i>';
-                        $htmlstr .= '<li>' . $icon . ' <a href="' . $doc . '"> ' . basename($doc). '</a></li>';
+                        $htmlstr .= '<li>' . $icon . ' <a href="' . $doc['file_path'] . '"> ' . basename($doc['file_path']). '</a></li>';
 
                     }
                     $htmlstr .= '</ul>';

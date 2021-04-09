@@ -653,6 +653,10 @@ select[name="coordDisplayProj"]
 	padding: 0 0 0.8em 0;
 }
 
+.edit-fileentry{
+    margin:0.7em 0.7em 0.1em 0.7em;
+}
+
 .sketchItem
 {
 	margin: 1em;
@@ -696,7 +700,7 @@ span[id^="edit-addItem"] > i:hover
 	background-color: grey;
 }
 
-span[id^="edit-trash"],
+span[class="edit-file-delete"],
 span[id^="edit-delCoordSet"],
 .edit-add-changelog,
 .addnewcave-btn,
@@ -706,7 +710,7 @@ span[id^="edit-delCoordSet"],
 	
 }
 
-span[id^="edit-trash"]:hover,
+span[class="edit-file-delete"]:hover,
 span[id^="edit-delCoordSet"]:hover,
 .edit-add-changelog:hover,
 .backgrndcolor-hover:hover

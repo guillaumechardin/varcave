@@ -417,7 +417,8 @@ class VarcaveCave extends Varcave
 	
 	
 	/**
-	* handle update to searchField table to have a way to configure wich
+    *    THIS SHOULD NOT BE USED UNLESS YO KNOW EXACTLY WHAT IT DOES !!!
+	* handle rebuild of  end_user_fields table to have a way to configure wich
 	* field should be displayed to users
 	*
 	* @param none
@@ -451,6 +452,7 @@ class VarcaveCave extends Varcave
 			$this->PDO->beginTransaction();
 			$this->PDO->exec($req1);
 			$this->PDO->exec($req2);
+            //cleanup some fields from the tabe
 			$this->PDO->exec('DELETE FROM ' . $this->dbtableprefix . 'end_user_fields WHERE `field`=\'indexid\'');
 			$this->PDO->commit();
 			return true;
@@ -803,11 +805,138 @@ class VarcaveCave extends Varcave
 	 * the files cave field.
      * 
      * @param     guidv4 : given cave guid
-	 * @param     varObject : the specific attribute we want to get from the global json object
+	 * @param     fileType : the specific attribute we want to get from the global json object
 	 * @return on success  : array of data
-	 * 		   on error  :  throw exception
+	 * 		   on error or failure or not docs:  false
      */
-   
+    function getCaveFileList($guidv4, $filetype = 'all')
+	{
+		$this->logger->debug(__METHOD__ . ' : Enumerating files for a cave :['. $filetype . ']');
+		$cave = $this->selectByGuid($guidv4);
+		if($cave === false)
+		{
+			throw new exception(L::varcaveCave_badArgGuid);
+		}
+		
+        if($filetype == 'all'){
+            //fetch all files_type
+            $q = 'SELECT * FROM ' . $this->dbtableprefix . 'caves_files WHERE caveid = ' . $cave['indexid'] ;    
+        }
+        else{
+            //fetch only one specific files_type
+            $q = 'SELECT * FROM ' . $this->dbtableprefix . 'caves_files WHERE caveid = ' . $cave['indexid'] . ' AND file_type = ' .  $this->PDO->quote($filetype) ;
+        }
+        
+        try{
+            $this->logger->debug('get cave file list query : ' . $q);
+            $fileStmt = $this->PDO->query($q);
+            $fileList = $fileStmt->fetchall(PDO::FETCH_ASSOC);
+            $this->logger->debug('Get :' . count($fileList) . ' documents for this cave');
+            
+            //organise data presentation
+            if($filetype != 'all'){
+                if( count($fileList) >= 1 )
+                {
+                    $returnData[$filetype] = array(); ;
+                    foreach($fileList as $file){
+                        $returnData[$filetype][] = $file;
+                    }
+                    return $returnData;
+                }
+                else{
+                    $this->logger->debug('no file data found');
+                    return false;
+                }
+            }
+            else{
+                //request all file_type, organise data...
+                if( count($fileList) >= 1 )
+                {
+                    foreach($fileList as $key => $files)
+                    {
+                        //parse multidim array
+                        $returnData[ $files['file_type'] ][] = $files;
+                    }
+                    return $returnData;
+                }
+                return false;
+            }
+        }catch(Exception $e){
+            $this->logger->error('Fail to fetch list of files');
+            $this->logger->debug( $e->getMessage() );
+            return false;
+        }
+	}
+
+	
+	/*  
+     * This function to update a linked cave file
+     * 
+     * @param     guid = hex format like   dbe6f8e0a-2323-4986-b79d-d5ec5e46a1c3
+     * @param     actionType can be add | edit | delete
+     * @param     varObject : final json object element
+	 * @param     values =   array containin [0]file_path [1]:file_note  
+	 * @return on success : current id of edited/added value
+	 * 		   on error  :  throw exception
+     * 
+     */
+	function updateCaveFileList($guidv4, $actionType, $filetype, $itemid, $values)
+	{
+		$this->logger->debug(__METHOD__ . ' : update cave data file list field :['. $filetype . '] with index :[' . $itemid . '] and values[.' . substr($values[0],0,10) .','.substr($values[1],0,10) . ']...');
+		
+		$cave = $this->selectByGuid($guidv4);
+		if($cave === false)
+		{
+			throw new exception(L::varcaveCave_badArgGuid);
+		}
+		
+       
+        switch($actionType){
+            case 'add':
+                //normaly on acrion `add`, no file_note so should be empty string
+                $q = 'INSERT INTO ' . $this->dbtableprefix . 'caves_files (id,caveid,file_type,file_path,file_note) ' .
+                       ' VALUES('.
+                       'null,'.
+                       $cave['indexid'] .','.
+                       $this->PDO->quote($filetype) .','.
+                       $this->PDO->quote($values[0]) .','.
+                       $this->PDO->quote($values[1]) .
+                    ')';                           
+                break;
+            
+            case 'edit':
+                //update only file_note
+                $q = 'UPDATE ' . $this->dbtableprefix . 'caves_files SET file_note= ' . $this->PDO->quote($values[1]) .
+                     ' WHERE id=' . $this->PDO->quote($itemid);
+                break;
+            
+            case 'del':
+                $q = 'DELETE FROM ' . $this->dbtableprefix . 'caves_files WHERE id=' . $this->PDO->quote($itemid);
+                break;
+            
+            default:
+                $this->logger->error('Unsupported action : [' . $actionType . ']');
+                throw new exception('Unsupported action : [' . $actionType . ']'); 
+        }
+        
+        try {
+            $this->logger->debug( 'query : ' . $q );
+            $this->PDO->query($q);
+            if($actionType == 'add'){  //return id of new row
+                return $this->PDO->lastinsertid(); 
+            }
+            return (int)$itemid;
+        }
+        catch(exception$e){
+            $this->logger->error('Fail to update file list');
+            $this->logger->debug( $e->getMessage() );
+            $this->logger->debug( 'query : ' . $q );
+            throw new exception(L::varcaveCave_failToUpdateFileList);         
+        }
+		return true;
+
+	}
+	
 	/*
 	 * This function create a new empty cave
      * 
@@ -1201,30 +1330,34 @@ class VarcaveCave extends Varcave
     
     /*
      * documentExists
-     * Check onto a cave if some document(s) are registered. Test existance of any
-     * information into `files`.docType column 
-     * @param caveDocs cave "files" as an json string fetched from selectByGuid()
+     * Check onto a cave if some document(s) are registered
+     * @param caveDocs target cave guid()
      * @param docType document type for existence check (can be biodoc, documents, etc.).
      * 
      * @result true if some document type are registered, false if nothing is registered
      */
-    public function documentExists($caveDocs, $docType){
+    public function documentExists($guid, $docType){
         $this->logger->debug(__METHOD__ . ': check if documents [' . $docType . '] are registered for cave');
         
-        $filesObj = json_decode($caveDocs);
-        if( ! isset($filesObj->$docType) ){
-                $this->logger->debug('Files document group DO NOT exists');
-                return false;
+        $caveData = $this->selectByGUID($guid);
+        try{
+            $q = 'SELECT count(*) as docNbr FROM ' . $this->dbtableprefix . 'caves_files WHERE caveid = ' . (int)$caveData['indexid'] . ' AND file_type = '. $this->PDO->quote($docType) ;
+            $countStmt = $this->PDO->query($q);
+            $docsCount = $countStmt->fetch(PDO::FETCH_ASSOC);
+            if( $docsCount['docNbr'] > 0){
+                $this->logger->debug('Document of this type exists. Found : ' . $docsCount['docNbr']);
+                return true;
+            }
+            else{
+                 $this->logger->debug('no file document of this type present');
+                 return false;
+            }
         }
-        elseif( empty( (array)$filesObj->$docType) ){  //cast to array stdObject
-            $this->logger->debug('Files document group EMPTY');
+        catch(exception $e){
+            $this->logger->error('File existence check failed');
+            $this->logger->debug('Count query : ' . $q);
             return false;
         }
-        else{
-            $this->logger->debug('Files document exists');
-            return true;
-        }
-            
     }
     
     /*

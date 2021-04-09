@@ -62,13 +62,18 @@ if( isset($_GET['guid']) ){
 		$coordsHtml = '';
 		
         //set needles to permit edit items from a form.
-        $listOfFilesInput = $caveObj->getFilesFieldList();
-        
+        // old style $listOfFilesInput = $caveObj->getFilesFieldList();   
+
+        //find keys in multiDim array where field_group is `files` type
+        $keys = array_keys(array_column($fieldList, 'field_group'), 'files');
+        //extract `files` field name from multi. dim. array
+        $listOfFilesInput = array();
+        foreach($keys as $arrKey){
+            $listOfFilesInput[] = $fieldList[$arrKey]['field'];
+        }
+
         //build cave `files` from json
-		if(!empty($cave['files']) )
-		{
-			$filesObj = json_decode($cave['files']);
-		}
+		$filesObj = $caveObj->getCaveFileList($cave['guidv4'], 'all');
 		
 		foreach($fieldList as $fieldInfo)
 		{   
@@ -165,9 +170,8 @@ if( isset($_GET['guid']) ){
                 $currentField = $fieldInfo['field'];
                 $logger->debug('editcave.php : process field edit elements:' . $currentField );
     
-                $formFile = '  <form name="' . $currentField . '" id="fileSelectorForm-' . $currentField . '" style="display:none" >';
-                $formFile .= '    <input  type="file" id="fileSelector-' . $currentField . '"/>';
-               // $formFile .= '    <label for="fileSelector-' . $currentField . '">add file</label>';
+                $formFile = '  <form data-filetype="' . $currentField . '" id="fileSelectorForm-' . $currentField . '" style="display:none" >';
+                $formFile .= '    <input  class="file-upload-selector" type="file" id="fileSelector-' . $currentField . '"/>';
                 $formFile .= '    <span id="sendFile-' . $currentField . '" class="pure-button">OK</span>';
                 $formFile .= '  </form>';  
                 
@@ -178,8 +182,9 @@ if( isset($_GET['guid']) ){
 				$curHtml .=         $fieldInfo['display_name'] . ':';
                 $curHtml .= '  </span>';
 				
+                //echo $filesObj[$fieldInfo['field']][0]['file_path'];
 				// the file input is empty in db, we show the "add item" icon
-                if ( !isset($filesObj->$currentField) || empty($filesObj->$currentField) )
+                if ( !isset($filesObj[ $fieldInfo['field'] ]) || empty($filesObj[ $fieldInfo['field'] ]) )
                 {
                     //NO data to display, processing next col after adding + symbol
                     $curHtml .= '<div id="edit-' .  $currentField . '"></div>';
@@ -197,21 +202,14 @@ if( isset($_GET['guid']) ){
                     
                    
                     
-                    foreach($filesObj->$currentField as $key=>$value )
+                    foreach($filesObj[ $fieldInfo['field'] ] as $key => $value )
                     {
-						
-                        $curHtml .= '<div id="edit-' . $currentField . '-elNumber-' . $key . '">';
-                        //photos are in 2 dimentionnal array
-						if($currentField == 'photos')
-						{
-							$fileType = pathinfo($value[0]);
-							$fileName = $value[0];
-						}
-						else
-						{
-							$fileType = pathinfo($value);
-							$fileName = $value;
-						}	
+                        $curHtml .= '<div id="edit-' . $currentField . '-id-' . $value['id'] . '" data-id="' . $value['id'] .'" class="edit-fileentry">';
+                       
+                        $fileType = pathinfo($value['file_path']);
+                        $fileName = $value['file_path'];
+
+
 						
 						$logger->debug('editcave.php : tring to find filetype for:' . $fileType['extension'] . '('. $fileType['basename'] .')' ) ;
                         if ($fileType['extension']  != 'jpg')
@@ -220,17 +218,16 @@ if( isset($_GET['guid']) ){
                         }
 						else
                         {
-                                $curHtml .= '<i id="edit-rotLeft-' . $currentField . '-' . $key . '" class="fas fa-undo fa-lg"></i>';
+                                $curHtml .= '<i id="edit-rotLeft-' . $currentField . '-' . $value['id'] . '" class="fas fa-undo fa-lg"></i>';
                                 $curHtml .= '<img class="edit-CaveMini" src="' . $fileName . '" />';
-                                $curHtml .= '<i id="edit-rotRight-' . $currentField . '-' . $key . '" class="fas fa-undo fa-flip-horizontal fa-lg"></i>';
+                                $curHtml .= '<i id="edit-rotRight-' . $currentField . '-' . $value['id'] . '" class="fas fa-undo fa-flip-horizontal fa-lg"></i>';
                                 if($currentField == 'photos')
 								{
-									 $curHtml .= '<input type="text" class="edit-photoComment" value="' . $value[1] . '" data-elNumber="' . $key . '"/>';
+									 $curHtml .= '<input type="text" class="edit-filenote" value="' . $value['file_note'] . '" data-id="' . $value['id'] . '"/>';
 								}
-                        } 
-                        
+                        }
                        
-                        $curHtml .= '  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fas fa-trash-alt fa-lg" name="' . $currentField . '" id="edit-trash-' . $currentField . '" data-elNumber="' . $key . '"></span> ';
+                        $curHtml .= '  &nbsp;&nbsp;&nbsp;&nbsp;<span class="fas fa-trash-alt fa-lg edit-file-delete" data-id="'. $value['id'] . '" data-filetype="' . $currentField . '"></span> ';
                         $curHtml .= '</div>'; //el-$key
                     }
                     
@@ -245,19 +242,7 @@ if( isset($_GET['guid']) ){
 				$filesHTML .= $curHtml;
 
             }
-            /*elseif( $fieldInfo['field'] == 'sketchAccessPath' && !empty($cave['sketchAccessPath']) )
-            {
-                 $sketchAccessHtml = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
-                . $fieldInfo['display_name'] . ':</span>';
-                $sketchAccessHtml .=  '<span>test</span>';
-                $sketchAccessHtml .= '<div class="sketchItem">'; //force new line
-                $sketchAccessHtml .= '<i class="fas fa-undo fa-lg" style="margin:0 0.1em 0"></i> <img class="edit-sketchMini" src="' . $cave['sketchAccessPath'] . '" /> <i class="fas fa-undo  fa-lg fa-flip-horizontal "></i>';
-                $sketchAccessHtml .= '<span>&nbsp<i class="fas fa-trash-alt fa-lg fa-pull-left"  name="sketchImg"></i></span><form><input type="file" name="sketchImg"> <button>' . L::save . '</button></form> ';
-                $sketchAccessHtml .= '</div>';
-                
-                 $sketchAccessHtml .= '</div>';
-                 
-            }*/
+
 			elseif( $fieldInfo['type'] == 'text' &&  strlen($cave[ $fieldInfo['field'] ]) > 40 )
             {
                 $areas[] = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
@@ -459,101 +444,108 @@ elseif( isset($_POST['update'] ) ){
         }
     }
     elseif( isset($_POST['target']) && $_POST['target'] == 'files' ) {//file input form like documents or cave_maps
+        $logger->debug(basename(__FILE__) . ': Start upload process');
         $caveInfo = $caveObj->selectByGuid($_POST['guid']);
         //we want to upload some files
-        $logger->info('uploading file');
-        $logger->debug(print_r($_FILES,true) );
         
-        $fileInfo = pathinfo($_FILES['file']['name']);
-        
-        //check if file is authorized
-        $permitedFileTypes = array(
-                'jpg', 'jpeg',
-                'pdf',
-                'doc', 'docx',
-                'xls', 'xlsx',
-                'png',
-                'zip',
-                'txt','csv'
-                );
-                
-        $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
-        if ( !  strstr_from_arr($permitedFileTypes, $fileInfo['extension'] ) )
-        {
-            $return = array(
-                'title' => L::errors_ERROR,
-                'stateStr'=> L::errors_badFileType,
-            );
-            $httpError = 400;
-            $httpErrorStr = ' BAD REQUEST';  
-            jsonWrite(json_encode($return), $httpError, $httpErrorStr);
-            $logger->error('bad filetype');
-            exit();
-        }
-        $logger->debug('filetype ok');
-        
-        switch($_POST['item'])
-        {
-           case 'cave_maps':
-                $dstSubDir = 'maps';
-                break;
-           case 'photos':
-                $dstSubDir = 'photos';
-                break;
-           default:
-                $dstSubDir = 'documents';
-                break;                 
-        }
-        $logger->debug('set subdir to:[' . $dstSubDir . ']');
-        
-        
+        //some default var
+        $dstFullPath = ''; //file path
+        $filenote  = ''; //file note
+        $dstSubDir = $_POST['filetype']; 
         try
         {
-            //move file to destination and update DB
-            if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
-                $srcFile = $_FILES['file']['tmp_name'];
-                
-                $dstRootDir = $caveObj->getConfigElement('caves_files_path');
-                $dstName = cleanStringFilename( $_FILES['file']['name'] );
-                $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . $dstName;
-                
-                $logger->info('move uploaded file to [' .  $dstFullPath . ']');
-                
-                //change filename if filealready exists to prevent a problem on deletion and have a kind of uniqueness
-                if( file_exists($dstFullPath) )
-                {
-                    $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . rand(100,999) . '_' . $dstName;
+            if($_POST['actiontype'] == 'add'){
+                $logger->debug('action is add');
+                //upload file is action is add
+                if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
+                    $logger->info('uploading file');
+                    $logger->debug(print_r($_FILES,true) );
+
+                    $fileInfo = pathinfo($_FILES['file']['name']);
+
+                    //check if file is authorized
+                    $permitedFileTypes = array(
+                            'jpg', 'jpeg',
+                            'pdf',
+                            'doc', 'docx',
+                            'xls', 'xlsx',
+                            'png',
+                            'zip',
+                            'txt','csv'
+                    );
+                            
+                    $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
+                    if ( !  strstr_from_arr($permitedFileTypes, $fileInfo['extension'] ) )
+                    {
+                        $return = array(
+                            'title' => L::errors_ERROR,
+                            'stateStr'=> L::errors_badFileType,
+                        );
+                        $httpError = 400;
+                        $httpErrorStr = ' BAD REQUEST';  
+                        jsonWrite(json_encode($return), $httpError, $httpErrorStr);
+                        $logger->error('bad filetype');
+                        exit();
+                    }
+                    $logger->debug('filetype ok');
+                    
+                    if( empty($dstSubDir) ){
+                        throw new Exception('bad destination subdir');
+                    }
+                    
+                    $logger->debug('set subdir to:[' . $dstSubDir . ']');
+                    
+                    
+                    $srcFile = $_FILES['file']['tmp_name'];
+                    
+                    $dstRootDir = $caveObj->getConfigElement('caves_files_path');
+                    $dstName = cleanStringFilename( $_FILES['file']['name'] );
+                    $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . $dstName;
+                    
+                    $logger->info('move uploaded file to [' .  $dstFullPath . ']');
+                    
+                    //change filename if filealready exists to prevent a problem on deletion and have a kind of uniqueness
+                    if( file_exists($dstFullPath) )
+                    {
+                        $dstFullPath = $dstRootDir . '/' . $caveInfo['guidv4'] . '/' . $dstSubDir  . '/' . rand(100,999) . '_' . $dstName;
+                    }
+                    if( !file_exists( dirname($dstFullPath) ) )
+                    {
+                        $logger->debug('destination folder do not exists, creating');
+                        mkdir( dirname($dstFullPath), 0777, true);
+                    }
+                    if(! move_uploaded_file($srcFile, $dstFullPath) )
+                    {
+                        throw new exception('file upload fail');
+                    }
                 }
-                if( !file_exists( dirname($dstFullPath) ) )
+                else
                 {
-                    $logger->debug('destination folder do not exists, creating');
-                    mkdir( dirname($dstFullPath), 0777, true);
-                }
-                if(! move_uploaded_file($srcFile, $dstFullPath) )
-                {
-                    throw new exception('file upload fail');
+                     throw new exception('Error on file upload, upload error $_FILES[file][error] :' . $_FILES['file']['error']);
                 }
             }
-            else
-            {
-                 throw new exception('Error on file upload, upload error $_FILES[file][error] :' . $_FILES['file']['error']);
+            $values = array(
+                      $dstFullPath, //file path
+                      $filenote  //file note
+                      );
+
+            //add file comment/note if any
+            if( isset($_POST['filenote']) ){
+                $values[1] = $_POST['filenote'];
             }
+
+            $lastInsertItem = $caveObj->updateCaveFileList($_POST['guid'], $_POST['actiontype'], $_POST['filetype'], $_POST['itemid'], $values);
             
-            //update json info in field `files`
-            $lastInsertItem = $caveObj->addDataToCaveFileList($_POST['guid'], $_POST['item'], $dstFullPath );
-            
-            if( $lastInsertItem === false )
-            {
-                throw new exception('update json fail on file upload inscription');
-            }
+            //send back data to browser
             $return = array(
                 'title' =>L::general_edit,
                 'stateStr'=> L::editcave_success,
-                'newVal' => $dstFullPath,
+                'fullpath' => $dstFullPath,
                 'insertIndex' => $lastInsertItem,
-                'actionType' => 'add',
+                'actionType' => $_POST['actiontype'],
                 'extension' => $fileInfo['extension'],
-                'filename' => $fileInfo['filename'].'.'.$fileInfo['extension'],
+                'filename' => basename( $dstFullPath ),
+                'faicon' => getFaIcon($fileInfo['extension'],'far'),
                 );
             $httpError = 200;
             $httpErrorStr = ' OK';
@@ -564,11 +556,11 @@ elseif( isset($_POST['update'] ) ){
             $logger->error('fail to update db : ' . $e->getmessage() );
             $return = array(
                 'title' => L::errors_ERROR,
-                'stateStr'=> L::editcave_fail . '(json)',
+                'stateStr'=> L::editcave_fail,
                 'state' => 1,
                 );
-            $httpError = 500;
-            $httpErrorStr = ' Internal server error';
+            $httpError = 400;
+            $httpErrorStr = ' BAD REQUEST ';
         }
         
         
