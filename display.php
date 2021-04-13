@@ -210,6 +210,10 @@ if (isset($_GET['guid']) )
         
         foreach($results as $subArray) {
             //create/open col wrapper
+            if($subArray['field'] == 'name' ){
+                //skip name to be displayed in cave data info
+                continue;
+            }
             if($newCol == true ){
                 $newCol = false;
                 $htmlstr .= '<div id="displayMainCol-' . $colNum . '">';
