@@ -76,7 +76,6 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 		$js .= 'var marker = new google.maps.Marker(';
 		$js .= '{';
 		$js .= '	position: {lat:' . $coord[1]. ', lng:' . $coord[0] . '},' ;
-        $js .= '    url: \'' . $cave->getConfigElement('httpdomain') . '/display.php?guid=' . $coord['guidv4'] . '\',';
 		$js .= '	map: map,';
 		$js .= '	title: "' . $caveData['name'] . '",';
 		$js .= '	label: ';
@@ -115,11 +114,15 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
             $js .= '		fontWeight: "",';
             $js .= '		text: "' . $coord['name'] . '",';
             $js .= '	},';
+            $js .=<<<JST
+                icon : {
+                url: 'https://mt.googleapis.com/vt/icon/name=icons/spotlight/spotlight-waypoint-a.png&scale=1',
+            },
+JST;
             $js .= '});';
             
             $js .= ''. 
                    '   google.maps.event.addListener(marker, "click", function() {' .
-                   '   console.log("click on marker");' .
                   // '   window.location.href = this.url;' . 
                    '   window.open(this.url, "_blank").focus();' .
                    '});';

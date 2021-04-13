@@ -1526,7 +1526,7 @@ class VarcaveCave extends Varcave
                'ON caveid=indexid ' .
                'WHERE ' . 
                '   ST_Distance_Sphere(Point(' . $origin . '), location) <' . (int)$maxRadius . ' AND indexid != ' . (int)$excludecaveid . ' ' .
-               'ORDER BY distance ASC ' .
+               'ORDER BY distance ASC, name ASC ' .
                'LIMIT ' . $maxCavesToFind;
             
             try{
