@@ -490,24 +490,24 @@ class VarcaveCave extends Varcave
 			switch ($filter)
 			{
 				case 'ALL':
-					$query = 'SELECT *  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE 1 ORDER BY field_group,sort_order,field ASC';
+					$query = 'SELECT *  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE 1 ';
 					break;
 				case 'ONSEARCH':
-					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_search=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_search=1 ';
 					break;
 				case 'ONDISPLAY':
-					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_display=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_display=1 ';
 					break;
                 case 'ONPDF':
-					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_pdf=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group  FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_pdf=1 ';
 					break;
                 case 'ONEDIT':
-					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_edit=1 ORDER BY sort_order,field ASC';
+					$query = 'SELECT field,type,field_group   FROM ' . $this->dbtableprefix . 'end_user_fields WHERE show_on_edit=1 ';
 					break;
             }
+            $ORDERBY = ' ORDER BY field_group ASC, sort_order, field ASC';
 				
-				
-			$pdoStmt = $this->PDO->query($query);
+			$pdoStmt = $this->PDO->query($query . $ORDERBY);
 			 
 			$cols =  array();
 			$i18nFields = $pdoStmt->fetchall(PDO::FETCH_ASSOC);
@@ -1505,6 +1505,59 @@ class VarcaveCave extends Varcave
             $this->PDO->rollBack();
             return false;    
          }
+     }
+     
+     /*
+      * Find location of caves located near a point
+      * 
+      * @param int $origin origin coordinate for radius calculation
+      * @param int $maxRadius max radius around a point to locate caves
+      * @param int $maxCavesToFind limit result set to a number of caves
+      * @return mixed array on success, false on other cases
+      */
+     public function findNearCaves($origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
+          $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
+          $q = 'SELECT ' . 
+               '  caves.guidv4,caves.name, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), location) as distance ' .
+               'FROM ' .
+               '   caves_coordinates ' .
+               'INNER JOIN ' .
+               ' caves ' .
+               'ON caveid=indexid ' .
+               'WHERE ' . 
+               '   ST_Distance_Sphere(Point(' . $origin . '), location) <' . (int)$maxRadius . ' AND indexid != ' . (int)$excludecaveid . ' ' .
+               'ORDER BY distance ASC ' .
+               'LIMIT ' . $maxCavesToFind;
+            
+            try{
+                $pdostm = $this->PDO->query($q);
+                              
+                
+                if($pdostm->rowCount() <= 0){
+                    $this->logger->debug('No caves found!');
+                    return false;
+                }
+                
+                $coordsSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
+                
+                $jsreturn = array();
+                if($jsarray){
+                    $this->logger->debug('request data as a js array');
+                    foreach($coordsSet as $key => $values){
+                        $jsreturn[]= array( $values['name'], $values['guidv4'], array($values['X'], $values['Y']) ) ;
+                    }
+                    $this->logger->debug('return data :' . print_r($jsreturn, true) );
+                    return json_encode($jsreturn);
+                }
+                $this->logger->debug('return data :' . print_r($coordsSet, true) );
+                return $coordsSet;
+                
+            }catch(exception $e){
+                $this->logger->error('ERROR while searching cave around');
+                $this->logger->error('error : ' . $e->getmessage());
+                $this->logger->debug('query : '. $q);
+                return false;
+            }
      }
 }    
 ?>

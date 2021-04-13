@@ -245,7 +245,7 @@ class VarcavePdf extends TCPDF {
 		$this->SetFont('dejavusans', '', self::sizeS);
         
 		$sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'sketch_access');
-        
+
         // ** SKETCH ACCESS IMAGE **
         // add an image if one exists or if Google maps api can be used
         // user images have priority over gMaps API. You need to enable the 'Google static MAPS API'
@@ -255,10 +255,9 @@ class VarcavePdf extends TCPDF {
         //get coords to display on img
         $coordsObj = json_decode($this->cavedata['json_coords']);
         $coordList = $coordsObj->features[0]->geometry->coordinates;
-            
-        if( !empty($sketchAccessArr) ) {
+        if( !empty($sketchAccessArr['sketch_access'][0]['file_path']) ) {
             $this->varcave->logger->debug('Add access sketch image from user file');
-            $this->Image($sketchAccessArr[1],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
+            $this->Image($sketchAccessArr['sketch_access'][0]['file_path'],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
 		}
         elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) ) {
             $this->varcave->logger->debug('Add access sketch image from gAPI');
@@ -409,7 +408,7 @@ class VarcavePdf extends TCPDF {
 		$startPosCaveDescr = $this->getY();
 		$this->SetFont('dejavusans', '', self::sizeS);
 		$borders = array('TLRB' => array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
-		$this->multicell(216 - $this->marginleft - $this->marginright, 0, $this->cavedata['shortDescription'] . $this->cavedata['annex'],$borders,'L', false,1,$this->marginleft - 2);
+		$this->multicell(216 - $this->marginleft - $this->marginright, 0, $this->cavedata['shortDescription'], $borders,'L', false,1,$this->marginleft - 2);
 		//$this->multicell(215 - $this->marginleft - $this->marginright, 0, $this->cavedata['annex'],1,'L', false,1,$this->marginleft - 1);
 		$endPosCaveDescr = $this->gety() + 3;
 		//$this->RoundedRect(5,$startPosCaveDescr,202,$endPosCaveDescr - $startPosCaveDescr,3.5,'D');
@@ -421,14 +420,13 @@ class VarcavePdf extends TCPDF {
         $cave = new varcavecave();
         $sketchAccessArr = $cave->getCaveFileList($this->cavedata['guidv4'],'cave_maps');
         
-		
-		if (!empty($sketchAccessArr) )
+		if (!empty($sketchAccessArr['cave_maps']) )
 		{
-			foreach($sketchAccessArr as $index=>$imgFile)
+			foreach($sketchAccessArr['cave_maps'] as $index => $imgFile)
 			{
 				
 				//adapt rotate im to fit into page
-				$imgInfo = getimagesize($imgFile);
+				$imgInfo = getimagesize($imgFile['file_path']);
 			
 				//w to h ratio : 
 				$imgRatio = $imgInfo[0]/$imgInfo[1];
@@ -482,7 +480,7 @@ class VarcavePdf extends TCPDF {
 				}
 				else
 				{
-					echo 'img ok';
+					//echo 'img ok';
 					$x = $imgInfo[0];				
 					$y = $imgInfo[1];				
 				}
@@ -491,7 +489,7 @@ class VarcavePdf extends TCPDF {
 				//#######echo 'new size ;' .$x.'x'.$y.'<br><br>';
 				
 				//$this->Image($imgFile,$this->marginleft,$this->margintop,  $w = 0, $h = 0, $type = '', $link = '', $align = '', $resize = false, $dpi = 300, $palign = '', $ismask = false, $imgmask = false, $border = 0, $fitbox = false, $hidden = false, $fitonpage = false, $alt = false, $altimgs = array());
-				$this->Image($imgFile,$this->marginleft,$this->margintop, $x, $y,  '',  '', '', '', '', '', false,  false, 0,  false,  false, /*fit on page*/ true,  false,  array());
+				$this->Image($imgFile['file_path'],$this->marginleft,$this->margintop, $x, $y,  '',  '', '', '', '', '', false,  false, 0,  false,  false, /*fit on page*/ true,  false,  array());
 			}
 		}
     }

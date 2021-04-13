@@ -173,7 +173,7 @@ else{
             
             //set default field type if group il files
             if($_POST['fieldGroup'] == 'files'){
-                $fieldType = 'json';
+                $fieldType = 'db';
             }
             else{
                 $fieldType = $_POST['fieldType'];
@@ -188,20 +188,20 @@ else{
                 throw new exception('unable to update data');
             }
 
-            $writeIni = $varcave->updatei18nIniVal('lang/local/custom_fr.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
+            $writeIni = $varcave->updatei18nIniVal('lang/local/custom_' . $cave->getlangcode() . '.ini','table_cave','field_'.$_POST['newField'],$_POST['i18nField']);
             if( ! $writeIni){
                 throw new exception('unable to write ini file');
             }
             
-            //alter database only if type is not json. This is because json type is currently used only with `files` db column
+            //alter database only if type is not db. This is because db type is currently used with `files` db column
             //so no need to add new col
-            if( $fieldType != 'json'){
+            if( $fieldType != 'db'){
                 $alterTable = $varcave->addCaveCol($_POST['newField'], $_POST['fieldType']);
                  if( ! $alterTable){
                     throw new exception('unable alter table caves');
                 }
             } else{
-                 $logger->info('col will not be added to `caves`since its json files element');
+                 $logger->info('col will not be added to `caves`since its db files element');
             }
             
             $message['title'] =L::general_edit;

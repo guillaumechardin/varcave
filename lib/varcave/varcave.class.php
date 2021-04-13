@@ -656,15 +656,16 @@ class Varcave {
             $type = $this->PDO->quote($fieldType);
             // set some default data value for Varcave correct operation
             $q = 'INSERT INTO ' . $this->dbtableprefix .'end_user_fields ' .
-                     ' (`indexid`, `field`, `type`, `sort_order`, `show_on_display`, `show_on_search`, `show_on_edit`, `field_group`) ' .
+                     ' (`indexid`, `field`, `type`, `sort_order`, `show_on_display`, `show_on_search`, `show_on_edit`, `show_on_pdf`, `field_group` ) ' .
                      ' VALUES('. 
-                                'NULL,'.
-                                $field .','.
-                                $type .','.
-                                '9999,'.
-                                '0,'.
-                                '0,'.
-                                '0,'.
+                                'NULL,'.//id
+                                $field .','.//field
+                                $type .','.//type
+                                '9999,'.//sort order
+                                '0,'.//show display
+                                '0,'.//show search
+                                '0,'.//show edit
+                                '0,'.//show pdf
                                 $field_group.
                             ')';
                 $this->PDO->query($q);
@@ -701,7 +702,8 @@ class Varcave {
             }
             $this->logger->debug('get custom_xx.ini file data');
             $ini_array = parse_ini_file($filename, true);
-            if($ini_array == false){
+
+            if($ini_array === false){
                 $this->logger->error('fail to load ini file. Check syntax.');
                 return false;
             }
@@ -812,6 +814,13 @@ class Varcave {
             return false;
         }
     }
+
+    /*
+     * getlangcode getter for i18 language code
+     */
+     public function getlangcode(){
+         return $this->langcode;
+     }
 
 }
 

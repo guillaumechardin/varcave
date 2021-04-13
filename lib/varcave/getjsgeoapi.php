@@ -27,7 +27,7 @@ try
 	
 	$coordsObj = json_decode($caveData['json_coords']);
     $coordList = $coordsObj->features[0]->geometry->coordinates;
-		
+	
 }
 catch (Exception $e)
 {
@@ -45,6 +45,10 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
     
 	$js = 'var map = "";';
 	
+    $js .= '$("document").ready(function (){';
+    $js .= '    initMap();';
+    $js .= ' });';
+    
 	$js .= 'function initMap()';
 	$js .= '{';
 	$js .= '	map = new google.maps.Map(document.getElementById("miniMap"), ';
@@ -63,15 +67,16 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 	$js .= '		mapTypeId: "satellite",';
 	$js .= '		zoomControl: false,';
 	$js .= '		gestureHandling: "none",';
-
 	$js .= '	});';
 
 	$i = 1;
+    //current cave markers
 	foreach($coordList as $coord)
 	{
 		$js .= 'var marker = new google.maps.Marker(';
 		$js .= '{';
 		$js .= '	position: {lat:' . $coord[1]. ', lng:' . $coord[0] . '},' ;
+        $js .= '    url: \'' . $cave->getConfigElement('httpdomain') . '/display.php?guid=' . $coord['guidv4'] . '\',';
 		$js .= '	map: map,';
 		$js .= '	title: "' . $caveData['name'] . '",';
 		$js .= '	label: ';
@@ -84,6 +89,50 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 		$js .= '});';
 		$i++;
 	}
+    
+    /*
+     * START LOCATE caves ARROUND
+     * add other markers for caves near this one
+     */
+    
+    $coordOrigin =  $coordList[0][0] . ',' . $coordList[0][1];
+    $nearCaves = $cave->findNearCaves($coordOrigin, $cave->getConfigElement('near_caves_max_radius'), $cave->getConfigElement('near_caves_max_number'), $caveData['indexid'], false );
+
+    if($nearCaves != false){
+    
+        foreach($nearCaves as $coord)
+        {
+            $js .= 'var marker = new google.maps.Marker(';
+            $js .= '{';
+            $js .= '	position: {lat:' . $coord['Y']. ', lng:' . $coord['X'] . '},' ;
+            $js .= '    url: \'' . $cave->getConfigElement('httpdomain') . '/display.php?guid=' . $coord['guidv4'] . '\',';
+            $js .= '	map: map,';
+            $js .= '	title: "' . $coord['name'] . '",';
+            $js .= '	label: ';
+            $js .= '	{';
+            $js .= '		color: "white",';
+            $js .= '		fontSize: "1em",';
+            $js .= '		fontWeight: "",';
+            $js .= '		text: "' . $coord['name'] . '",';
+            $js .= '	},';
+            $js .= '});';
+            
+            $js .= ''. 
+                   '   google.maps.event.addListener(marker, "click", function() {' .
+                   '   console.log("click on marker");' .
+                  // '   window.location.href = this.url;' . 
+                   '   window.open(this.url, "_blank").focus();' .
+                   '});';
+            
+        }
+    }else{
+        $js .= 'alert("no cave around found");';
+    }
+
+        
+    
+    
+       
 	if ($_GET['api'] == 'geoportail')
 	{
 		/*
@@ -179,7 +228,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 		$js .= 'map.mapTypes.set("OSMOTP",OSMtopomap);';
     }
 	$js .= '}';
-	
+    
 	echo $js;
 }
 elseif ($_GET['api'] == 'none')

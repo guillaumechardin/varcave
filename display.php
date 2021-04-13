@@ -205,7 +205,7 @@ if (isset($_GET['guid']) )
         $colNum = 0;
         $newCol = true;
         $currentItem = 0;
-        ini_set("max_execution_time",3);
+        ini_set("max_execution_time",5);
         $end = end($results);  //last element of i18n array
         
         foreach($results as $subArray) {
@@ -316,20 +316,21 @@ if (isset($_GET['guid']) )
 		if( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'googlemaps')
 		{
 			$logger->debug("using googlemaps API");
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
 			$htmlstr .= '<script src="./lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=googlemaps"></script>';
 			
 		}
 		elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'geoportail')
 		{
 			$logger->debug("using geoportail API");
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
 			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=geoportail"></script>';	
 		}
         elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'openstreetmaps')
 		{
 			$logger->debug("using osm API");
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+			//$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
 			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=openstreetmaps"></script>';	
 		}
 		else
@@ -380,10 +381,9 @@ if (isset($_GET['guid']) )
 			$htmlstr .= '<div class="disclaimCoordsNotChecked">' . L::disclaimCoordsNotChecked . '</div>';
 		}
 		
-		
-		//print_r($coordList);
         $htmlstr .= '<script>';
         $htmlstr .= 'var coordinatesList = ' . $caveData['json_coords'] . ';';
+        
         $htmlstr .= '</script>';
 		
         $htmlstr .= '<ol id="coordList">';
@@ -411,10 +411,6 @@ if (isset($_GET['guid']) )
 		$htmlstr .= '<div class="flexContainer flexWrap displayShortDescription">';
 		$htmlstr .= '	<p>' . nl2br( htmlentities($caveData['shortDescription']) ) . '</p>';
 		
-		if( ! IsNullOrEmptyString($caveData['annex']) )
-		{
-			$htmlstr .= '<p>' . nl2br(htmlentities($caveData['annex']) ). '</p>';
-		}
 		$htmlstr .= '</div>'; //flexContainer
 		
         
