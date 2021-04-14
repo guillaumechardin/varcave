@@ -83,9 +83,7 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	
 }
 elseif( !IsNullOrEmptyArray($_POST) )
-{
-    set_time_limit(60); //change to 60s for long research list because geting cave data (name, location, area, depth...) with selectByGuid take around 20ms for each cave
-    
+{    
 	/*
 	 * search  caves from DB 
 	 * else we use $_POST or $_GET from form to search specific caves 
@@ -379,13 +377,14 @@ else
 		$limit1 = 0;
 		for($i = 1 ; $i <= $nbrFlexColsSearchPage ; $i++)
 		{
-			$reqCols[] = 'SELECT field,type  FROM ' . $cave->getTablePrefix() . 'end_user_fields WHERE show_on_search = 1 ORDER BY sort_order,field ASC LIMIT ' . $limit1 . ',' . $nbrOfFieldsPerCols; 
+			$reqCols[] = 'SELECT field,type,field_group  FROM ' . $cave->getTablePrefix() . 'end_user_fields WHERE show_on_search = 1 ORDER BY sort_order,field ASC LIMIT ' . $limit1 . ',' . $nbrOfFieldsPerCols; 
 			$limit1 = $nbrOfFieldsPerCols * $i - 1;
 		}
 		
 		$logger->debug(basename(__FILE__) . ": Request to get localized col name from db in advanced search \n" . print_r($reqCols,true) );
 		
-		$htmlstr .= '<h2>' . L::search_title . '</h2>';
+		//empty table that will contains search results
+        $htmlstr .= '<h2>' . L::search_title . '</h2>';
 		$htmlstr .= '<div id="resultTableDiv">';
         $htmlstr .= '  <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 		$htmlstr .= '  <table id="tableSearch" class="display" >';
@@ -412,7 +411,6 @@ else
             
 			foreach($fields as $field)
 			{
-				
 				$htmlstr .= '<div id="' . $field[0] . '"><span class="searchColLocalName">' . $i18nCols[ $field[0] ]  . '</span> ';
 				if ( strstr( $field[1] , 'text') )
 				{
@@ -425,9 +423,18 @@ else
 				}
 				elseif ( strstr( $field[1] , 'bool') )
 				{
+                    
                     $htmlstr .= '<select name="type_' . $field[0] . '">';
 					$htmlstr .= '  <option selected value="=">=</option>';
 					$htmlstr .= '  <option  value="NOTEQUAL">' . L::search_fieldtypeNOTEQUAL . '</option>';
+					$htmlstr .= '</select>';
+					$htmlstr .= '<input type="checkbox" name="value_' . $field[0] . '">';
+				}
+                elseif ( $field[1] == 'db'  && $field[2] == 'files'  )
+				{
+                    
+                    $htmlstr .= '<select name="type_' . $field[0] . '" data-type="files">';
+					$htmlstr .= '  <option selected value="=">=</option>';
 					$htmlstr .= '</select>';
 					$htmlstr .= '<input type="checkbox" name="value_' . $field[0] . '">';
 				}

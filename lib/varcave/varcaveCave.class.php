@@ -241,6 +241,7 @@ class VarcaveCave extends Varcave
 		}
 		
 		$req = '';
+        $join = '';
 		$betweenFound = false;
 		foreach($searchInput as $key=>$value)
 		{
@@ -255,7 +256,21 @@ class VarcaveCave extends Varcave
                 }
                 else{
                     //not supported req
-                    $this->logger->debug(__METHOD__ . ' : ERROR invalid choice on boolean value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                    $this->logger->error(__METHOD__ . ' : ERROR invalid choice on boolean value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                    return false;
+                    throw new Exception($msg,0);
+                }
+                
+            }
+            elseif ( in_array( $value['field'], $this->getFileEndUserType() ) ){
+                //depending field type, adapt query
+                $join = ' INNER JOIN  caves_files ON caves.indexid = caves_files.caveid ';
+                if( $value['type'] == '=' ){
+                    $req .= ' caves_files.file_type LIKE ' . $this->PDO->quote('%' . $value['field'] . '%');
+                }
+                else{
+                    //not supported req
+                    $this->logger->error(__METHOD__ . ' : ERROR invalid choice on file type value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
                     return false;
                     throw new Exception($msg,0);
                 }
@@ -320,16 +335,16 @@ class VarcaveCave extends Varcave
             $colsReq = $reqFields;
         }
     
-		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
+		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//prepare a list of cave for next/previs in display.php
-		$qSearchNextPrevious = 'SELECT  indexid FROM ' . $this->dbtableprefix .  'caves WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
+		$qSearchNextPrevious = 'SELECT  indexid FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//no LIMIT to get total item founds
-		$reqCount = 'SELECT COUNT(*) FROM ' . $this->dbtableprefix  . 'caves WHERE ' . $req ;
+		$reqCount = 'SELECT COUNT(*) FROM ' . $this->dbtableprefix  . 'caves ' . $join . ' WHERE ' . $req ;
 		
 		//get some info for selected search
-		$reqSearchMetrics = 'SELECT (SELECT SUM( ABS( maxDepth ) ) ) as totalDepth,( SELECT SUM(length)) as totalLength FROM ' .  $this->dbtableprefix . 'caves WHERE ' . $req;   
+		$reqSearchMetrics = 'SELECT (SELECT SUM( ABS( maxDepth ) ) ) as totalDepth,( SELECT SUM(length)) as totalLength FROM ' .  $this->dbtableprefix . 'caves ' . $join . ' WHERE ' . $req;   
 		
 		$this->logger->debug('search request : ' . $reqSearch);
 		$this->logger->debug('count request : ' . $reqCount);
@@ -1405,6 +1420,31 @@ class VarcaveCave extends Varcave
             return false;
         }
     }
+    
+        /*
+     * getFileEndUserType
+     * get a list of type of end user fields from `end_user_fields` where type is bool
+     * @return 1dim array of elements, false on error
+     */
+     public function getFileEndUserType(){
+        $this->logger->debug(__METHOD__ . ': get registered files elements type from  `end_user_fields`');
+
+        try{
+            $q = 'SELECT field FROM ' .  $this->dbtableprefix . 'end_user_fields WHERE field_group="files"';
+            $pdoRes = $this->PDO->query($q);
+            
+            while($res = $pdoRes->fetch(PDO::FETCH_NUM)){
+                $r[] = $res[0];
+            }
+            return $r;
+        }catch(exeption $e){
+            $this->logger->error('Failed to get files list' . $e->getmessage() );
+            $this->logger->debug('Full query :' . $q);
+            return false;
+        }
+    }
+    
+    
     
     /*
      * deleteCave

@@ -129,7 +129,7 @@ JST;
             
         }
     }else{
-        $js .= 'alert("no cave around found");';
+        //$js .= 'alert("no cave around found");'; //NOP
     }
 
         
