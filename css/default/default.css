@@ -703,6 +703,7 @@ span[id^="edit-addItem"] > i:hover
 span[class="edit-file-delete"],
 span[id^="edit-delCoordSet"],
 .edit-add-changelog,
+.edit-trash-changelog,
 .addnewcave-btn,
 .spacearound-s
 {
@@ -713,6 +714,7 @@ span[id^="edit-delCoordSet"],
 span[class="edit-file-delete"]:hover,
 span[id^="edit-delCoordSet"]:hover,
 .edit-add-changelog:hover,
+.edit-trash-changelog:hover,
 .backgrndcolor-hover:hover
 {
 	background-color: grey;

@@ -247,7 +247,7 @@ if( isset($_GET['guid']) ){
             {
                 $areas[] = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
                 . $fieldInfo['display_name']
-                . ': <textarea name="' . $fieldInfo['field'] . '" class="editDisplayName-textArea" rows="10" cols="30">' . $cave[ $fieldInfo['field'] ]
+                . ': <textarea name="' . $fieldInfo['field'] . '" class="editDisplayName-textArea" rows="10" cols="30">' . htmlentities( $cave[ $fieldInfo['field'] ] )
                 . '</textarea> </div>';
             }
             else
@@ -255,7 +255,7 @@ if( isset($_GET['guid']) ){
                 $texts[] = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
                  . $fieldInfo['display_name'] 
                  . '</span>: <input name="' . $fieldInfo['field'] . '" class="editDisplayName-textField" type="text" value="' 
-                 . $cave[ $fieldInfo['field'] ]  . '"></div>';
+                 . htmlentities( $cave[ $fieldInfo['field'] ] )  . '"></div>';
             }	
     }
 
@@ -305,7 +305,7 @@ if( isset($_GET['guid']) ){
 				//$htmlstr .= '<div id="caveMod-' . $caveMods['indexid'] . '">';
 				$htmlstr .=  '<li>';
 				$htmlstr .=    '<i class="fas fa-edit fa-lg"></i>' . $caveMods['date'] . ' » ' .  $caveMods['chgLogTxt'];
-				$htmlstr .=    ' <span name="changelog" data-elNumber="' . $caveMods['indexid']   . '" id="edit-trash-changelog" class="fas fa-trash-alt"></span>';
+				$htmlstr .=    ' <span name="changelog" data-elNumber="' . $caveMods['indexid']   . '" class="edit-trash-changelog fas fa-trash-alt"></span>';
 				$htmlstr .=  '</li>';
 				//$htmlstr .= '</div>';
 			}
@@ -617,7 +617,7 @@ elseif( isset($_POST['update'] ) ){
         }
         
     }
-    elseif($_POST['item'] == 'changelog'){
+    elseif( isset($_POST['target']) && $_POST['target']  == 'changelog'){
         try
         {
             $logger->info('update changelog');
