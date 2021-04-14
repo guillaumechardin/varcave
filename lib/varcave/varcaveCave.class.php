@@ -242,6 +242,7 @@ class VarcaveCave extends Varcave
 		
 		$req = '';
         $join = '';
+        $groupby = ' GROUP BY caves.indexid ';
 		$betweenFound = false;
 		foreach($searchInput as $key=>$value)
 		{
@@ -335,10 +336,10 @@ class VarcaveCave extends Varcave
             $colsReq = $reqFields;
         }
     
-		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
+		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ' . $groupby . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//prepare a list of cave for next/previs in display.php
-		$qSearchNextPrevious = 'SELECT  indexid FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
+		$qSearchNextPrevious = 'SELECT  indexid FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ' . $groupby . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//no LIMIT to get total item founds
 		$reqCount = 'SELECT COUNT(*) FROM ' . $this->dbtableprefix  . 'caves ' . $join . ' WHERE ' . $req ;
