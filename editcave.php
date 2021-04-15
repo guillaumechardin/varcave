@@ -126,10 +126,11 @@ if( isset($_GET['guid']) ){
                 }
                 $coordsHtml .= '</select>';
                
-
-
                 $coordsHtml .= '</div>';
-                
+               
+                //add current cave json_coords to be used when on coords convertion
+                $coordsHtml .= '<script>var coordList = ' . $cave['json_coords'] . ';</script>';
+ 
                 //mind this not  real json coords. 
                 $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '">';
                 if ( !empty ($cave['json_coords']) )
