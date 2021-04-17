@@ -133,16 +133,16 @@ if( isset($_GET['guid']) ){
  
                 //mind this not  real json coords. 
                 $coordsHtml .= '<div id="edit-' .  $fieldInfo['field'] . '">';
-                if ( !empty ($cave['json_coords']) )
+                if ( !empty ( $cave['caveCoords'] ))
                 {
                     $i=0;
                     foreach($cave['caveCoords'] as $coord )
                     {
-                        $coordsHtml .= '<div class="editCoords" data-coordSet="' . $coord['id'] . '">'; 
+                        $coordsHtml .= '<div class="editCoords" data-coordset="' . $coord['id'] . '">'; 
                         $coordsHtml .= '   X:<input type="text" class="coords" data-coord="lat"  value="' .   $coord['lat'] . '" />';
                         $coordsHtml .= '   Y:<input type="text" class="coords" data-coord="long" value="' .   $coord['long'] . '" />';
                         $coordsHtml .= '   Z:<input type="text" class="coords" data-coord="z"    value="' .   $coord['z'] . '" />';
-                        $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg" data-coordSet="' . $coord['id'] . '" id="edit-delCoordSet-' . $coord['id'] . '"></span>';
+                        $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg" data-coordset="' . $coord['id'] . '" id="edit-delCoordSet-' . $coord['id'] . '"></span>';
                         $coordsHtml .= '</div>';
                         $i++;
                     }

@@ -26,7 +26,7 @@ try
 	}
 	
 	$coordsObj = json_decode($caveData['json_coords']);
-    $coordList = $coordsObj->features[0]->geometry->coordinates;
+    $coordList = $coordsObj->features;
 	
 }
 catch (Exception $e)
@@ -54,7 +54,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 	$js .= '	map = new google.maps.Map(document.getElementById("miniMap"), ';
 	$js .= '	{';
 	$js .= '		zoom: ' . $cave->getConfigElement('gApi_zoom_lvl') . ',';
-	$js .= '		center: {lat:' . $coordList[0][1] . ',lng:' . $coordList [0][0] . '},';
+	$js .= '		center: {lat:' . $coordList[0]->geometry->coordinates[1] . ',lng:' . $coordList[0]->geometry->coordinates[0] . '},';
 	$js .= '        mapTypeControlOptions : {
 	                                       position: google.maps.ControlPosition.TOP_RIGHT, 
 	                                       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
@@ -71,11 +71,11 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
 
 	$i = 1;
     //current cave markers
-	foreach($coordList as $coord)
+	foreach($coordList as $key => $coord)
 	{
 		$js .= 'var marker = new google.maps.Marker(';
 		$js .= '{';
-		$js .= '	position: {lat:' . $coord[1]. ', lng:' . $coord[0] . '},' ;
+		$js .= '	position: {lat:' . $coord->geometry->coordinates[1]. ', lng:' . $coord->geometry->coordinates[0] . '},' ;
 		$js .= '	map: map,';
 		$js .= '	title: "' . $caveData['name'] . '",';
 		$js .= '	label: ';
@@ -94,7 +94,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
      * add other markers for caves near this one
      */
     
-    $coordOrigin =  $coordList[0][0] . ',' . $coordList[0][1];
+    $coordOrigin =  $coordList[0]->geometry->coordinates[0] . ',' . $coordList[0]->geometry->coordinates[1];
     $nearCaves = $cave->findNearCaves($coordOrigin, $cave->getConfigElement('near_caves_max_radius'), $cave->getConfigElement('near_caves_max_number'), $caveData['indexid'], false );
 
     if($nearCaves != false){

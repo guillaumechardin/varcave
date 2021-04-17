@@ -289,11 +289,11 @@ if (isset($_GET['guid']) )
 			
 		/*
 		 * fetching coords from DB see beelow usage of $coordList
-		 * geoJson store multipoint coord in this namespace
-		 * Obj->features[0]->geometry->coordinates[0];
+		 * geoJson store FeatureCollection coord in this namespace
+		 * Obj->features[i]->geometry->coordinates[0];
 		 */
 		$coordsObj = json_decode($caveData['json_coords']);
-		$coordList = $coordsObj->features[0]->geometry->coordinates;        
+		$coordList = $coordsObj->features;             
 		
 		$htmlstr .= '<h2>' .  L::display_caveAccessTitle . '</h2>';
 		$htmlstr .= '<div class="flexContainer flexWrap">';
@@ -391,12 +391,14 @@ if (isset($_GET['guid']) )
         $htmlstr .= '</script>';
 		
         $htmlstr .= '<ol id="coordList">';
-		foreach ($coordList as $key=>$coord)
+        
+        //$coordList = $coordsObj->features;  
+		foreach ($coordList as $key => $coord)
 		{
 			$htmlstr .= '<li data-id="' . $key . '">';
-			$htmlstr .= '<span id="x-' . $key . '">X:' . $coord[0] . '</span> '.
-                        '<span id="y-' . $key . '">Y:' . $coord[1] . '</span> '.
-                        '<span id="z-' . $key . '">Z:' . $coord[2] . '</span>m';
+			$htmlstr .= '<span id="x-' . $key . '">X:' . $coord->geometry->coordinates[0] . '</span> '.
+                        '<span id="y-' . $key . '">Y:' . $coord->geometry->coordinates[1] . '</span> '.
+                        '<span id="z-' . $key . '">Z:' . $coord->geometry->coordinates[2] . '</span>m';
 			$htmlstr .= '</li>';
 			
 		}

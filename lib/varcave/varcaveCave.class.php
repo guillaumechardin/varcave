@@ -590,13 +590,15 @@ class VarcaveCave extends Varcave
             
             //define an empty geoJson objet
             $geoJsonObj = new stdClass();
+            $geoJsonObj->type = "FeatureCollection";
             $geoJsonObj->features = array();
             $geoJsonObj->features[0] = new stdClass();
             $geoJsonObj->features[0]->type = 'Feature';
-            $geoJsonObj->features[0]->properties = new stdClass();
-            $geoJsonObj->features[0]->properties->prop0 = '';
             $geoJsonObj->features[0]->geometry = new stdClass();
+            $geoJsonObj->features[0]->geometry->type = "Point";
             $geoJsonObj->features[0]->geometry->coordinates = array();
+            $geoJsonObj->features[0]->properties = new stdClass();
+            $geoJsonObj->features[0]->properties->id = '';
             
 			if (!$result)
 			{
@@ -657,13 +659,17 @@ class VarcaveCave extends Varcave
                 $resultCoords = array(); //build an empty array to avoid typeset errors
             }
             //insert a new geoJson object in cavedata
-            foreach($resultCoords as $coordSet){
-            $geoJsonObj->features[0]->geometry->coordinates[]=array(
-                                                0 => $coordSet['lat'],
-                                                1 => $coordSet['long'],
-                                                2 => $coordSet['z'],
+
+            foreach($resultCoords as $key => $coordSet){
+                $geoJsonObj->features[$key]->type = "Feature";
+                $geoJsonObj->features[$key]->geometry->type= 'Point';
+                $geoJsonObj->features[$key]->geometry->coordinates = array(
+                                                0 => (float)$coordSet['lat'],
+                                                1 => (float)$coordSet['long'],
+                                                2 => (float)$coordSet['z'],
                                                 );
-                                                
+                $geoJsonObj->features[$key]->properties = new stdClass();
+                $geoJsonObj->features[$key]->properties->id = $coordSet['id'];                            
             }
             //store original coords php formated data 
             $result['caveCoords'] = $resultCoords;
