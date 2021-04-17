@@ -592,13 +592,6 @@ class VarcaveCave extends Varcave
             $geoJsonObj = new stdClass();
             $geoJsonObj->type = "FeatureCollection";
             $geoJsonObj->features = array();
-            $geoJsonObj->features[0] = new stdClass();
-            $geoJsonObj->features[0]->type = 'Feature';
-            $geoJsonObj->features[0]->geometry = new stdClass();
-            $geoJsonObj->features[0]->geometry->type = "Point";
-            $geoJsonObj->features[0]->geometry->coordinates = array();
-            $geoJsonObj->features[0]->properties = new stdClass();
-            $geoJsonObj->features[0]->properties->id = '';
             
 			if (!$result)
 			{
@@ -1555,7 +1548,7 @@ class VarcaveCave extends Varcave
                 return $unWrFiles;
             }
          }
-         catch(exception $e){
+         catch(exception $ee){
             $this->logger->error('Unable to delete cave: ' . $e->getmessage() );
             $this->logger->debug('Full query :' . $q);
             if(!empty($unWrFiles) ){
