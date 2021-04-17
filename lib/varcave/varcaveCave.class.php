@@ -658,11 +658,13 @@ class VarcaveCave extends Varcave
                 $this->logger->debug('Yes : Erase coords data from result set');
                 $resultCoords = array(); //build an empty array to avoid typeset errors
             }
-            //insert a new geoJson object in cavedata
 
+            //insert a new geoJson object in cavedata
             foreach($resultCoords as $key => $coordSet){
+                $geoJsonObj->features[$key] = new stdClass();
                 $geoJsonObj->features[$key]->type = "Feature";
-                $geoJsonObj->features[$key]->geometry->type= 'Point';
+                $geoJsonObj->features[$key]->geometry = new stdClass();
+                $geoJsonObj->features[$key]->geometry->type = 'Point';
                 $geoJsonObj->features[$key]->geometry->coordinates = array(
                                                 0 => (float)$coordSet['lat'],
                                                 1 => (float)$coordSet['long'],
@@ -1491,13 +1493,23 @@ class VarcaveCave extends Varcave
                 return false;
             }
             $caveID = $caveData['indexid'];
-            
+            //purge changelog data
             $q  = 'DELETE FROM ' . $this->dbtableprefix . 'changelog WHERE  indexid_caves = "' . $caveID . '";';
             $error = $this->PDO->query($q);
             
+            //purge statistics
             $q  = 'DELETE FROM ' . $this->dbtableprefix . 'stats WHERE  cave_id = "' . $caveID . '";';
             $error = $this->PDO->query($q);
             
+            //purge coordinates
+            $q  = 'DELETE FROM ' . $this->dbtableprefix . 'caves_coordinates WHERE  caveid = "' . $caveID . '";';
+            $error = $this->PDO->query($q);
+            
+            //purge files
+            $q  = 'DELETE FROM ' . $this->dbtableprefix . 'caves_files WHERE  caveid = "' . $caveID . '";';
+            $error = $this->PDO->query($q);
+            
+            // ***  finaly remove cave *** 
             $q  = 'DELETE FROM ' . $this->dbtableprefix . 'caves WHERE  indexid = "' . $caveID . '";';
             $error = $this->PDO->query($q);
 
