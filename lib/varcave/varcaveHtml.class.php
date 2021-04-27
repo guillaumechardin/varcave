@@ -92,6 +92,7 @@ class VarcaveHtml extends Varcave {
                 ),
               );
             $res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
+            //return search field is only name for autocomplete
             $cave->setConfigSettings('returnSearchFields','name');
 
             $this->html .= "\n" . '<script>var availableNames = ['."\n";

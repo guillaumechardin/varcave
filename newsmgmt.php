@@ -95,7 +95,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	}
 
 	//set some var for Datatables
-    $jsData = json_encode($data,   JSON_PRETTY_PRINT);
+    $jsData = json_encode($data,   JSON_PRETTY_PRINT| JSON_UNESCAPED_SLASHES);
     if(!$jsData)
     {
         $logger->error('Json enconding failed : ' . json_last_error_msg() );
