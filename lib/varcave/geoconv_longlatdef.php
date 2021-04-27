@@ -4,18 +4,14 @@
  * method in json_coords from cave db.
  */
  
-function convert2GEOGRAPHIC($coords)
+function convert2GEOGRAPHIC($coord)
 {
-    $convCoords = array();
-    foreach($coords as $coord)
-    {
-        $convCoords [] = array( 
-                        'x' => $coord[0],
-                        'y' => $coord[1],
-                        'z' => $coord[2],
-                        'string' => 'X: ' . $coord[0] . ' Y: ' . $coord[0] . ' ' . $coord[2] . 'm',
-                        );
-    }
+    $convCoords = array( 
+                'x' => $coord[0],
+                'y' => $coord[1],
+                'z' => $coord[2],
+                'string' => 'X: ' . $coord[0] . ' Y: ' . $coord[0] . ' ' . $coord[2] . 'm',
+                );
     return $convCoords;
 }
     

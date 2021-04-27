@@ -10,11 +10,19 @@ use proj4php\Point;
 /* 
  * Function convert2utm handle the process to convert long/lat in decimal
  * format to UTM notation
- * @param $coords is an array of coords from a geojson object
- *        $coords is defined : { 
- *                                  [0] = x,y,z,
- *                                  [1] = x1,y1,z1,
- *                              }
+ * @param $coords is an array of coords
+ *        $coords is defined : 
+ *                            $coords = array( x, y, z)
+  * @return an array containing converted data defined as :
+ *  
+ *              array(
+ *                  'x' => x,
+ *                  'y' => y,
+ *                  'z' => z,
+ *                  'zone' => 'zone',
+ *                  'band' => 'band',
+ *                  'string' => 'zoneband x y',
+ *              )  
  * @return an array containing converted data defined as :
  *                              array( 
  *              array(
@@ -39,36 +47,35 @@ use proj4php\Point;
         $proj4 = new Proj4php();
         $projWGS84  = new Proj('EPSG:4326', $proj4);  //WGS84 (long/lat)
         
-        foreach($coords as $coord)
-        {
-            //Find current zone
-            $zone = long2UTMZone($coord[0]);
-            
-            //find band (letter)
-            $band = getUTMLatBand($coord[1]);
-            
-            //build proj data for proj4
-            //depending on zone ; may not be suitable for all zones like 32V or 31X
-            $currUtmDefinition = '+proj=utm +zone=' . $zone . ' +datum=WGS84 +units=m +no_defs';
-            $currUTM = new Proj($currUtmDefinition, $proj4);
-            
-            //create new point
-            $pointSrc = new Point($coord[0], $coord[1], $projWGS84);
-            
-            //convert point to utm
-            $pointDest = $proj4->transform($currUTM, $pointSrc);
-            
-            //build return data
-            $x = floor( $pointDest->__get('x') );
-            $y = floor( $pointDest->__get('y') );
+        //Find current zone
+        $zone = long2UTMZone($coords[0]);
+        
+        //find band (letter)
+        $band = getUTMLatBand($coords[1]);
+        
+        //build proj data for proj4
+        //depending on zone ; may not be suitable for all zones like 32V or 31X
+        $currUtmDefinition = '+proj=utm +zone=' . $zone . ' +datum=WGS84 +units=m +no_defs';
+        $currUTM = new Proj($currUtmDefinition, $proj4);
+        
+        //create new point
+        $pointSrc = new Point($coords[0], $coords[1], $projWGS84);
+        
+        //convert point to utm
+        $pointDest = $proj4->transform($currUTM, $pointSrc);
+        
+        //build return data
+        $x = floor( $pointDest->__get('x') );
+        $y = floor( $pointDest->__get('y') );
 
-            $convCoords [] = array( 
-                                    'x' => $x,
-                                    'y' => $y,
-                                    'z' => $coord[2],
-                                    'string' => $zone. $band. ' ' . $x . ' ' . $y,
-                                    );
-        }
+        $convCoords = array( 
+                                'zone' => $zone,
+                                'band' => $band,
+                                'x' => $x,
+                                'y' => $y,
+                                'z' => $coords[2],
+                                'string' => $zone . $band. ' ' . $x . ' ' . $y,
+                                );
         return $convCoords;
     }
     

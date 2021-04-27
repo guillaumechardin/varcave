@@ -254,7 +254,8 @@ class VarcavePdf extends TCPDF {
         
         //get coords to display on img
         $coordsObj = json_decode($this->cavedata['json_coords']);
-        $coordList = $coordsObj->features[0]->geometry->coordinates;
+        $coordCenter = $coordsObj->features[0]->geometry->coordinates;
+        
         if( !empty($sketchAccessArr['sketch_access'][0]['file_path']) ) {
             $this->varcave->logger->debug('Add access sketch image from user file');
             $this->Image($sketchAccessArr['sketch_access'][0]['file_path'],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
@@ -266,11 +267,11 @@ class VarcavePdf extends TCPDF {
             $colors=array('dummy','green', 'blue', 'purple','red', 'white', 'yellow', 'gray', 'orange','black','brown');
             $markers = '';
             $i=1;
-            foreach($coordList as $coords)
+            foreach($coordsObj->features as $coords)
             {
-                $markers .= 'markers=color:' . $colors[$i] . '|label:'. $i . '|' . $coords[1] . ',' . $coords[0] . '&';
+                $markers .= 'markers=color:' . $colors[$i] . '|label:'. $i . '|' . $coords->geometry->coordinates[1] . ',' . $coords->geometry->coordinates[0] . '&';
                 
-                //harcoded limit of 10 markers on small map
+                //harcoded limit of 5 markers on small map
                 if($i==5)
                 {
                     break;
@@ -278,7 +279,7 @@ class VarcavePdf extends TCPDF {
                 $i++;
             }
             
-            $center = 'center=' . $coordList[0][1] . ',' . $coordList[0][0];
+            $center = 'center=' . $coordCenter[1] . ',' . $coordCenter[0];
             $zoom = 'zoom=' . $cave->getConfigElement('gApi_zoom_lvl');
             $mapType = 'terrain';
             $key = 'key=' . $cave->getConfigElement('googlemaps_api_key');
@@ -353,24 +354,31 @@ class VarcavePdf extends TCPDF {
         $pdfCoordSystem = $cave->getConfigElement('pdf_coords_system');
         //get alist of available systems
         $geoCoordSysList = $cave->getCoordsSysList();
+        $cave->logger->debug('Default coord system is : ' . $pdfCoordSystem);
         
         //load correct System using canonical filename
-        foreach($geoCoordSysList as $system) {
+        $convCoords = array();
+        foreach( $geoCoordSysList as $system ) {
             if( $system['name'] == $pdfCoordSystem ){ //load only the required one
                 $systemLibName = './lib/varcave/' . $system['php_lib_filename'];
                 if( file_exists($systemLibName) ) {
-                    $cave->logger->debug('Load lib : [' . $systemLibName .']');
+                    $cave->logger->debug('Load lib : [' . $systemLibName . ']');
                     if( include_once($systemLibName) )
                     {
                         //convert from longlat (geographical is the default stored in geoJson) to desired coordinate system
                         $funcName = 'convert2' . $system['name'];
                         $cave->logger->debug('start converting coords on target coordSystem');
-                        $convCoords = $funcName( $coordsObj->features[0]->geometry->coordinates);
+                        foreach($coordsObj->features as $coord){
+                            $convCoords[] = $funcName( $coord->geometry->coordinates);
+                        }
+                    }else{
+                        $cave->logger->debug('Failed to load library : [' . $systemLibName . ']');
                     }
+                    
                 }
             }
             else{
-                $cave->logger->debug('Do not load lib for system ' . $system['name']);
+                $cave->logger->debug( $system['name'] . ' is not the default coord. system, do not load lib.' );
             }
         }            
 
@@ -379,8 +387,8 @@ class VarcavePdf extends TCPDF {
         $this->multicell($remWidth, 0, LNE::display_caveCoords . ':',0,'L');
         
         $cave->logger->debug('display coords');
-        foreach($convCoords as $coords)  {
-            $this->multicell($remWidth, 0, $coords['string'] , 0, 'L', false, 1, $xCoords + 3);
+        foreach($convCoords as $key => $coords)  {
+            $this->multicell($remWidth, 0, $coords['string'], 0, 'L', false, 1, $xCoords + 3);
         }
         
         
