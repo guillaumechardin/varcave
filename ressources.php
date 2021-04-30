@@ -34,9 +34,7 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 	$logger->debug('User start files ressources display');
 	//show a small upload form for Admin users
     $acl = $auth->getacl('ade8fdde-1e7c-4abd-9ead-99787a13f099');
-	if ( $auth->isSessionValid() && $auth->isMember($acl[0]) )
-	{
-		
+	if ( $auth->isSessionValid() && $auth->isMember($acl[0]) ){
 		$logger->debug('adding upload form ');
 		$htmlstr .= '<div id="ressources-upload">';
 		$htmlstr .= '  <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
@@ -50,6 +48,8 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 		$htmlstr .= '    <input type="file" id="file">';
 		$htmlstr .= '    <button class="pure-button" disabled id="ressources-savefile">' . L::general_save . '</button>';
 		$htmlstr .= '  </div>';
+        //add a js var to show a warning for script timeout
+        $htmlstr .= '  <script>var debuglevel="' . $html->getLogLevel() . '";</script>';
 		$htmlstr .= '</div>';
         
         $logger->debug('adding generate all gpx option');
@@ -63,8 +63,7 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 	$htmlstr .= '<h2>' . L::ressources_user_title .'</h2>';
 	
 	//now for each ressources theme we process data for display :
-	foreach($fileGroups as $key=>$value)
-	{
+	foreach($fileGroups as $key => $value){
 		$htmlstr .= '<div id="ressources-displayGroup-' . strtolower( $value['display_group'] ) . '">';
 		$htmlstr .= '<h4 class="ressources-displayGroup-title">' . strtoupper( $value['display_group'] ) . '</h4>';
 		$htmlstr .= '<div class="ressources-displayGroup">';
@@ -103,9 +102,9 @@ if( strtolower($_SERVER['REQUEST_METHOD']) == 'get' )
 			$htmlstr .= '  <div id="ressources-filelink-' . $id . '">';
 			$htmlstr .= '   <span class="' . $icon . ' fa-4x" ></span>';
 			$htmlstr .= '  </div>';
-			$htmlstr .= '  <div class="ressources-item"><a href=" '.$array_filepath[$i] .'">' . $array_display_name[$i]. ' </a></div>';
+			$htmlstr .= '  <div class="ressources-item"><a href="'.$array_filepath[$i] .'">' . $array_display_name[$i]. ' </a></div>';
 			//$htmlstr .= '  <div class="ressources-item">' . . '  </div>';
-			$htmlstr .= '  <div class="ressources-item italic">' . $array_description[$i]. '  </div>';
+			$htmlstr .= '  <div class="ressources-item italic">' . $array_description[$i] . '  </div>';
 			$htmlstr .= '  <div class="ressources-item italic"><small>' . L::ressources_added . ':' . date('d/m/Y', $array_creation[$i]). '</small></div>';
 			
 			//show a button to delete file 
@@ -135,18 +134,15 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 		$faIcon = '';
 		$httpFile ='';
 		
-		 $acl = $auth->getacl('ade8fdde-1e7c-4abd-9ead-99787a13f099');
-		if ( !$auth->isSessionValid() && !$auth->isMember($acl[0]) )
-		{
+        $acl = $auth->getacl('ade8fdde-1e7c-4abd-9ead-99787a13f099');
+		if ( !$auth->isSessionValid() && !$auth->isMember($acl[0]) ){
 			throw new exception('Action denied, user is not member of [' . $acl[0] . ']');
 		}
 		
-		if($_POST['action'] == 'add')
-		{
+		if($_POST['action'] == 'add'){
 			$logger->info('Adding file');		
 			
-			if ($_FILES['file']['error'] == UPLOAD_ERR_OK)
-			{
+			if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
 				$displayName = $html->PDO->quote($_POST['display_name']);
 				$displayGroup = $html->PDO->quote($_POST['display_group']);
 				$description = $html->PDO->quote($_POST['description']);

@@ -36,7 +36,6 @@ if(isset($_GET['guid']) && !empty($_GET['guid']) && isset($_GET['gpx']) ) {
 	header('Content-Type: application/gpx+xml');
 	//clean cav name susbtr is here to remove the 6last letter of dummy file extension and makes cleanStringFilename works
 	$filename = substr(cleanStringFilename($caveData['name'].'.dummy'), 0,-6);
-	//$filename = substr($filename,0,10);
 	header('Content-Disposition: attachment; filename=' . $filename . '.gpx');
 	echo $GPXdata ;
 }

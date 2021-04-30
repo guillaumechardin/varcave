@@ -245,7 +245,7 @@ class VarcaveAuth extends Varcave
 	 */
 	public function isMember($grp)
 	{
-        $this->logger->info(__METHOD__ . ' : Check user group membership on :[' . $grp . '] for user :[' . $_SESSION['username'] . ']');
+        $this->logger->debug(__METHOD__ . ' : Check user group membership on :[' . $grp . '] for user :[' . $_SESSION['username'] . ']');
 		try 
 		{
 			if (session_status() == PHP_SESSION_NONE)

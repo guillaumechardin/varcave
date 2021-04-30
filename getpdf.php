@@ -3,6 +3,7 @@ require_once(__DIR__ . '/lib/varcave/varcaveCave.class.php');
 require_once(__DIR__ . '/lib/varcave/varcavepdf.class.php');
 require_once(__DIR__ . '/lib/varcave/varcaveAuth.class.php');
 require_once(__DIR__ . '/lib/varcave/varcaveHtml.class.php');
+require_once(__DIR__ . '/lib/varcave/functions.php');
 $auth = new VarcaveAuth();
 
 $acl = $auth->getacl('bda76758-f447-4f6a-90da-2c595a4adfb5');
@@ -25,6 +26,8 @@ $vPdf->caveinfo();
 //$vPdf->setY(70);
 $vPdf->caveaccess();
 $vPdf->addcavemaps();
-$vPdf->output('file.pdf','I');
+$file_name = cleanStringFilename( $_cave['name'] . '.pdf' );
+//echo $file_name;
+$vPdf->output( $file_name, 'I');
 
 ?>

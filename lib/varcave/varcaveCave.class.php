@@ -1131,7 +1131,7 @@ class VarcaveCave extends Varcave
 		
 		$coords = json_decode($cavedata['json_coords']);
 		$this->logger->debug('json data :  '. print_r($coords, true) );
-		$coordsList = $coords->features[0]->geometry->coordinates;
+		$coordsList = $coords->features;
 		
 		if(empty($coordsList) )
 		{
@@ -1167,11 +1167,11 @@ class VarcaveCave extends Varcave
         if( count($coordsList) > 1)
         {
             $i=0;
-            foreach($coordsList as $key=>$value)
+            foreach($coordsList as $key => $value)
             {
-                $long = $value[0];
-                $lat = $value[1];
-                $elev = $value[2];
+                $long = $value->geometry->coordinates[0];
+                $lat = $value->geometry->coordinates[1];
+                $elev = $value->geometry->coordinates[2];
                 
                 $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
@@ -1183,11 +1183,10 @@ class VarcaveCave extends Varcave
                 
                 $i++;
             }
-        }
-        else{
-            $long = $coordsList[0][0];
-            $lat = $coordsList[0][1];
-            $elev = $coordsList[0][2];
+        }else {
+            $long = $coordsList[0]->geometry->coordinates[0];
+            $lat = $coordsList[0]->geometry->coordinates[1];
+            $elev = $coordsList[0]->geometry->coordinates[2];
             
             $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
             $point                 = new Point(Point::WAYPOINT);
@@ -1257,6 +1256,7 @@ class VarcaveCave extends Varcave
             $_SESSION = array();
             $_SESSION['groups'] = 'users';
             $_SESSION['isauth'] = 1;
+            $_SESSION['username'] = 'gpx-kml_system-session';
             $this->logger->debug('System $_SESSION ('. session_id() .') info :' . print_r($_SESSION,true) );
         }
         
@@ -1266,7 +1266,7 @@ class VarcaveCave extends Varcave
             
             $coords = json_decode($cavedata['json_coords']);
             $this->logger->debug('json data :  '. print_r($coords, true) );
-            $coordsList = $coords->features[0]->geometry->coordinates;
+            $coordsList = $coords->features;
             
             if(empty( (array)$coordsList ) )
             {
@@ -1295,9 +1295,9 @@ class VarcaveCave extends Varcave
                 $i=0;
                 foreach($coordsList as $key => $value)
                 {
-                    $long = $value[0];
-                    $lat = $value[1];
-                    $elev = $value[2];
+                    $long = $value->geometry->coordinates[0];
+                    $lat = $value->geometry->coordinates[1];
+                    $elev = $value->geometry->coordinates[2];
                     
                     $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                     $point                 = new Point(Point::WAYPOINT);
@@ -1313,9 +1313,9 @@ class VarcaveCave extends Varcave
             }
             else
             {
-                $long = $coordsList[0][0];
-                $lat = $coordsList[0][1];
-                $elev = $coordsList[0][2];
+                $long = $coordsList[0]->geometry->coordinates[0];
+                $lat = $coordsList[0]->geometry->coordinates[1];
+                $elev = $coordsList[0]->geometry->coordinates[2];
                 
                 $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);

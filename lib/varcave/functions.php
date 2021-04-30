@@ -140,10 +140,11 @@ function cleanStringFilename($filename, $charset = 'UTF-8')
         $value = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $value); // pour les ligatures e.g. '&oelig;'
         $value = preg_replace('#&[^;]+;#', '', $value); // remove all other chars
         $value = preg_replace('/[^A-Za-z0-9\-]/', '', $value); // Removes special chars.
+        $value = preg_replace('/-+/', '-', $value); // Replaces multiple hyphens with single one.
         $newFile .= $value;
     
     }
-    return preg_replace('/-+/', '-', $newFile); // Replaces multiple hyphens with single one.
+    return  $newFile;
 }
 
 //this function return the fa raw data for a specified file type
