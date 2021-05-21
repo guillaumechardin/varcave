@@ -110,7 +110,7 @@ if($_GET['api'] == 'googlemaps' || $_GET['api'] == 'geoportail'  || $_GET['api']
             $js .= '	label: ';
             $js .= '	{';
             $js .= '		color: "white",';
-            $js .= '		fontSize: "1em",';
+            $js .= '		fontSize: "1.2em",';
             $js .= '		fontWeight: "",';
             $js .= '		text: "' . $coord['name'] . '",';
             $js .= '	},';

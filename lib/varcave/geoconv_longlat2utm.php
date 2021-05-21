@@ -37,7 +37,7 @@ use proj4php\Point;
  *                  'y' => y1,
  *                  'zone' => 'zone1',
  *                  'band' => 'band1',
- *                  'string' => 'zone1band1 x1 y1',
+ *                  'string' => 'zone1band1 x1 y1 z',
  *              ),
  *          );
  */
@@ -74,7 +74,7 @@ use proj4php\Point;
                                 'x' => $x,
                                 'y' => $y,
                                 'z' => $coords[2],
-                                'string' => $zone . $band. ' ' . $x . ' ' . $y,
+                                'string' => $zone . $band. ' ' . $x . ' ' . $y . ' ' . $coords[2] . 'm',
                                 );
         return $convCoords;
     }

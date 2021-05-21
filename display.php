@@ -451,6 +451,8 @@ if (isset($_GET['guid']) )
 		$htmlstr .= '</div>';
 		$htmlstr .= '<script src="lib/lightbox/2.10.0/dist/js/lightbox.min.js"></script>';
 		$htmlstr .= '<link href="lib/lightbox/2.10.0/dist/css/lightbox.css" rel="stylesheet">';
+        //zoom on cave maps
+        $htmlstr .= '<script src="lib/elevatezoom-master/jquery.elevatezoom.js" type="text/javascript"></script>';
 		
 
         

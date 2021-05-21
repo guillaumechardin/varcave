@@ -223,9 +223,10 @@ class VarcavePdf extends TCPDF {
 		//echo $tbl;
 		$this->SetFont('dejavusans', '',self::sizeS);
 		$this->writeHTML($tbl, true, false, false, false, '');
-		
+        $text = $cave->getConfigElement('disclaimer');
+        $this->MultiCell(190,4,$text,0,'C');
 		$endPos = $this->getY();
-		//$this->RoundedRect(172,4,35,10,3.5,'D');
+        
 		$this->RoundedRect(5,$startPos,202,$endPos - $startPos,3.5,'D');
 		//$this->RoundedRectXY( 5, $startPos, 150, $endPos-$startPos , 0.5, 0.5, $round_corner = '1111');
 		

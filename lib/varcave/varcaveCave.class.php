@@ -286,7 +286,7 @@ class VarcaveCave extends Varcave
             }
             elseif ($value['type'] == '>'){
                 //ajouter 'valeur' > valeur_champ
-                $req= ' ' . $value['field'] . ' > ' . $this->PDO->quote($value['value']) . ' ';
+                $req .= ' ' . $value['field'] . ' > ' . $this->PDO->quote($value['value']) . ' ';
             }
             elseif ($value['type'] == '<'){
                 //ajouter < %'valeur'%
