@@ -6,7 +6,7 @@ require_once(__DIR__ . '/../tcpdf/tcpdf.php');
 
 //set init of i18n without htmlentities
 $i18n = new varcavei18n(__DIR__ . '/../../lang/lang_{LANGUAGE}.ini',  __DIR__ . '/../../langcache/');
-$i18n->setPrefix('LNE'); //Lanf Not Escaped
+$i18n->setPrefix('LNE'); //Lang Not Escaped
 $i18n->setFallbackLang(); //set fallback lang to default one specified in config(by using no args)
 $i18n->setMergeFallback(true); 
 $i18n->setHtmlEntities(false);
@@ -43,17 +43,17 @@ class VarcavePdf extends TCPDF {
 	/**
 	 * enable/disable default header on top of page
 	 */
-	protected $noheader = false;
+	public $noheader = false;
 	
 	/**
 	 * Show footer on bottom of page
 	 */
-	protected $addFooterOnPage = true;
+	public $nofooter = true;
  
     /**
 	 * Cave data given by user
 	 */
-	protected $cavedata = null;
+	protected $cavedata = false;
 	
 	/**
 	 * Handle page numbering on cave 1st page.
@@ -93,8 +93,10 @@ class VarcavePdf extends TCPDF {
         $this->varcave->logger->debug('Build new PDF env');
         
 		//storing cave data
-		$this->cavedata = $cavedata;
-			
+        if(!$cavedata)
+        {
+            $this->cavedata = $cavedata;
+        }
 		//default doc margins
 		$this->SetMargins($this->marginleft, $this->margintop, $this->marginright);
 		
@@ -105,7 +107,7 @@ class VarcavePdf extends TCPDF {
 		$this->startPageGroup();
 		
 		//start a new page
-		$this->addpage();
+		//$this->addpage();
 		
 		//set font
 		if( $font == false ){
@@ -318,8 +320,8 @@ class VarcavePdf extends TCPDF {
         }
         else
         {
-            $this->varcave->logger->debug('No access sketch image added');
-            //no image added
+            $this->varcave->logger->debug('"No access sketch" image added');
+            $this->Image(__DIR__ . '/../../img/nocaveaccesssketch.jpg',$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
         }
         
         //compute left margin. Some space is use by access sketch
@@ -417,7 +419,7 @@ class VarcavePdf extends TCPDF {
 		$startPosCaveDescr = $this->getY();
 		$this->SetFont('dejavusans', '', self::sizeS);
 		$borders = array('TLRB' => array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
-		$this->multicell(216 - $this->marginleft - $this->marginright, 0, $this->cavedata['shortDescription'], $borders,'L', false,1,$this->marginleft - 2);
+		$this->multicell(216 - $this->marginleft - $this->marginright, 0, $this->cavedata['shortDescription'] ."\n\r\n\r", $borders,'L', false,1,$this->marginleft - 2);
 		//$this->multicell(215 - $this->marginleft - $this->marginright, 0, $this->cavedata['annex'],1,'L', false,1,$this->marginleft - 1);
 		$endPosCaveDescr = $this->gety() + 3;
 		//$this->RoundedRect(5,$startPosCaveDescr,202,$endPosCaveDescr - $startPosCaveDescr,3.5,'D');
@@ -525,5 +527,14 @@ class VarcavePdf extends TCPDF {
 	{
 		return $mm * self::MMTOPX;
 	}
+    
+    /*
+     * set cavedata
+     */
+     public function setCavedata($cavedata)
+     {
+            $this->cavedata = $cavedata;
+     }
 }	
+
 ?>
