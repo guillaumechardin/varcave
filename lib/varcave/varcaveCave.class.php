@@ -1568,8 +1568,8 @@ class VarcaveCave extends Varcave
       * @return mixed array on success, false on other cases
       */
      public function findNearCaves($origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
-          $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
-          $q = 'SELECT ' . 
+        $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
+        $q = 'SELECT ' . 
                '  caves.guidv4,caves.name, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), location) as distance ' .
                'FROM ' .
                '   caves_coordinates ' .
@@ -1581,35 +1581,46 @@ class VarcaveCave extends Varcave
                'ORDER BY distance ASC, name ASC ' .
                'LIMIT ' . $maxCavesToFind;
             
-            try{
-                $pdostm = $this->PDO->query($q);
-                              
-                
-                if($pdostm->rowCount() <= 0){
-                    $this->logger->debug('No caves found!');
-                    return false;
-                }
-                
-                $coordsSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
-                
-                $jsreturn = array();
-                if($jsarray){
-                    $this->logger->debug('request data as a js array');
-                    foreach($coordsSet as $key => $values){
-                        $jsreturn[]= array( $values['name'], $values['guidv4'], array($values['X'], $values['Y']) ) ;
-                    }
-                    $this->logger->debug('return data :' . print_r($jsreturn, true) );
-                    return json_encode($jsreturn);
-                }
-                $this->logger->debug('return data :' . print_r($coordsSet, true) );
-                return $coordsSet;
-                
-            }catch(exception $e){
-                $this->logger->error('ERROR while searching cave around');
-                $this->logger->error('error : ' . $e->getmessage());
-                $this->logger->debug('query : '. $q);
+        try{
+            $pdostm = $this->PDO->query($q);
+                          
+            if($pdostm->rowCount() <= 0){
+                $this->logger->debug('No caves found!');
                 return false;
             }
+            
+            //$coordsSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
+            $caveSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
+            
+            $returnData = array();
+
+            foreach($caveSet as $cave => $values)
+            {
+                $caveData = $this->selectByGUID($values['guidv4'], false, false);
+                $this->logger->debug('cavedata: ' . print_r($caveData, true));
+                // old version $jsreturn[]= array( $caveData['name'], $caveData['guidv4'], array($caveData['X'], $caveData['Y']) ) ;
+                $returnData[] = array( 
+                                    'name' => $caveData['name'], 
+                                    'guidv4' => $caveData['guidv4'],
+                                    'coords' => 'POINT(' . $caveData['caveCoords'][0]['lat'] . ',' . $caveData['caveCoords'][0]['long'] . ')',
+                                    'X' => $caveData['caveCoords'][0]['lat'],
+                                    'Y' => $caveData['caveCoords'][0]['long'],
+                                    'distance' => $values['distance'],
+                                    );
+            }
+            if($jsarray){
+                $this->logger->debug('return data json :' . print_r($returnData, true) );
+                return json_encode($returnData);
+            }
+            $this->logger->debug('return data :' . print_r($returnData, true) );
+            return $returnData;
+        }
+        catch(exception $e){
+            $this->logger->error('ERROR while searching cave around');
+            $this->logger->error('error : ' . $e->getmessage());
+            $this->logger->debug('query : '. $q);
+            return false;
+        }
      }
 }    
 ?>
