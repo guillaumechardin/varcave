@@ -10,7 +10,7 @@ $cave = new varcaveCave;
 $logger = $cave->logger;
 
 
-
+//check user against ACL to see if  access to this page is permited
 $acl = $auth->getacl('c47d51c4-62c4-5f40-9047-c466388cc52b');
 if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
 {
@@ -286,271 +286,280 @@ if (isset($_GET['guid']) )
 		/**
 		 * Cave access
 		 **/
-			
-		/*
-		 * fetching coords from DB see beelow usage of $coordList
-		 * geoJson store FeatureCollection coord in this namespace
-		 * Obj->features[i]->geometry->coordinates[0];
-		 */
-		$coordsObj = json_decode($caveData['json_coords']);
-		$coordList = $coordsObj->features;             
-		
-		$htmlstr .= '<h2>' .  L::display_caveAccessTitle . '</h2>';
-		$htmlstr .= '<div class="flexContainer flexWrap">';
-		$htmlstr .= '  <div id="displayCaveAccess">';
-		$htmlstr .= '    <div class="displayCaveAccessImg">';
-        
-        //display access sketch if exists
-        $sketchAccessArr = $cave->getCaveFileList($caveData['guidv4'], 'sketch_access');
-		if ( ! empty($sketchAccessArr ) )
-		{
-			$htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr['sketch_access'][0]['file_path']. '"></img>';
-			$htmlstr .= '<div id="miniMap" style="display:none"></div>';
-			$htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
-			$htmlstr .= '<script> var miniMapHidden=true;</script>';
-		}
-		else
-		{
-			$htmlstr .= '<div id="miniMap"></div>';
-			$htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
-			$htmlstr .= '<script> var miniMapHidden=false;</script>';
-			
-		}
-		
-		if( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'googlemaps')
-		{
-			$logger->debug("using googlemaps API");
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-			$htmlstr .= '<script src="./lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=googlemaps"></script>';
-			
-		}
-		elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'geoportail')
-		{
-			$logger->debug("using geoportail API");
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=geoportail"></script>';	
-		}
-        elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'openstreetmaps')
-		{
-			$logger->debug("using osm API");
-			//$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
-			$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-			$htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=openstreetmaps"></script>';	
-		}
-		else
-		{
-			$logger->error("No geo api defined");
-			$htmlstr .= '<span style="color: #FF0000;style:italic">UNDEFINED GEOAPI</span><!-- no user map defined -->';
-		}
-		
-        //load jqueryUI for Dialog
-		$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-		$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
-			
+        /* Show access part if member of acl group */
+        $acl = $auth->getacl('200f72ca-3c96-42e0-805c-2e133ce98ad0');
+        if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
+            /*
+             * fetching coords from DB see beelow usage of $coordList
+             * geoJson store FeatureCollection coord in this namespace
+             * Obj->features[i]->geometry->coordinates[0];
+             */
+            
+            $coordsObj = json_decode($caveData['json_coords']);
+            $coordList = $coordsObj->features;             
+            
+            $htmlstr .= '<h2>' .  L::display_caveAccessTitle . '</h2>';
+            $htmlstr .= '<div class="flexContainer flexWrap">';
+            $htmlstr .= '  <div id="displayCaveAccess">';
+            $htmlstr .= '    <div class="displayCaveAccessImg">';
+            
+            //display access sketch if exists
+            $sketchAccessArr = $cave->getCaveFileList($caveData['guidv4'], 'sketch_access');
+            if ( ! empty($sketchAccessArr ) )
+            {
+                $htmlstr .= '<img class="displaySketchAccessImg" src="' . $sketchAccessArr['sketch_access'][0]['file_path']. '"></img>';
+                $htmlstr .= '<div id="miniMap" style="display:none"></div>';
+                $htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
+                $htmlstr .= '<script> var miniMapHidden=true;</script>';
+            }
+            else
+            {
+                $htmlstr .= '<div id="miniMap"></div>';
+                $htmlstr .= '<div id="displayOpenMap" href="#">' . L::display_clickForMinimap . '</div>';
+                $htmlstr .= '<script> var miniMapHidden=false;</script>';
+                
+            }
+            
+            if( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'googlemaps')
+            {
+                $logger->debug("using googlemaps API");
+                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
+                $htmlstr .= '<script src="./lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=googlemaps"></script>';
+                
+            }
+            elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'geoportail')
+            {
+                $logger->debug("using geoportail API");
+                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
+                $htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=geoportail"></script>';	
+            }
+            elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'openstreetmaps')
+            {
+                $logger->debug("using osm API");
+                //$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
+                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
+                $htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=openstreetmaps"></script>';	
+            }
+            else
+            {
+                $logger->error("No geo api defined");
+                $htmlstr .= '<span style="color: #FF0000;style:italic">UNDEFINED GEOAPI</span><!-- no user map defined -->';
+            }
+            
+            //load jqueryUI for Dialog
+            $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
+            $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
+                
 
-		
-		$htmlstr .= '    </div>';
-		$htmlstr .= '    <div class="sketchAccessTxt">';
-        if($caveData['noAccess']){
-            $htmlstr .=  '<div id="display-noaccess">' . $cave->getConfigElement('noAccessDisclaimer') . '</div>';
+            
+            $htmlstr .= '    </div>';
+            $htmlstr .= '    <div class="sketchAccessTxt">';
+            if($caveData['noAccess']){
+                $htmlstr .=  '<div id="display-noaccess">' . $cave->getConfigElement('noAccessDisclaimer') . '</div>';
+                
+            }
+            $htmlstr .= '		<span>' . nl2br( htmlentities($caveData['accessSketchText']) ) . '</span>';
+            
+            
+            //show cave coords
+            $htmlstr .= '  <div class="coordinates" >';
+            $htmlstr .= '    <h3 class="inline-block">'.  L::display_caveCoords. '</h3>';
+            
+            // show options to change coordinates system
+            $htmlstr .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
+            
+            $availCoordSyst = $cave->getCoordsSysList();
+            
+            $htmlstr .= ' <select id="coordSystem">';
+            foreach($availCoordSyst as $key => $value)
+            {
+                $htmlstr .= '<option id="' . $value['name'] . '" value="' . $value['name'] . '">' . $value['display_name'] .'</option>';
+                $htmlstr .= '<script src="/lib/varcave/' . $value['js_lib_filename'] . '"></script>';
+            }
+            $htmlstr .= '</select>';
+                    
+            if ( $caveData['random_coordinates'] || ( !isset($_SESSION['isauth']) && $cave->getconfigelement('anon_get_obfsuc_coords')  ))
+            {
+                $htmlstr .= '<div class="disclaimRandomCoords red italic">' . L::disclaimRandomCoords . '</div>';
+                $htmlstr .= '';
+            }
+            if ( ! $caveData['coords_GPS_checked'])
+            {
+                $htmlstr .= '<div class="disclaimCoordsNotChecked">' . L::disclaimCoordsNotChecked . '</div>';
+            }
+            
+            $htmlstr .= '<script>';
+            $htmlstr .= 'var coordinatesList = ' . $caveData['json_coords'] . ';';
+            
+            $htmlstr .= '</script>';
+            
+            $htmlstr .= '<ol id="coordList">';
+            
+            //$coordList = $coordsObj->features;  
+            foreach ($coordList as $key => $coord)
+            {
+                $htmlstr .= '<li data-id="' . $key . '">';
+                $htmlstr .= '<span id="x-' . $key . '">X:' . $coord->geometry->coordinates[0] . '</span> '.
+                            '<span id="y-' . $key . '">Y:' . $coord->geometry->coordinates[1] . '</span> '.
+                            '<span id="z-' . $key . '">Z:' . $coord->geometry->coordinates[2] . '</span>m';
+                $htmlstr .= '</li>';
+                
+            }
+            $htmlstr .= '</ol>';
+            $htmlstr .= '  </div>'; //coordinates
+            $htmlstr .= '</div>';  //sketchAccessTxt
+            
+            
+            $htmlstr .= '  </div>'; //displayCaveAccess
+            $htmlstr .= '</div>';//flexContainer
+            
+            /**
+             * Cave Description
+             **/
+            $htmlstr .= '<h2>' .  L::display_caveDescription . '</h2>';
+            $htmlstr .= '<div class="flexContainer flexWrap displayShortDescription">';
+            $htmlstr .= '	<p>' . nl2br( htmlentities($caveData['shortDescription']) ) . '</p>';
+            
+            $htmlstr .= '</div>'; //flexContainer
             
         }
-		$htmlstr .= '		<span>' . nl2br( htmlentities($caveData['accessSketchText']) ) . '</span>';
-		
-		
-		//show cave coords
-		$htmlstr .= '  <div class="coordinates" >';
-		$htmlstr .= '    <h3 class="inline-block">'.  L::display_caveCoords. '</h3>';
-		
-		// show options to change coordinates system
-        $htmlstr .= '<script src="lib/proj4js/2.5.0/proj4.js"></script>';
-		
-        $availCoordSyst = $cave->getCoordsSysList();
-		
-        $htmlstr .= ' <select id="coordSystem">';
-		foreach($availCoordSyst as $key => $value)
-		{
-			$htmlstr .= '<option id="' . $value['name'] . '" value="' . $value['name'] . '">' . $value['display_name'] .'</option>';
-            $htmlstr .= '<script src="/lib/varcave/' . $value['js_lib_filename'] . '"></script>';
-        }
-		$htmlstr .= '</select>';
-		        
-		if ( $caveData['random_coordinates'] || ( !isset($_SESSION['isauth']) && $cave->getconfigelement('anon_get_obfsuc_coords')  ))
-		{
-			$htmlstr .= '<div class="disclaimRandomCoords red italic">' . L::disclaimRandomCoords . '</div>';
-			$htmlstr .= '';
-		}
-		if ( ! $caveData['coords_GPS_checked'])
-		{
-			$htmlstr .= '<div class="disclaimCoordsNotChecked">' . L::disclaimCoordsNotChecked . '</div>';
-		}
-		
-        $htmlstr .= '<script>';
-        $htmlstr .= 'var coordinatesList = ' . $caveData['json_coords'] . ';';
-        
-        $htmlstr .= '</script>';
-		
-        $htmlstr .= '<ol id="coordList">';
-        
-        //$coordList = $coordsObj->features;  
-		foreach ($coordList as $key => $coord)
-		{
-			$htmlstr .= '<li data-id="' . $key . '">';
-			$htmlstr .= '<span id="x-' . $key . '">X:' . $coord->geometry->coordinates[0] . '</span> '.
-                        '<span id="y-' . $key . '">Y:' . $coord->geometry->coordinates[1] . '</span> '.
-                        '<span id="z-' . $key . '">Z:' . $coord->geometry->coordinates[2] . '</span>m';
-			$htmlstr .= '</li>';
-			
-		}
-		$htmlstr .= '</ol>';
-		$htmlstr .= '  </div>'; //coordinates
-		$htmlstr .= '</div>';  //sketchAccessTxt
-		
-		
-		$htmlstr .= '  </div>'; //displayCaveAccess
-		$htmlstr .= '</div>';//flexContainer
-		
-		/**
-		 * Cave Description
-		 **/
-		$htmlstr .= '<h2>' .  L::display_caveDescription . '</h2>';
-		$htmlstr .= '<div class="flexContainer flexWrap displayShortDescription">';
-		$htmlstr .= '	<p>' . nl2br( htmlentities($caveData['shortDescription']) ) . '</p>';
-		
-		$htmlstr .= '</div>'; //flexContainer
-		
-        
-        
+
 		/**
 		 * Cave's topos
 		 **/
-		$cave->logger->info('Getting cave_maps');		 
-		$topoArr = $cave->getCaveFileList($caveData['guidv4'], 'cave_maps');;
-		
-		$htmlstr .= '<h2>' .  L::display_caveTopos . '</h2>';
-		$htmlstr .= '<div class="displayCaveMaps">';
-		
-		//increment to set the lightbox element
-		$i=0;
-		
-		//display a max number of $nbrOfRow per row
-		//while loop handle row creation
-		if( !empty($topoArr['cave_maps']) )
-		{	foreach($topoArr['cave_maps'] as $key => $cave_maps)
-			{
-				$htmlstr .= '<div class="displayCaveMap">';
-				$htmlstr .= '  <a  href="' . $cave_maps['file_path'] . '" data-lightbox="cave-maps">';
-				$htmlstr .= '    <img class="displayCaveMapsImg" src="' . $cave_maps['file_path'] . '"></img>';
-				$htmlstr .= '  </a>';
-				$htmlstr .= '</div>';
-				$i++;
-			}
+        $acl = $auth->getacl('da77ca5f-1e0a-4b02-a49b-a4ac428902d5');
+        if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
+            $cave->logger->info('Getting cave_maps');		 
+            $topoArr = $cave->getCaveFileList($caveData['guidv4'], 'cave_maps');;
             
-		}
-        //lightbox is use for cave_maps and photos
-		$htmlstr .= '</div>';
-		$htmlstr .= '<script src="lib/lightbox/2.10.0/dist/js/lightbox.min.js"></script>';
-		$htmlstr .= '<link href="lib/lightbox/2.10.0/dist/css/lightbox.css" rel="stylesheet">';
-        //zoom on cave maps
-        $htmlstr .= '<script src="lib/elevatezoom-master/jquery.elevatezoom.js" type="text/javascript"></script>';
-		
-
-        
-        /*
-         * Cave photos
-         */
-        
-        try
-        {
-            $cave->logger->info('Getting photos');		 
-			$photosArr = $cave->getCaveFileList($caveData['guidv4'], 'photos');
-		}
-        catch (exception $e)
-        {
-            $logger->error('display.php : failed to get photos for caveid : ' . $caveData['indexid']);
-        }
-        
-		
-		if ( ! isNullOrEmptyArray($photosArr['photos']) )
-		{   
-            $htmlstr .= '<h2>' .  L::display_cavePhotos . '</h2>';
-            $htmlstr .= '<div class="displayPhotos">';
-			$htmlstr .= '<div class="genFlexContainerWrap">';
-			foreach ($photosArr['photos'] as $photo)
-            {
-                $htmlstr .= '<div class="cavePhoto">';
-                $htmlstr .= '    <a  href="' . $photo['file_path'] . '" data-lightbox="cave-photos">';
-                $htmlstr .= '      <img class="displayCavePhotos" src="' . $photo['file_path'] . '"/>';
-                $htmlstr .= '    </a>';
-                $htmlstr .= '<p>' . htmlentities($photo['file_note']) . '</p>';
-                $htmlstr .= '</div>';
+            $htmlstr .= '<h2>' .  L::display_caveTopos . '</h2>';
+            $htmlstr .= '<div class="displayCaveMaps">';
+            
+            //increment to set the lightbox element
+            $i=0;
+            
+            //display a max number of $nbrOfRow per row
+            //while loop handle row creation
+            if( !empty($topoArr['cave_maps']) )
+            {	foreach($topoArr['cave_maps'] as $key => $cave_maps)
+                {
+                    $htmlstr .= '<div class="displayCaveMap">';
+                    $htmlstr .= '  <a  href="' . $cave_maps['file_path'] . '" data-lightbox="cave-maps">';
+                    $htmlstr .= '    <img class="displayCaveMapsImg" src="' . $cave_maps['file_path'] . '"></img>';
+                    $htmlstr .= '  </a>';
+                    $htmlstr .= '</div>';
+                    $i++;
+                }
+                
             }
-            $htmlstr .= '</div>'; //genFlexContainer
-            $htmlstr .= '</div>'; //displayPhotos 
-			
+            //lightbox is use for cave_maps and photos
+            $htmlstr .= '</div>';
+            $htmlstr .= '<script src="lib/lightbox/2.10.0/dist/js/lightbox.min.js"></script>';
+            $htmlstr .= '<link href="lib/lightbox/2.10.0/dist/css/lightbox.css" rel="stylesheet">';
+            //zoom on cave maps
+            $htmlstr .= '<script src="lib/elevatezoom-master/jquery.elevatezoom.js" type="text/javascript"></script>';
+            
+
+            
+            /*
+             * Cave photos
+             */
+            
+            try
+            {
+                $cave->logger->info('Getting photos');		 
+                $photosArr = $cave->getCaveFileList($caveData['guidv4'], 'photos');
+            }
+            catch (exception $e)
+            {
+                $logger->error('display.php : failed to get photos for caveid : ' . $caveData['indexid']);
+            }
+            
+            
+            if ( ! isNullOrEmptyArray($photosArr['photos']) )
+            {   
+                $htmlstr .= '<h2>' .  L::display_cavePhotos . '</h2>';
+                $htmlstr .= '<div class="displayPhotos">';
+                $htmlstr .= '<div class="genFlexContainerWrap">';
+                foreach ($photosArr['photos'] as $photo)
+                {
+                    $htmlstr .= '<div class="cavePhoto">';
+                    $htmlstr .= '    <a  href="' . $photo['file_path'] . '" data-lightbox="cave-photos">';
+                    $htmlstr .= '      <img class="displayCavePhotos" src="' . $photo['file_path'] . '"/>';
+                    $htmlstr .= '    </a>';
+                    $htmlstr .= '<p>' . htmlentities($photo['file_note']) . '</p>';
+                    $htmlstr .= '</div>';
+                }
+                $htmlstr .= '</div>'; //genFlexContainer
+                $htmlstr .= '</div>'; //displayPhotos 
+                
+            }
+            else
+            {
+                //nothing to do right now....
+                // $htmlstr .= L::display_noPhotos;
+            }
 		}
-		else
-		{
-            //nothing to do right now....
-            // $htmlstr .= L::display_noPhotos;
-		}
-		
         
 		
 		/**
 		 * Show Cave documents data
 		 **/
-        if($isDoc){
-            $htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
-            $htmlstr .= '<div class="displaySciData">';
-            
-            $i=0; //increment to  columns numbering
-            foreach ($documentsFields as $key => $docField)
-            {	try
-                {
-                    //$allfields = $cave->getI18nCaveFieldsName('ALL');
-                    $allfields = $fields;
-                    
-                    $cave->logger->info('Getting' . $docField . ' documents');		 
-                    $docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
-                }
-                catch (exception $e)
-                {
-                    $logger->error('display.php : failed to get documents : [' . $docField . '] for caveid : ' . $caveData['indexid']);
-                }
+        $acl = $auth->getacl('52dc7702-d36d-469c-b174-f99344232a93');
+        if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
+            if($isDoc){
+                $htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
+                $htmlstr .= '<div class="displaySciData">';
                 
-                if ( ! isNullOrEmptyArray($docsArr) ){
-                    //find key in array of localized fields name for current field
-                    $i18n_key = array_search($docField, array_column($allfields, 'field'));
-                    
-                    //1st col or thumb (todo :) )
-                    $htmlstr .= '<div class="displaySciDataCol-'. $i . '">';
-                    
-                    $htmlstr .= '  <h3>' . $allfields[$i18n_key]['display_name'] . '</h3>';
-                    $htmlstr .= '<ul class="fa-ul">';
-                    
-                    //get file extension to get correct icon
-                    foreach ($docsArr[$docField] as $key => $doc)
+                $i=0; //increment to  columns numbering
+                foreach ($documentsFields as $key => $docField)
+                {	try
                     {
-                        $fileType = pathinfo($doc['file_path']);
-                        $icon = '<i class="' . getFaIcon($fileType['extension'], 'far') . ' fa-2x"></i>';
-                        $htmlstr .= '<li>' . $icon . ' <a href="' . $doc['file_path'] . '"> ' . basename($doc['file_path']). '</a></li>';
-
+                        //$allfields = $cave->getI18nCaveFieldsName('ALL');
+                        $allfields = $fields;
+                        
+                        $cave->logger->info('Getting' . $docField . ' documents');		 
+                        $docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
                     }
-                    $htmlstr .= '</ul>';
-                    $htmlstr .= '</div>'; //displaySciDataCol
-                }
-                else
-                {
-                    //$htmlstr .= L::display_noBioDocData;
+                    catch (exception $e)
+                    {
+                        $logger->error('display.php : failed to get documents : [' . $docField . '] for caveid : ' . $caveData['indexid']);
+                    }
+                    
+                    if ( ! isNullOrEmptyArray($docsArr) ){
+                        //find key in array of localized fields name for current field
+                        $i18n_key = array_search($docField, array_column($allfields, 'field'));
+                        
+                        //1st col or thumb (todo :) )
+                        $htmlstr .= '<div class="displaySciDataCol-'. $i . '">';
+                        
+                        $htmlstr .= '  <h3>' . $allfields[$i18n_key]['display_name'] . '</h3>';
+                        $htmlstr .= '<ul class="fa-ul">';
+                        
+                        //get file extension to get correct icon
+                        foreach ($docsArr[$docField] as $key => $doc)
+                        {
+                            $fileType = pathinfo($doc['file_path']);
+                            $icon = '<i class="' . getFaIcon($fileType['extension'], 'far') . ' fa-2x"></i>';
+                            $htmlstr .= '<li>' . $icon . ' <a href="' . $doc['file_path'] . '"> ' . basename($doc['file_path']). '</a></li>';
+
+                        }
+                        $htmlstr .= '</ul>';
+                        $htmlstr .= '</div>'; //displaySciDataCol
+                    }
+                    else
+                    {
+                        //$htmlstr .= L::display_noBioDocData;
+                    }
+                    
+                    $i++;
                 }
                 
-                $i++;
+                
+                $htmlstr .= '</div>'; //displaySciData
             }
-            
-            
-            $htmlstr .= '</div>'; //displaySciData
         }
+        
         /**
 		 * Cave change history
 		 **/

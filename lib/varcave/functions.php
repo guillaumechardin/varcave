@@ -354,4 +354,16 @@ function truncateStr($string, $maxSize, $start = 0, $addDot = true )
         }
         return $ret;
     }
+    
+    /*
+     * fill email address with stars ie azerty@domain.com => a*****y@domain.com
+     * From : https://stackoverflow.com/questions/43762251/hide-email-address-with-stars
+     */ 
+    function hideEmail($em)
+    {
+        $stars = 4; // Min Stars to use
+        $at = strpos($em,'@');
+        if($at - 2 > $stars) $stars = $at - 2;
+        return  substr($em,0,1) . str_repeat('*',$stars) . substr($em,$at - 1);
+    }
 ?>

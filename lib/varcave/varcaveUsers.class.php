@@ -27,8 +27,8 @@ class VarcaveUsers extends Varcave
 					'username',
 					'groups',
 					'password',
-					/*'expire',
-					'created',
+					'expire',
+					/*'created',
 					'lastUpdate',*/
 					'firstname',
 					'lastname',
@@ -48,6 +48,7 @@ class VarcaveUsers extends Varcave
 					'cavingGroup',
 					'notes',
 					'uiLanguage',
+                    'pref_coord_system',
 			);
 			
 			//populate missing fields if needed to void UPDATE errors
@@ -65,6 +66,11 @@ class VarcaveUsers extends Varcave
 				$userSettings['disabled'] = 0;	
 			}
             
+            if(empty($userSettings['expire']) )
+			{
+				$userSettings['expire'] = strtotime('+1 year');	//expire after one  year by default
+			}
+            
             //add default group membership
             $userSettings['groups'] = 'users';
 			$Def_datatablesMaxItems = 10;
@@ -74,7 +80,7 @@ class VarcaveUsers extends Varcave
                             'username, groups, password, expire, created,' .
                             'lastUpdate, firstname, lastname, theme,'.
                             'geo_api, last_php_session, datatablesMaxItems,'.
-                            'disabled, emailaddr, streetNum,'.
+                            'pref_coord_system, disabled, emailaddr, streetNum,'.
                             'address1,address2,postCode, town,country,licenceNumber,'.
                             'phoneNum,cavingGroup,notes,uiLanguage) '. 
 									
@@ -82,7 +88,7 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
                             $this->PDO->quote($userSettings['groups']) . ','.
                             $this->PDO->quote($userSettings['password']) . ','.
-                            strtotime('+1 year') . ','. //expire one year late by default
+                            $this->PDO->quote($userSettings['expire']) . ','. 
                             time() . ','. //creation date
                             time() . ',' . //last update
                             $this->PDO->quote($userSettings['firstname']) . ','.
@@ -91,6 +97,7 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote($this->config['default_geo_api']) . ',' .
                             $this->PDO->quote($userSettings['last_php_session']) . ',' .
                             $Def_datatablesMaxItems . ','.
+                            $this->PDO->quote($userSettings['pref_coord_system']) . ','.
                             $this->PDO->quote($userSettings['disabled']) . ','.
                             $this->PDO->quote($userSettings['emailaddr']) . ','.
                             $this->PDO->quote($userSettings['streetNum']) . ','.
@@ -285,7 +292,8 @@ class VarcaveUsers extends Varcave
 			$this->PDO->query($qUpdateUser);
 			$this->PDO->commit();
 			$this->logger->info('Update '. $prefName . ' successfully');
-			//force $_SESSION update for some settings
+			
+            //force $_SESSION update for some settings
 			switch ($prefName)
 			{
 				case 'theme':
@@ -295,7 +303,11 @@ class VarcaveUsers extends Varcave
 				case 'geo_api':
 					$_SESSION['geo_api'] = $prefValue;
 					break;
-				
+				case 'firstname':
+                case 'lastname':
+                case 'emailaddr':
+                    $_SESSION[$prefName] = $prefValue;
+                    break;
 				default:
 					$this->logger->debug('this pref do not request $_SESSION update');
 					break;
@@ -306,8 +318,8 @@ class VarcaveUsers extends Varcave
 		}
 		catch (exception $e)
 		{
-			$this->logger->info('Change theme failed :' . $e->getmessage() );
-			$this->logger->debug('Update request: ' . $updateUserTheme  );
+			$this->logger->info('Change failed :' . $e->getmessage() );
+			$this->logger->debug('Update request: ' . $qUpdateUser  );
 			return false;
 		}
 	}
@@ -526,4 +538,154 @@ class VarcaveUsers extends Varcave
 			$this->logger->debug('error:' . $e->getmessage());
 		}
     }
+    
+    /*
+     * function updPwdResetLink() tries to update database temporarary reset password link id.
+     * @param userid
+     * @return a new unique linkid to be used by user
+     */
+     function updPwdResetLink($uid){
+        $this->logger->info(__METHOD__ . ' : updating user reset link ['. $uid .']');
+        $linkid = GUIDv4();
+        $linkExpire = time() + 14400 ; //link expire every 4hours
+        
+        try{
+            //clear database all outdated links
+            $q = 'DELETE FROM ' . $this->getTablePrefix() . 'password_reset WHERE `reset_pwd_max_age` < ' . time() ;
+            $stmt = $this->PDO->query($q);
+            $this->logger->debug('  deleted : ' . $stmt->rowcount() . ' lines');
+            
+            //check if a link already exists
+            $q = 'SELECT * FROM ' . $this->getTablePrefix() . 'password_reset WHERE users_indexid = ' . $this->PDO->quote($uid);
+            $stmt = $this->PDO->query($q);
+            if($stmt->rowCount() > 0){
+                //user have a valid link.
+                $q = 'UPDATE ' . $this->getTablePrefix() . 'password_reset ' . 
+                     'SET reset_pwd_max_age=' . $linkExpire . ', ' . 
+                     '    reset_pwd_id = "' . $linkid . '" ' . 
+                     'WHERE users_indexid = ' . $uid ;
+                $this->logger->debug('  updated user  linkid with data : [' . substr($linkid, 0, -31) . ']' );
+                $this->PDO->query($q);
+            }
+            else
+            {
+                //no existing link, adding new one
+               $q = 'INSERT INTO ' . $this->getTablePrefix() . 'password_reset (`indexid`, `users_indexid`, `reset_pwd_id`, `reset_pwd_max_age`)' . 
+                    ' VALUES ('.
+                    ' NULL, ' . $this->PDO->quote($uid) . ', "' . $linkid . '", ' . $linkExpire .
+                ')';
+                $this->logger->debug('  adding new user linkid : [' . substr($linkid, 0, -31) . ']' );
+                $this->PDO->query($q); 
+            }
+            return array( 'linkid' => $linkid, 'expiration' => $linkExpire);
+        }
+        catch (exception $e)
+        {
+            $this->logger->error('Fail to update database : ' . $e->getmessage() );
+            return false;
+        }
+        
+     }
+     
+    /*
+     * getUserById() this function try to lookup user uid for a known username
+     * @param string username  a username to lookup
+     * @return corespondig userid on success or false on error or if lookup failed
+     */
+    function getUidByUsername($username){
+        $this->logger->debug(__METHOD__ . ' : resolving uid for : ' . $username );
+        try
+        {
+            $q = 'SELECT indexid as uid,username FROM ' . $this->getTablePrefix() . 'users WHERE username = ' . $this->PDO->quote($username);
+            $pdoStmt = $this->PDO->query($q);
+            if($pdoStmt->rowcount() > 0)
+            {
+                $this->logger->debug('  user found');
+                return $pdoStmt->fetch(PDO::FETCH_ASSOC);
+            }
+            else
+            {
+                $this->logger->debug('  user NOT found');
+                return false;
+            }
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error('  Fail to resolve uid : ' . $e->getMessage() );
+            return false;
+        }
+    }
+    
+    /*
+     * isResetLinkValid check provided reset link if it is valid (existant, time validity)
+     * @param $linkid link to check
+     * @return true on success, false in other case
+     */
+    function isResetLinkValid($linkid){
+        $this->logger->debug(__METHOD__ . ' : check reset link validity');
+        if(strlen($linkid) != 36)
+        {
+            $this->logger->error(  '__Bad link length');
+            return false;
+        }
+        try
+        {
+            $q = 'SELECT indexid, users_indexid, reset_pwd_id FROM ' . $this->getTablePrefix() . 'password_reset ' .
+                 'WHERE reset_pwd_id = ' . $this->PDO->quote($linkid) . ' AND reset_pwd_max_age > UNIX_TIMESTAMP()';
+            $stm = $this->PDO->query($q);
+            
+            if($stm->rowcount() == 0 )
+            {
+                //no valid link present
+                $this->logger->debug('  no valid link in database');
+                return false;
+            }
+            else
+            {
+                $this->logger->debug('  found a link : ' . print_r($stm->fetch(PDO::FETCH_ASSOC), true) );
+                return true;
+            }
+        }
+        catch (Exception $e)
+        {
+            $this->logger->error('  fail to lookup linkid');
+            return false;
+        }
+    }
+    
+    /*
+     * resetPwdFromLink
+     * @param $resetPwdId a special string known only by user
+     * @param $passwHash a sha256 hash representing user password
+     * @return true on success false 
+     */
+     function resetPwdFromLink($resetPwdId, $sha256){
+        $this->logger->info(__METHOD__ . ' : Start reset password process');
+        
+        try{
+            $q = 'SELECT indexid, users_indexid as uid FROM ' . $this->getTablePrefix() . 'password_reset ' .
+                 'WHERE reset_pwd_id = ' . $this->PDO->quote($resetPwdId) . ' LIMIT 1';
+            $stm = $this->PDO->query($q);
+            if($stm->rowcount() > 0)
+            {
+                $user = $stm->fetch(PDO::FETCH_ASSOC);
+                if ( ! $this->getUserDetails($user['uid']) || ! $this->changeUserPwd($sha256, $user['uid']) ){
+                    throw new Exception(' failed');
+                }
+                //delete link from db
+                $q = 'DELETE FROM ' . $this->getTablePrefix() . 'password_reset ' .
+                     'WHERE reset_pwd_id = ' . $this->PDO->quote($resetPwdId);
+                $stm = $this->PDO->query($q);
+                return true;
+            }
+            return false;
+            
+        }
+        catch (Exception $e){
+            $this->logger->error('  fail to `on demand` reset user password');
+            $this->logger->debug('  ' . $e->getMessage() );
+            return false;
+        }
+         
+     }
 }

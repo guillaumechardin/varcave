@@ -1037,6 +1037,10 @@ div[id^="edit-imgEl"]
 	background-color: grey;
 }
 
+#usermgmt-container-import > form > fieldset > div
+{
+    margin: 0.7em;
+}
 
 .ressources-displayGroup-title
 {
@@ -1340,4 +1344,47 @@ div[id^="ressources-filelink"]
     margin: auto;
     font-style: italic;
     font-weight: bold;
+}
+
+#resetpassword-username{
+    margin: 0.5em;
+    padding: 0.3em;
+}
+
+#resetpassword-wrapform{
+    margin: auto;
+    width: 50%;
+}
+
+#resetpassword-doreset{
+    font-size:1em;
+}
+
+#myaccount_personal_data,
+#chgtPasswd,
+#themeChange,
+#geo_api,
+#datatablesMaxItems
+{
+    max-width: 45%;
+    margin: 0.7em;
+    font-size: 1em;
+    padding: 0.2em;
+}
+
+#myaccount_personal_data > fieldset > input,
+#chgtPasswd  > fieldset > input,
+#chgtPasswd  > fieldset > p > input
+{
+    display: block;
+    font-size: 1em;
+    margin: 0.1em 0.5em 0.5em 0;
+    width: 30em;
+    padding: 0.2em;
+}
+
+#myaccount_personal_data > fieldset > p > input,
+#chgtPasswd  > fieldset > p > input
+{
+    width:5em;
 }

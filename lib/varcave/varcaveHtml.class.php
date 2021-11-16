@@ -364,6 +364,27 @@ class VarcaveHtml extends Varcave {
 		echo $this->save();
         exit();
 	}
+    
+    /*
+     * this function output json data for ajax queries
+     */
+    function writeJson( $clientReturnData,  $httpCode = 200, $httpCodeStr = 'OK')
+    {
+        $this->logger->debug(__CLASS__ . ' : reply json data to client browser');
+        if( !is_array($clientReturnData) )
+        {
+            $this->error(__CLASS__  . 'argument is not array');
+        }
+        
+        //send back to browser
+        header('HTTP/1.1 ' . $httpCode . $httpCodeStr);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode($clientReturnData);
+        exit();
+    }
+    
 }
+
+
 
 ?>

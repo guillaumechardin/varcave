@@ -40,6 +40,7 @@ if ( isNullOrEmptyArray($_POST) )
     $htmlstr .= '  <label for="password">' . L::login_userPassword . '</label><br>';
     $htmlstr .= '  <input type="password" id="login-password" name="password"><br>';
     $htmlstr .= '  <input type="submit" id="login-submit" name="submit" value="' . L::login_connect . '"><br>';
+    $htmlstr .= '  <div id="login-resetpwd" style="display:none"><a href="resetpassword.php">' . L::resetpassword_resetpassword . '</a></div>';
     $htmlstr .= '</form>';
     
     

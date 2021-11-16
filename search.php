@@ -46,7 +46,7 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	 */
 	$logger->debug('search.php : input from GET, search=all' );
 	
-	$htmlstr .= '<h2>Rechercher des cavités</h2>';
+	$htmlstr .= '<h2>' . L::search_advancedSearch . '</h2>';
 	$htmlstr .= '<div id="resultTableDiv">';
     $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 	$htmlstr .= '<table id="tableSearch" class="display">';
@@ -384,7 +384,7 @@ else
 		$logger->debug(basename(__FILE__) . ": Request to get localized col name from db in advanced search \n" . print_r($reqCols,true) );
 		
 		//empty table that will contains search results
-        $htmlstr .= '<h2>' . L::search_title . '</h2>';
+        $htmlstr .= '<h2>' . L::search_advancedSearch . '</h2>';
 		$htmlstr .= '<div id="resultTableDiv">';
         $htmlstr .= '  <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 		$htmlstr .= '  <table id="tableSearch" class="display" >';

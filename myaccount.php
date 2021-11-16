@@ -93,9 +93,18 @@ if ( !empty($_POST) && isset($_POST['passwd']) && $_POST['passwd'] != '' )
 elseif ( !empty($_POST) && isset($_POST['update'])   && isset($_POST['value']) )
 {
 	$logger->debug('request preference update' . $_POST['update']);
-	$result = $users->changeUserPref($_POST['update'], $_POST['value'], $_SESSION['uid']);
 	
-	if($result === true)
+    //check email address validity
+    $validMail = true;
+    if($_POST['update'] == 'emailaddr' && !filter_var($_POST['value'], FILTER_VALIDATE_EMAIL) ){
+        $logger->debug('email invalid');
+        $validMail = false;
+    }
+    
+    //$result = $users->changeUserPref($_POST['update'], $_POST['value'], $_SESSION['uid']);
+    
+	
+	if($validMail && $result = $users->changeUserPref($_POST['update'], $_POST['value'], $_SESSION['uid']) )
 	{
 		$return = array (	
 			'title' => L::myaccount_updatePrefTitle,
@@ -136,26 +145,48 @@ else
 	$htmlstr .= '<li>' . L::myaccount_groupList . ' : ' . $_SESSION['groups'] . '</li>';
 	$htmlstr .= '</ul></p>';     
 	
+    /*
+	 * CHANGE PERSONAL INFO
+	 */
+    $htmlstr .=  '<h2>' . '<i class="fas fa-user-check"></i> ' . L::myaccount_change_personal_data . '</h2>';
+	$htmlstr .= '  <form id="myaccount_personal_data">';
+	$htmlstr .= '    <fieldset>';
+    $htmlstr .= '      <legend>' . L::usermgmt_identification  . '</legend>';
+	$htmlstr .= '      <label for="firstname">' . L::table_users_field_firstname  . '</label>';
+    $htmlstr .= '      <input type="text"  name="firstname" id="firstname" value="' . $_SESSION['firstname'] . '"></input>';
+	$htmlstr .= '      <label for="lastname">' .  L::table_users_field_lastname  .   '</label>';
+    $htmlstr .= '      <input type="text" name="lastname" id="lastname" value="' . $_SESSION['lastname'] . '"></input>';
+	$htmlstr .= '      <label for="emailaddr">' .  L::table_users_field_username  .  '</label>';
+    $htmlstr .= '      <input type="text" name="emailaddr" id="emailaddr" value="' . $_SESSION['emailaddr'] . '"></input>';
+    $htmlstr .= '    </fieldset>';
+    $htmlstr .= '  </form>';
+    
+    
 	/*
 	 * CHANGE PASSWORD
 	 */
 	$htmlstr .=  '<h2>' . '<i class="fas fa-key"></i> ' . L::myaccount_changePwd . '</h2>';
 	$htmlstr .= '<p>';
 	$htmlstr .= '<form id="chgtPasswd">';
-	$htmlstr .=	'<input type="password"   placeholder="' . L::myaccount_enterPwdHint .'" id="pass1" size="30" maxlength="25" autocomplete="off" value="" />';
+    $htmlstr .= '  <fieldset>';
+    $htmlstr .= '    <legend>' . L::usermgmt_identification  . '</legend>';
+	$htmlstr .=	'      <input type="password"   placeholder="' . L::myaccount_enterPwdHint .'" id="pass1" size="30" maxlength="25" autocomplete="off" value="" />';
 	$htmlstr .= ' ';
-	$htmlstr .= '<input type="password" placeholder="' . L::myaccount_confirmPwdHint .'" id="pass2" size="30" maxlength="25" autoc5omplete="off" value=""/>';
-	$htmlstr .= '<p><input type="submit" value=OK></p>';
+	$htmlstr .= '      <input type="password" placeholder="' . L::myaccount_confirmPwdHint .'" id="pass2" size="30" maxlength="25" autoc5omplete="off" value=""/>';
+	$htmlstr .= '      <p><input type="submit" value="OK"></p>';
+    $htmlstr .= '  </fieldset>';
 	$htmlstr .= '</form>';
 	$htmlstr .= '</p>';     
 	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
 	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
 	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
 
+ 	
+    
 	/*
 	 * CHANGE THEME
 	 */
-	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_customInterfaces .' </h2>';
+	$htmlstr .=  '<h2><i class="fas fa-palette"></i> ' . L::myaccount_customInterfaces .' </h2>';
 	
 	/*
 	 * get any folder list from "css/custom" dir
@@ -221,7 +252,7 @@ else
 	$geoAPIs = $qGeoStmt->fetchall(PDO::FETCH_ASSOC);*/
     $geoAPIs = $users->getListElements('default_geo_api');
 	
-	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_userGeoApi .' </h2>';
+	$htmlstr .=  '<h2><i class="fas fa-globe"></i> ' . L::myaccount_userGeoApi .' </h2>';
 	$htmlstr .= '<select id="geo_api">';
 		
 	//print_r($geoAPIs);
@@ -240,7 +271,7 @@ else
     /*
      * CHANGE Max items for datatables items (ie : search table)
      */
-    $htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_maxItemsTables .' </h2>';
+    $htmlstr .=  '<h2><i class="fas fa-table"></i> ' . L::myaccount_maxItemsTables .' </h2>';
     $htmlstr .= '<select id="datatablesMaxItems">';
     $itemMaxList = array(5,10,20,40,50,100,150,200,500);
     foreach($itemMaxList as $key => $value)

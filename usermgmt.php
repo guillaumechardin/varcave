@@ -79,15 +79,15 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     }
     
 	
-	//setting up tab browsing, one for users, one for groups	
+	//setting up tab browsing, one for users, one for groups, acl ...	
 	$htmlstr .= '<div id="usermgmt-tabs">';
 	$htmlstr .= '  <ul>';
 	$htmlstr .= '    <li><a href="#tab-user">' . L::usermgmt_users . '</a></li>';
 	$htmlstr .= '    <li><a href="#tab-groups">' . L::usermgmt_groups . '</a></li>';
 	$htmlstr .= '    <li><a href="#tab-acl">' . L::usermgmt_acl . '</a></li>';
     $htmlstr .= '    <li><a href="#tab-acltemplate">' . L::usermgmt_aclTemplate . '</a></li>';
+    $htmlstr .= '    <li><a href="#tab-import">' . L::usermgmt_import . '</a></li>';
 	$htmlstr .= '  </ul>';
-
 	
 	//
 	$htmlstr .= '  <div id="tab-user">';
@@ -139,9 +139,37 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     $htmlstr .= '         </table>';
     $htmlstr .= '       </div>'; //tableloadAcl
     $htmlstr .= '    </div>';
-    $htmlstr .= '  </div>'; //end tab-predifinedACL
+    $htmlstr .= '  </div>'; //end tab-acltemplate
      
-	
+	//Import data
+    $htmlstr .= '  <div id="tab-import">';
+    $htmlstr .= '  <script>';
+    $htmlstr .= '    var L_errors_ERROR = "' . L::errors_ERROR . '";';
+    $htmlstr .= '    var L_general_complete_field = "' . L::general_complete_field . '";';
+    $htmlstr .= '    var L_usermgmt_select_file = "' . L::usermgmt_select_file . '";';
+    $htmlstr .= '  </script>';
+	$htmlstr .= '   <div id="usermgmt-container-import">';
+    $htmlstr .= '       <p>' . L::usermgmt_import_users . '</p>';
+    $htmlstr .= '       <form id="import-data">';
+    $htmlstr .= '           <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
+    $htmlstr .= '           <fieldset><legend>' . L::usermgmt_import_settings  . '</legend>';
+    $htmlstr .= '             <div><input type="file" id="usermgmt-import-file" name="csv-file"></div>';
+    $htmlstr .= '             <div><label for="expire-days">' . L::usermgmt_expire_days  . ': </label><input type="number" placeholder="365"  name="expire-days" id="expire-days" value="365"></input></div>';
+    $htmlstr .= '             <div><label for="coord-system">' . L::usermgmt_coord_syst  . ': </label>';
+    $htmlstr .= '             <select  id="coord-system" name="coord-system">';
+    $coordSys = $users->getListElements('list_coordinates_systems');
+    foreach($coordSys as $key => $listItem )
+    {
+        $htmlstr .= '          <option value="' . $listItem['list_item'] .  '">' . $listItem['list_item'] . ' </option>';
+    }
+    $htmlstr .= '             </select></div>';
+    $htmlstr .= '             <button id="usermgmt-form-import-data-send">'. L::general_add . '</button>';
+    $htmlstr .= '          </fieldset>';
+    $htmlstr .= '       </form>';
+	$htmlstr .= '   </div>'; 
+	$htmlstr .= '  </div>'; //end tab-import
+    
+    
 	$htmlstr .= '</div>'; //end of tabs browsing
 	
 	
@@ -310,8 +338,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     
     
 	$htmlstr .= '</script>';
-	
-	//$htmlstr .= 'PHP gc_sessioLifetime (s) :' . ini_get(session.gc_maxlifetime);
+    
 	$htmlstr .= DATATABLES_JS_CSS;
 	
 	
@@ -442,7 +469,8 @@ else
 				$data = L::usermgmt_editsuccess;
 			}
 		}
-        elseif($_POST['target'] == 'loadacltemplate'){ // load a specified template ACL
+        elseif($_POST['target'] == 'loadacltemplate') // load a specified template ACL
+        {
             $logger->debug('try to load template acl:[' . $_POST['templId'] . ']');
             
             if( isset($_POST['templId']) )
@@ -461,6 +489,81 @@ else
        
                 throw new Exception('load ACL template:' . L::error_badAction);
             }
+        }
+        elseif($_POST["action"] == "import")
+        {
+            if ( empty($_POST['expire-days']) ){
+                $logger->error('expiration date cannot be null');
+                throw new Exception("expiration date cannot be null");
+            }
+            $expire_days = time() + (int)$_POST['expire-days'] * 86400 ;// convert expire days to seconds
+            $logger->debug('account expiration set to :' . date('Y-m-d H:i:s', $expire_days) );
+            
+            if ( empty($_POST['coord-system']) ){
+                $logger->error('Coord-system cannot be null');
+                throw new Exception("Coord-system cannot be null");
+            }
+            $pref_coord_system = $_POST['coord-system'];
+            $logger->debug('Prefered coords set  :' . $pref_coord_system );
+            
+            $logger->debug('User import start');
+            //check csv file before injection
+            if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
+                $fileinfo = pathinfo($_FILES['file']['name']);
+                $finfo = finfo_open(FILEINFO_MIME_TYPE); // Return mimetype only
+                $mimeType = finfo_file($finfo, $_FILES['file']['tmp_name']);
+                finfo_close($finfo);
+                if ( strcasecmp($fileinfo["extension"], "csv") !== 0 ||  $mimeType != 'text/plain'){
+                    $logger->debug('mime type: [' . $mimeType . '], extension: [' . $fileinfo["extension"] . ']');
+                    throw new Exception("User import failed, extension or mime/type mismatch");
+                }
+
+                $varcaveUsers = new VarcaveUsers();
+                $count = 1;
+                if ( ($handle = fopen($_FILES['file']['tmp_name'], "r") ) !== FALSE) {
+                    while ( ($line = fgetcsv($handle, 1500, ";") ) !== FALSE) {
+                         $line = array_map("utf8_encode", $line); //convert CSV line strings to utf8
+                        //check if user exist in database
+                        $q = 'SELECT EXISTS(SELECT * FROM `users` WHERE `username`="' . $line[0] . '") AS USER_EXISTS';
+                        $stmt = $auth->PDO->query($q);
+                        $results = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        $userpwd = hash('sha256', $line[1]);
+                        
+                        //update expiration date for existing users
+                        if($results['USER_EXISTS'] == 1)
+                        {
+                            $q = 'UPDATE `users` SET expire="'. $auth->PDO->quote($expire_days) . 
+                                 '", password="' . $auth->PDO->quote($userpwd) . 
+                                 '", pref_coord_system="' . $auth->PDO->quote($pref_coord_system) .  
+                                 '", emailaddra="' . $auth->PDO->quote($line[4]) .
+                                 '" WHERE username="' . $auth->PDO->quote($line[0]) .'"';
+                            $logger->debug('$query : ' . $q);
+                            $auth->PDO->query($q);
+                        }
+                        else  //add user to db
+                        {
+                            $settings = array(
+                                'username' => $line[0],
+                                'password' => $userpwd,
+                                'firstname' => utf8_encode($line[2]),
+                                'lastname' => utf8_encode($line[3]),
+                                'emailaddr' => $line[4],
+                                'licenceNumber' => $line[5],
+                                'cavingGroup' => utf8_encode($line[6]),
+                                'pref_coord_system' => $pref_coord_system,
+                                'expire' => $expire_days,
+                            );
+                            //$logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' name:' . $line[2] . ' expire:' . $settings['expire']);
+                            $varcaveUsers->adduser($settings);
+                        }
+                        $count++;
+                    }
+                }
+                fclose($handle);
+                $data = L::usermgmt_import_success . ' (' . $count . ' ' . L::usermgmt_users . ')';
+            }
+            
         }
         else
 		{

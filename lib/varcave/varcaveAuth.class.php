@@ -156,7 +156,15 @@ class VarcaveAuth extends Varcave
 			return false;
 		}
 	}
-	
+    
+	/*
+     * isSessionValid()
+     * Check if user as a valid Varcave authenticated session.
+     * @param none
+	 * @return : true if user is authenticated and is not expired or if phpsession is still valid (in time).
+     *           false if user is anonymous or is unauthenticated. Note that config parameter `use_anon_auth`
+     *           can affect behaviour
+     */
 	public function isSessionValid()
 	{
 		$this->logger->info('Check if user as valid session');
@@ -182,10 +190,6 @@ class VarcaveAuth extends Varcave
 				$this->logger->debug('Session variables' . print_r($_SESSION,true) );
 				return true;
             }
-			/*elseif ( empty($_SESSION['sessionend']) || empty($_SESSION['expire']) )
-			{
-				
-			}*/ // todo
 			elseif (time()  > $_SESSION['sessionend'] )
 			{
 				/*
