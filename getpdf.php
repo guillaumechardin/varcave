@@ -18,14 +18,19 @@ if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
 $cave = new varcaveCave();
 
 $_cave = $cave->selectByguid($_GET['guid'], false, false);
-
 $vPdf = new Varcavepdf($_cave) ;
 
 $vPdf->setY(15);
 $vPdf->caveinfo();
-//$vPdf->setY(70);
-$vPdf->caveaccess();
-$vPdf->addcavemaps();
+//$vPdf->setY(80);
+$acl = $auth->getacl('200f72ca-3c96-42e0-805c-2e133ce98ad0');
+if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
+    $vPdf->caveaccess();
+}
+$acl = $auth->getacl('da77ca5f-1e0a-4b02-a49b-a4ac428902d5');
+if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
+    $vPdf->addcavemaps();
+}
 $file_name = cleanStringFilename( $_cave['name'] . '.pdf' );
 //echo $file_name;
 $vPdf->output( $file_name, 'I');

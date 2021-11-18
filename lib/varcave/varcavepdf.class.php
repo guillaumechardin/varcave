@@ -93,10 +93,11 @@ class VarcavePdf extends TCPDF {
         $this->varcave->logger->debug('Build new PDF env');
         
 		//storing cave data
-        if(!$cavedata)
+        if($cavedata != false)
         {
             $this->cavedata = $cavedata;
         }
+        
 		//default doc margins
 		$this->SetMargins($this->marginleft, $this->margintop, $this->marginright);
 		
@@ -107,7 +108,7 @@ class VarcavePdf extends TCPDF {
 		$this->startPageGroup();
 		
 		//start a new page
-		//$this->addpage();
+		$this->addpage();
 		
 		//set font
 		if( $font == false ){
@@ -153,7 +154,7 @@ class VarcavePdf extends TCPDF {
 		//get i18n fields name
 		$cave = new varcavecave();
 		$i18nfields = $cave->getI18nCaveFieldsName('ONPDF');
-		
+
 		$last =  end($i18nfields);
 		//reset($i18nfields);
 		
@@ -167,9 +168,10 @@ class VarcavePdf extends TCPDF {
 		$tbl = '<table cellspacing="0" cellpadding="1" border="0">';
 		$tr = true;
 		$i = 0;
-		
+
 		foreach($i18nfields as $field)
 		{
+            
 			if($tr)
 			{
 				$tbl .= '<tr>';
@@ -181,7 +183,7 @@ class VarcavePdf extends TCPDF {
 				//skip empty fields
 				continue;
 			}
-
+            
 			//show only 3 item/row
 			if ($i < 2)
 			{
@@ -221,8 +223,7 @@ class VarcavePdf extends TCPDF {
 			$tbl .='</tr>';
 		}
 		$tbl .= '</table>';
-		
-		//echo $tbl;
+        
 		$this->SetFont('dejavusans', '',self::sizeS);
 		$this->writeHTML($tbl, true, false, false, false, '');
         $text = $cave->getConfigElement('disclaimer');
