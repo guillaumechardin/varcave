@@ -1,6 +1,7 @@
 <?php 
 require_once (__DIR__ . '/varcaveI18n.class.php');
 require_once(__DIR__ . '/../Klogger/logger.php');
+require_once('varcaveAuth.class.php');
 require_once('functions.php');
 
 try
@@ -207,6 +208,7 @@ class Varcave {
 	}
     
 	/**
+     ************   NO MORE USED ******************
 	* This method permit to register some var to return
 	* message to user.
 	* verbose logs for admin are handled by $this->logger().
@@ -379,39 +381,60 @@ class Varcave {
      * @return  array on sucess, throw exeption on failure
      * 
 	 */
-	function getFilesRessources($userGroupsArray = ''){
-		$this->logger->info(__METHOD__ . ' : fetch a list of files ressources');
-		try
-		{            
-			//generate 	csv content 
-			$q = 'SELECT 
-					
-					display_group,
-					GROUP_CONCAT(\'"\',indexid,\'"\') as indexid,
-					GROUP_CONCAT(\'"\',display_name,\'"\') as display_name,
-					GROUP_CONCAT(\'"\',filepath,\'"\') as filepath,
-					GROUP_CONCAT(\'"\',description,\'"\') as description,
-					GROUP_CONCAT(\'"\',display_name,\'"\') as display_name,
-					GROUP_CONCAT(\'"\',creation_date,\'"\') as creation_date,
-					GROUP_CONCAT(\'"\',access_rights,\'"\') as access_rights
-					
-					FROM ' . $this->dbtableprefix . 'files_ressources
-					WHERE 1 
-					GROUP BY display_group ASC';
-			$resPDOStmt = $this->PDO->query($q);
-			$ressources = $resPDOStmt->fetchall(PDO::FETCH_ASSOC);
-			
-			$this->logger->info('successfully get data from db');
-			return $ressources;
-		}
-		catch(Exception $e)
-		{
-			$this->logger->error('Unable to fetch from db');
-			$this->logger->debug('original query : ' . $q);
-			throw new exception(L::varcave_ressourcesfetchfail);
-		}
-		
-	}
+    function getFilesRessources($userGroupsArray = ''){
+        $this->logger->info(__METHOD__ . ' : fetch a list of files ressources');
+        $auth = new VarcaveAuth();
+        try{
+            
+            $q = 'SELECT * ' .
+                 'FROM ' . $this->dbtableprefix . 'files_ressources' .
+                 ' WHERE 1 ORDER BY display_group ASC';
+            $stm = $this->PDO->query($q);
+            $ressources_all = $stm->fetchall(PDO::FETCH_ASSOC);
+            $user_groups = explode(',', $_SESSION['groups']);
+            
+            //get current permited files
+            $available_ressources = array();
+            foreach($ressources_all as $key => $value)
+            {
+                $cur_ressource_group = explode(',', $value['access_rights']);
+
+                //lookup all user group to search if user is member of thoses groups
+                
+                foreach($user_groups as $usr_grp_key => $usr_grp_val){
+                    if( $auth->isSessionValid() && $auth->isMember( 'admin' ) ){ //force show file if user admin
+                        $available_ressources[] = $ressources_all[$key];
+                        break; 
+                    }
+                    //show file depending on user group
+                    if( in_array($usr_grp_val, $cur_ressource_group) ){
+                        $available_ressources[] = $ressources_all[$key];
+                        break; //skip further test on same ressource
+                    }
+                }                
+            }
+            
+            //reorder result by display group
+            $user_res = array();
+            foreach($available_ressources as $key => $values){
+                //extract all display_group
+                foreach($available_ressources[$key] as $k => $val){
+                    if($k == 'display_group'){
+                        continue;
+                    }
+                    
+                    $user_res[ $values['display_group'] ][$key][$k] = $val;
+                }
+                
+            }
+            return $user_res;
+        }
+        catch(Exception $e){
+            $this->logger->error('  Error while fetching permitted ressources : ' . $e->getMessage() );
+            throw new exception(L::varcave_ressourcesfetchfail);
+        }
+    }
+    
     
     /*
      * addFilesRessources add a file to table ressource that can be
@@ -421,12 +444,12 @@ class Varcave {
      * @param $filepath
      * @param $description
      * @param $creatorID
-     * @param $accessRights [not supported]
+     * @param $accessRights
      * 
      * @return new element indexid from DB. Throw exception on failure  
      * 
      */
-    function addFilesRessources($display_name,$display_group,$filepath,$description,$creatorID,$accessRights = ''){
+    function addFilesRessources($display_name,$display_group,$filepath,$description,$creatorID,$accessRights = 'admin'){
         $this->logger->debug(__METHOD__ . ': adding file to ressources');
         try{
             $q = 'INSERT INTO ' . $this->getTablePrefix() . 'files_ressources
@@ -822,6 +845,21 @@ class Varcave {
          return $this->langcode;
      }
 
+    public function setFilesRessourcesRights($ressourceID, $accessrights){
+        $this->logger->info(__METHOD__ . ' update file ressources acces rights');
+        $this->logger->debug('target ressource :' . $ressourceID . ' rights :'. $accessrights);
+        try{
+            $q = 'UPDATE ' . $this->getTablePrefix() . 'files_ressources ' .
+             'SET access_rights=' . $this->PDO->quote($accessrights) . ' '.
+             'WHERE indexid=' . $this->PDO->quote($ressourceID);
+            $this->PDO->query($q);
+            return true;
+        }
+        catch(Exception $e){
+            $this->logger->error('  Fail to update access rights ' . $e->getMessage() );
+            return false;
+        }
+    }
 }
 
    

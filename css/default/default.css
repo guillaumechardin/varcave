@@ -1388,3 +1388,17 @@ div[id^="ressources-filelink"]
 {
     width:5em;
 }
+
+.ressources-input-right {
+	display: inline-block;
+	margin: 0.2em;
+	background: darkgrey;
+	border-radius: 1em;
+	padding: 0.1em 0.4em;
+	/* color: white; */
+}
+
+#ressources-ressource-rights > fieldset
+{
+    margin:0.5em;
+}
