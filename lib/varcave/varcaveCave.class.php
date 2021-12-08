@@ -640,8 +640,17 @@ class VarcaveCave extends Varcave
                     foreach($resultCoords as &$coordSet)
                     {
                         $this->logger->debug('source coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
-                        $coordSet['long'] = round( $coordSet['long'], 2);
-                        $coordSet['lat'] = round( $coordSet['lat'], 2);
+                        /*
+                         * Old style coord obfucation, sometimes do not provides enough fuzzyness.
+                         * 
+                         * $coordSet['long'] = round( $coordSet['long'], 2);
+                         * $coordSet['lat'] = round( $coordSet['lat'], 2);
+                         * */
+                         // so set fixed coordinates
+                         //N 43.16387°  E 005.89358°
+                         $coordSet['long'] = 43.12016;
+                         $coordSet['lat']  = 5.93144;
+                         
                         $this->logger->debug('new coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
                     }
                 }
