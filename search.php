@@ -263,6 +263,62 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	jsonWrite($json, $httpError, $httpErrorStr);
 	exit();
 }
+elseif( isset($_GET['autocomplete']) )
+{
+	$logger->debug(basename(__FILE__) . 'receive autocomplete data');
+	
+	try
+	{
+		//prepare search data
+		$search = array(
+			array(
+				"field"=>'name',
+				'type' => 'LIKE',
+				'value' => $_GET['term'],
+			),
+		  );
+		
+		//return search field is only name for autocomplete
+		$cave->setConfigSettings('returnSearchFields','name');
+		$res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
+		$cavesName = $res[0]->fetchall(PDO::FETCH_NUM);
+		
+		$cavesName = array_column($cavesName, 0);
+		
+		$html->writeJson( $cavesName );
+	}
+	catch(Exception $e)
+	{
+		$logger->error('Autocomplete failed.' . $e->getmessage() );
+		$html->writeJson( array('false'), 400, 'Bad Request' );
+	}
+	
+
+	/*
+	$cave = new varcaveCave();
+            $search = array(
+                array(
+                    "field"=>'indexid',
+                    'type' => '!=',
+                    'value' => '',
+                ),
+              );
+            $res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
+            //return search field is only name for autocomplete
+            $cave->setConfigSettings('returnSearchFields','name');
+
+            $this->html .= "\n" . '<script>var availableNames = ['."\n";
+            while($caveName = $res[0]->fetch(PDO::FETCH_ASSOC) ){
+                //print_r($caveName);
+                $this->html .= "'". addslashes ($caveName['name']) . '\','."\n";
+            }
+            $this->html .= '];' . "\n";
+            $this->html .= '</script>';
+		*/
+
+
+
+}
 else
 {
 	/*

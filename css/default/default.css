@@ -24,7 +24,7 @@ h2 {
 	color: white;
 	display:flex;
 	justify-content: space-around;
-	align-items: : center;
+	align-items:  center;
     margin: 1em 0 2em 0;
 }
 
@@ -536,7 +536,7 @@ div [class|="displaySciDataCol"]
 
 
 #miniMap{
-    /*width:95%*/;
+    /*width:95%;*/
 	height:250px;
 }
 
@@ -624,7 +624,7 @@ textarea[class^="editDisplayName-textArea"]
 
 #addDelCoords
 {
-   margin: 0 0 0 5	%;	
+   margin: 0 0 0 5	;	
 }
 
 select[name="coordDisplayProj"]
@@ -1065,8 +1065,7 @@ div[id^="edit-imgEl"]
 	flex-basis: 20em;
 }
 
-.ressources-fileitem:hover,
-
+.ressources-fileitem:hover
 {
 	background-color:grey;
 }
@@ -1401,4 +1400,20 @@ div[id^="ressources-filelink"]
 #ressources-ressource-rights > fieldset
 {
     margin:0.5em;
+}
+
+.round-box-red{
+	height: 2em;
+	width: 2em;
+	background-color: red;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.round-box-green{
+	height: 2em;
+	width: 2em;
+	background-color: green;
+	border-radius: 50%;
+	display: inline-block;
 }

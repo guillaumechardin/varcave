@@ -106,7 +106,7 @@ class Varcave {
 			{
 				$_SESSION['geo_api'] =  $this->getConfigElement('default_geo_api');
 			}
-			
+
             //set default group anonymous for anonymous users
 			if (!isset($_SESSION['groups']) )
 			{
@@ -213,6 +213,7 @@ class Varcave {
 	* message to user.
 	* verbose logs for admin are handled by $this->logger().
 	**/
+    /* disabled 20/04/2022
 	public function setErrorMsg($context, $title, $msg){
 		$datetime = time();
 		$errCntr = $this->errorMsgCntr;
@@ -235,7 +236,8 @@ class Varcave {
 		}
 		return $this->errorMsg;
 	}
-	
+	*/
+    
 	/*
 	 * get ROOT_DIR
 	 */
@@ -365,10 +367,70 @@ class Varcave {
 	public function getConfigElement($element){
 		if ( isset ($element) )
 		{
-			return $this->config[$element];
+            if( isset($this->config[$element]) )
+			{   
+                return $this->config[$element];
+            }
+            else
+            {
+                return false;
+            }
 		}
 		return false;
 	}
+
+    /* This function add a new config element in varcave  database
+     * @param array $data : an associative array containing in order : [configItem, configItemValue, configItemType, configItemGroup, adminOnly ]
+     * @return true on success, throw exception on error
+     */
+    public function addConfigElement($data)
+    {
+        $this->logger->debug(__METHOD__ . ' : start adding [' . $data['configItem'] . ']');
+        if( $this->getConfigElement($data['configItem']) )
+        {
+            $this->logger->error('Error, config element exists');
+            throw new exception(L::errors_ERROR . ' : ' . L::varcave_configElementExists);
+        }
+        else
+        {
+            $this->logger->debug('  OK: Config element do not exists');
+        }
+
+        if(   empty($data['configItem'])
+           || empty($data['configItemValue'])  
+           || empty($data['configItemType'])
+           || empty($data['configItemGroup'])
+           || empty($data['configItem_dsp'])
+        )
+        {
+            $this->logger->error('Error, bad argument value');
+            throw new exception(L::errors_ERROR . ' : ' . L::errors_badArgs);
+
+        }
+        $q = 'INSERT INTO ' .  $this->dbtableprefix . 'config('. 
+            '`configItem`, `configItemValue`, `configItemType`, `configItemMtime`, `configItemGroup`, `configItemAdminOnly`, `configIndexid`)' .
+            ' VALUES ( '. 
+                    $this->PDO->quote($data['configItem']) . ', ' .
+                    $this->PDO->quote($data['configItemValue']) . ', ' .
+                    $this->PDO->quote($data['configItemType']) . ', ' .
+                    '0, ' .
+                    $this->PDO->quote($data['configItemGroup']) . ', ' .
+                    '0, ' .
+                    'NULL);';
+        try
+        {
+            $this->PDO->query($q);
+            $this->updatei18nIniVal('lang/local/custom_' . $this->getlangcode() . '.ini', 'siteconfighelp', $data['configItem'] . '_dsp', $data['configItem_dsp']);
+            $this->updatei18nIniVal('lang/local/custom_' . $this->getlangcode() . '.ini', 'siteconfighelp', $data['configItem'] . '_hlp', $data['configItem_hlp']);
+            return true;
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error(__METHOD__ . ' :  Error while adding ressource to config : ' . $e->getMessage() );
+            throw new exception(L::varcave_updateconfigfail);
+        }
+    }
+
 	
 	//get all config elements as array
 	public function getAllConfigElements(){
@@ -595,6 +657,34 @@ class Varcave {
             return false;
         }
     }
+
+    /*
+     * addListElement
+     * add a unique list element in table lists
+     * @param $listname list group name
+     * @param $value associated value 
+     * 
+     * @return true on success, false otherwise
+     */
+    public function addListElement($listname, $value)
+    {
+        $this->logger->info(__METHOD__ . ' : Add new element to list : '. $listname);
+        try
+        {
+            $q = 'INSERT INTO ' . $this->dbtableprefix . 'lists ' .
+               '(`indexid`, `list_item`, `list_name`) VALUES (' .
+               'NULL, ' . $this->PDO->quote($value) . ', ' . $this->PDO->quote($listname) . ')';
+            $this->PDO->query($q);
+            return true;
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error('  Fail to add new list element' . $e->getmessage() );
+            return false;
+        }
+
+    }
+
     
     /*
      * getIssues
@@ -860,8 +950,99 @@ class Varcave {
             return false;
         }
     }
+
+
+    /* 
+     * Get a list of registered ol plugins in database
+     * @return array of data on success or true if no pluggin found
+     * false on error
+    */
+    public function getOlRegisteredPlugins($id = false)
+    {
+        $this->logger->debug(__METHOD__ . ' search plugins');
+        try
+        {
+            if($id === false)
+            {
+                $q = 'SELECT * FROM ' . $this->getTablePrefix() . 'layers_plugins WHERE 1';
+            }
+            else
+            {
+                $q = 'SELECT * FROM ' . $this->getTablePrefix() . 'layers_plugins WHERE indexid = ' . $this->PDO->quote($id);
+            }
+            
+            $stm = $this->PDO->query($q);
+            $data = $stm->fetchall(PDO::FETCH_ASSOC);
+            if (empty($data) )
+            {
+                $this->logger->warning(__METHOD__ . ': No registered pluggins');
+                return array();
+            }
+            return $data;
+        }
+        catch(exception $e)
+        {
+            $this->logger->error('Failed to find pluggins . ' . $e->getmessage() );
+            return false;
+        }
+    }
+
+    public function registerOlPlugin($pluginConfig, $filename)
+    {
+        $this->logger->debug(__METHOD__ . ' : start plugin registration [' . $pluginConfig[0]['pluginName'] . ']');
+                
+        try
+        {
+            foreach($pluginConfig as $key => $config)
+            {
+                $this->addConfigElement($config);
+            }
+            $this->logger->debug(print_r($config, true) );
+            $q = 'INSERT INTO ' . $this->getTablePrefix() . 'layers_plugins (`indexid`, `guid`, `map_name`, `map_display_name`, `path`, `is_active`) ' .  
+             'VALUES ('. 
+                    'NULL, ' .
+                    $this->PDO->quote($config['pluginGUID']) . ', ' .  
+                    $this->PDO->quote($config['pluginShortName']) . ', ' .   
+                    $this->PDO->quote($config['pluginName']) . ', ' .
+                    $this->PDO->quote($filename) . ', ' . 
+                    '0
+            )';
+
+            $this->PDO->query($q);
+            return true;
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error('fail to register plugin' . $e->getmessage() );
+            $this->logger->debug('full query : ' . $q );
+            throw new exception('update failed : ' . $e->getmessage());
+        }
+    }
+
+    /*
+     * Set open layer pluggin state to enabled/disabled
+     * @param $is : plugin indexid
+     * @param $state boolean true=enaled, false=disabled
+     * return true on success, false otherwise
+     */
+    public function setOlPluginState($id, $state)
+    {
+        $this->logger->info(__METHOD__ . ' Change plugin state : ' . $id);
+        try
+        {
+            $q = 'UPDATE layers_plugins SET is_active=' . $this->PDO->quote($state) . 
+                 ' WHERE `layers_plugins`.`indexid` = ' . $this->PDO->quote($id);
+            $this->PDO->query($q);
+            return true;
+
+        }
+        catch (Exception $e)
+        {
+            $this->logger->error('  Fail to update plugin state : ' . $e->getmessage() );
+            $this->logger->debug('Full query : ' .  $q);
+            return false;
+        }
+
+    }
 }
-
-   
-
 ?>

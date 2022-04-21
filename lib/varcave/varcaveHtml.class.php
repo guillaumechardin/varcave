@@ -80,32 +80,15 @@ class VarcaveHtml extends Varcave {
         /* 
          * Manage usage of quick search
          */
-        if($this->getConfigElement('useSearchAutocomplete') ){
+        if($this->getConfigElement('useSearchAutocomplete') )
+		{
             $this->html .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
             $this->html .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
-            $cave = new varcaveCave();
-            $search = array(
-                array(
-                    "field"=>'indexid',
-                    'type' => '!=',
-                    'value' => '',
-                ),
-              );
-            $res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
-            //return search field is only name for autocomplete
-            $cave->setConfigSettings('returnSearchFields','name');
-
-            $this->html .= "\n" . '<script>var availableNames = ['."\n";
-            while($caveName = $res[0]->fetch(PDO::FETCH_ASSOC) ){
-                //print_r($caveName);
-                $this->html .= "'". addslashes ($caveName['name']) . '\','."\n";
-            }
-            $this->html .= '];' . "\n";
-            $this->html .= '</script>';
+			$this->html .= '<script>var active_autocomplete = true </script>';
         }
         else{
             //disabling usage of quick search
-            $this->html .= '<script>var availableNames = false </script>';
+            $this->html .= '<script>var active_autocomplete = false </script>';
         }
 		$this->html .= '<link rel="shortcut icon" href="img/favicon.png" />';
 		$this->html .= '</head>';
@@ -254,6 +237,7 @@ class VarcaveHtml extends Varcave {
 			$this->html .= '      <a href="/techsupport.php">' . L::menu_techInfo . '</a>';
 			$this->html .= '      <a href="/siteconfig.php">' . L::menu_siteConfig . '</a>';
 			$this->html .= '      <a href="/usermgmt.php">' . L::menu_userMgmt . '</a>';
+			$this->html .= '      <a href="/olconfigplugins.php?action=default">' . L::menu_olLayers . '</a>';
 			$this->html .= '      <a href="/ressources.php?admin=true">' . L::menu_ressourcesMgmt . '</a>';
             $this->html .= '      <a href="/usermgmt.php?#tab-acl">' . L::menu_aclMgmt . '</a>';
             $this->html .= '      <a href="/newsmgmt.php">' . L::menu_newsMgmt . '</a>';

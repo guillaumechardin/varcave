@@ -319,32 +319,20 @@ if (isset($_GET['guid']) )
                 $htmlstr .= '<script> var miniMapHidden=false;</script>';
                 
             }
+
+            /* load Openlayer JS API */
+            $logger->debug("using openlayers");
+            $htmlstr .= '<link rel="stylesheet" href="lib/openlayers/v6.14.1-dist/ol.css" type="text/css">';
+            $htmlstr .= '<script src="lib/openlayers/v6.14.1-dist/ol.js"></script>';
             
-            if( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'googlemaps')
-            {
-                $logger->debug("using googlemaps API");
-                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-                $htmlstr .= '<script src="./lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=googlemaps"></script>';
-                
-            }
-            elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'geoportail')
-            {
-                $logger->debug("using geoportail API");
-                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-                $htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=geoportail"></script>';	
-            }
-            elseif( isset($_SESSION['geo_api']) && $_SESSION['geo_api'] == 'openstreetmaps')
-            {
-                $logger->debug("using osm API");
-                //$htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '&callback=initMap"></script>';
-                $htmlstr .= '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $cave->getConfigElement('googlemaps_api_key') . '"></script>';
-                $htmlstr .= '<script src="lib/varcave/getjsgeoapi.php?caveguid='  . $caveData['guidv4'] . '&api=openstreetmaps"></script>';	
-            }
-            else
-            {
-                $logger->error("No geo api defined");
-                $htmlstr .= '<span style="color: #FF0000;style:italic">UNDEFINED GEOAPI</span><!-- no user map defined -->';
-            }
+            /*
+             * load geoportail API to have a quick layer selector 
+             * used when adding layer in openlayer.php with ol.control.LayerSwitcher
+            */
+            $htmlstr .= '<link rel="stylesheet" href="lib\gp-ol\3.2.11\GpPluginOpenLayers.css" type="text/css">';
+            $htmlstr .= '<script src="lib\gp-ol\3.2.11\GpPluginOpenLayers.js"></script>';
+            $htmlstr .= '<script src="lib/varcave/openlayers.php?caveguid='  . $caveData['guidv4'] . '"></script>';	
+    
             
             //load jqueryUI for Dialog
             $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
