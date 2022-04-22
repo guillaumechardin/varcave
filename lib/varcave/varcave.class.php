@@ -208,12 +208,12 @@ class Varcave {
 	}
     
 	/**
-     ************   NO MORE USED ******************
+    * Legacy function, deprecated, avoid use
 	* This method permit to register some var to return
 	* message to user.
 	* verbose logs for admin are handled by $this->logger().
 	**/
-    /* disabled 20/04/2022
+
 	public function setErrorMsg($context, $title, $msg){
 		$datetime = time();
 		$errCntr = $this->errorMsgCntr;
@@ -236,7 +236,6 @@ class Varcave {
 		}
 		return $this->errorMsg;
 	}
-	*/
     
 	/*
 	 * get ROOT_DIR

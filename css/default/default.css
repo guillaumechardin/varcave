@@ -1417,3 +1417,8 @@ div[id^="ressources-filelink"]
 	border-radius: 50%;
 	display: inline-block;
 }
+
+div [id^="olconfigplugins-plg"] {
+	padding: 0.3em;
+	margin: 0.7em;
+}

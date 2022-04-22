@@ -39,6 +39,18 @@ $htmlstr .= '<h2> Gestion open layers</h2>';
 switch($_GET['action'])
 {
     case 'registerPlugins':
+        $htmlstr .= <<<'EOF'
+        <script>    
+        $(document).ready(function()
+        {
+            $(".button").on('click',function(e)
+            {
+                $(this).css("background-color", "red");
+                console.log( $(this).attr('id') );
+            });
+        });
+        </script>'
+EOF;
         $htmlstr .= '<div id="olconfigplugins-modeswitch"><a href="/olconfigplugins.php?action=default">' . L::olconfigplugins_switch_to_config . '</a></div>';
         $pluginDir = 'lib/varcave/ol-plugins';
         $files = scandir( $pluginDir );
@@ -65,7 +77,10 @@ switch($_GET['action'])
                     if( $pluginRegistered !== false  )
                     {
                         $logger->warning('  Plugin already registered : ' . $pluginConfig[0]['pluginGUID'] );
-                        $htmlstr .= '<div>plugin ' . $pluginConfig[0]['pluginShortName'] .' already registered</div>';
+                        $htmlstr .= '<div id="olconfigplugins-plg-' . $pluginConfig[0]['pluginShortName'] . '">';
+                        $htmlstr .= '  <div>plugin ' . $pluginConfig[0]['pluginShortName'] .' already registered</div>';
+                        $htmlstr .= '  <div><button class="button" id="olconfigplugins-btn' . $pluginConfig[0]['pluginShortName'] .'" data-pluginName="' . $pluginConfig[0]['pluginShortName'] . '">delete</button></div>';
+                        $htmlstr .= '</div>';
                         continue;
                     }
                     $htmlstr .= '<div>plugin ' . $pluginConfig[0]['pluginShortName'] .' to register</div>';
@@ -96,6 +111,17 @@ switch($_GET['action'])
         $logger->info('  enable or disable plugin id:[' . $_GET['pid'] . ']');
         try
         {
+            //load datatables
+        $htmlstr .= <<<EOF
+            <script src="lib/varcave/olconfigplugins.js"></script>
+            <script src="lib/varcave/datatables-i18n.php"></script>
+            <script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>
+            <link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>
+            <link rel="stylesheet" type="text/css" href="lib/Datatables/Select-1.2.6/css/select.jqueryui.min.css"/>
+            <script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+            <script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>
+            <script type="text/javascript" src="lib/Datatables/Select-1.2.6/js/dataTables.select.min.js"></script>
+EOF;
             if ( !isset($_GET['pid'])  || empty($_GET['pid']) )
             {
                 $errorMsg = L::errors_ERROR . ':' . L::olconfigplugins_bad_plugin_id;
@@ -167,18 +193,6 @@ switch($_GET['action'])
         }
 
         $htmlstr .= '<h3> plugin state</h3>';;
-
-        //load datatables
-        $htmlstr .= <<<EOF
-        <script src="lib/varcave/olconfigplugins.js"></script>
-        <script src="lib/varcave/datatables-i18n.php"></script>
-        <script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>
-        <link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>
-        <link rel="stylesheet" type="text/css" href="lib/Datatables/Select-1.2.6/css/select.jqueryui.min.css"/>
-        <script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>
-        <script type="text/javascript" src="lib/Datatables/Select-1.2.6/js/dataTables.select.min.js"></script>
-EOF;
         $htmlstr .= '<script>';
         $htmlstr .= '	var pluginsData = ' .  json_encode($newarray,   JSON_PRETTY_PRINT) . ';';
         $htmlstr .= '   var col_mapname = "' . L::olconfigplugins_mapname . '";';
