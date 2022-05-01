@@ -264,41 +264,38 @@ class VarcavePdf extends TCPDF {
             $this->varcave->logger->debug('Add access sketch image from user file');
             $this->Image($sketchAccessArr['sketch_access'][0]['file_path'],$this->marginleft,$this->gety()+1,$maxImgWidth,$maxImgHeigth);
 		}
-        elseif( !empty( $cave->getConfigElement('use_googleapi_img_pdf') ) ) {
-            $this->varcave->logger->debug('Add access sketch image from gAPI');
-            
-            //build strings for url
-            $colors=array('dummy','green', 'blue', 'purple','red', 'white', 'yellow', 'gray', 'orange','black','brown');
-            $markers = '';
+        elseif( !empty( $cave->getConfigElement('use_geoapi_dyn_map_img_pdf') ) ) {
+            $this->varcave->logger->debug('Add access sketch image from geo API');
+
+			$caveMarkers = '';
             $i=1;
+			$max = count($coordsObj->features) ;
             foreach($coordsObj->features as $coords)
             {
-                $markers .= 'markers=color:' . $colors[$i] . '|label:'. $i . '|' . $coords->geometry->coordinates[1] . ',' . $coords->geometry->coordinates[0] . '&';
+                $caveMarkers .= $coords->geometry->coordinates[1] . ',' . $coords->geometry->coordinates[0] . ',ol-marker' . $i ;
                 
                 //harcoded limit of 5 markers on small map
-                if($i==5)
+                if($i == $max)
                 {
                     break;
                 }
+				$caveMarkers .= '|';
                 $i++;
             }
-            
-            $center = 'center=' . $coordCenter[1] . ',' . $coordCenter[0];
-            $zoom = 'zoom=' . $cave->getConfigElement('gApi_zoom_lvl');
-            $mapType = 'terrain';
-            $key = 'key=' . $cave->getConfigElement('googlemaps_api_key');
-            $size = 'size=370x265'; //   an approximate size of 97x70mm //previously 420*300
-            
-            $url = 'https://maps.googleapis.com/maps/api/staticmap?' . $center  . '&' . $zoom . '&' . $mapType . '&' . $key . '&' . $size . '&' . $markers .'&v=3';
-            //$url = 'https://staticmap.openstreetmap.de/staticmap.php?' . $center . '&zoom=14&size=370x265&maptype=topo';
-            //insert the google maps API image
-            $this->varcave->logger->debug( 'gmapApi static url : [' . $url . ']' );
+
+
+			$center = '&center=' . $coords->geometry->coordinates[1] . ',' . $coords->geometry->coordinates[0];
+			$zoom = '&zoom=' . $cave->getConfigElement('ol_zoom_map_lvl'); 
+			$size = '&size=370x265';
+			$maptype = '&maptype=' . $cave->getConfigElement('select_geoapi_src_img_pdf');
+			$marker = '&markers=' . $caveMarkers;
+			$url = $cave->getConfigElement('static_map_service_url') . '?' . $center  . $zoom . $size . $maptype . $marker;
+			$this->varcave->logger->debug( '  Static map url : [' . $url . ']' );
 			
-			$this->varcave->logger->debug('check if static google api cache img exists');
-			$imgStaticName = $this->cavedata['guidv4'] . '_gAPI.jpg';
-			$cachedir = $cave->getConfigElement('cache_dir');
-			$imgStaticFilePath = __DIR__ . '/../../' . $cachedir . '/' . $imgStaticName ;
-            
+			$imgStaticName = $this->cavedata['guidv4'] . '_static.jpg';
+			$imgStaticFilePath = __DIR__ . '/../../' . $cave->getConfigElement('cache_dir') . '/' . $imgStaticName ;
+			
+		
 			if( !file_exists( $imgStaticFilePath ))
 			{
 				$this->varcave->logger->debug('inexistent file cache [ '. $imgStaticFilePath . '], creating one from url:[' . $url . ']');
@@ -306,7 +303,7 @@ class VarcavePdf extends TCPDF {
 				if( ! $cave->createCacheFile('url',$url,$imgStaticFilePath) )
 				{
 					//fail with error message !
-					echo 'Fail to create google cache file</br>';
+					echo 'Fail to create static map cache file</br>';
 				}
 				
 			}
@@ -315,8 +312,10 @@ class VarcavePdf extends TCPDF {
                     echo 'Cache file empty. Unable to load pdf file<br/>' ;
                 }
 				$this->varcave->logger->debug('file cache exists');
+				$this->varcave->logger->debug('[' . $imgStaticFilePath. ']');
 			}
-			
+
+
             $this->Image($imgStaticFilePath,$this->marginleft,$this->gety() +1,$maxImgWidth);
         }
         else

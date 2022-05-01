@@ -994,7 +994,10 @@ class Varcave {
         {
             foreach($pluginConfig as $key => $config)
             {
-                $this->addConfigElement($config);
+                if( isset($config['configItem'] ) && !empty($config['configItem']) )
+                {
+                    $this->addConfigElement($config);
+                }
             }
             $this->logger->debug(print_r($config, true) );
             $q = 'INSERT INTO ' . $this->getTablePrefix() . 'layers_plugins (`indexid`, `guid`, `map_name`, `map_display_name`, `path`, `is_active`) ' .  

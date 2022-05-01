@@ -20,7 +20,8 @@
                         'pluginShortName' => $pluginShortName,
                         'pluginName' => $pluginName,
                     ),
-            );
+    );
+
 
     $varcave = new varcave();
     $key = $varcave->getConfigElement("TDF_LANDSCAPE_TDF_API_KEY");

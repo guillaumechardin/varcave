@@ -2,7 +2,7 @@
 	
 header('Content-Type: application/javascript');
 require_once(__DIR__ . '/varcaveCave.class.php');
-require_once(__DIR__ . '/varcaveHTML.class.php');
+require_once(__DIR__ . '/varcaveHtml.class.php');
 //require_once(__DIR__ . '/functions.php');
 //require_once(__DIR__ . '/../Klogger/logger.php');
 
@@ -135,7 +135,7 @@ if($nearCaves != false){
     {
         $JSdata .= 'new ol.Feature({';
         $JSdata .= '     name: ' . json_encode($coord['name']) .',';
-        $JSdata .= '     url: "http://localhost/display.php?guid=' . $coord['guidv4'] . '",';
+        $JSdata .= ' url: "' . $cave->getConfigElement('httpdomain') . '/display.php?guid=' . $coord['guidv4'] . '",';
         $JSdata .= '     geometry: new ol.geom.Point(';
         $JSdata .= '         ol.proj.fromLonLat(';
         $JSdata .= '             [' .  $coord['X'] . ',' .  $coord['Y'] . ']';

@@ -26,7 +26,7 @@
  */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 'off');
+ini_set('display_errors', 'on');
 
 Class staticMapLite
 {
@@ -40,7 +40,7 @@ Class staticMapLite
         'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
         'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
 		'opentopomap' => 'https://b.tile.opentopomap.org/{Z}/{X}/{Y}.png',
-		'outdoor' => 'https://tile.thunderforest.com/outdoors/{Z}/{X}/{Y}.png?apikey=c2a66b9acb4643c3906db60ab234a742',
+		'outdoor' => 'https://tile.thunderforest.com/outdoor/{Z}/{X}/{Y}.png?apikey=c2a66b9acb4643c3906db60ab234a742',        
     );
 
     protected $tileDefaultSrc = 'mapnik';
@@ -56,7 +56,7 @@ Class staticMapLite
             'offsetShadow' => false
         ),
         // openlayers std markers
-        'ol-marker' => array('regex' => '/^ol-marker(|-blue|-gold|-green)+$/',
+        'ol-marker' => array('regex' => '/^ol-marker(|-blue|-gold|-green|1|2|3|4|5)+$/',
             'extension' => '.png',
             'shadow' => '../marker_shadow.png',
             'offsetImage' => '-10,-25',
@@ -79,10 +79,10 @@ Class staticMapLite
     );
 
 
-    protected $useTileCache = true;
+    protected $useTileCache = false;
     protected $tileCacheBaseDir = './cache/tiles';
 
-    protected $useMapCache = true;
+    protected $useMapCache = false;
     protected $mapCacheBaseDir = './cache/maps';
     protected $mapCacheID = '';
     protected $mapCacheFile = '';
@@ -254,6 +254,7 @@ Class staticMapLite
             }
 
             // check required files or set default
+            $markerIndex = 0;
             if ($markerFilename == '' || !file_exists($this->markerBaseDir . '/' . $markerFilename)) {
                 $markerIndex++;
                 $markerFilename = 'lightblue' . $markerIndex . '.png';
@@ -293,7 +294,8 @@ Class staticMapLite
 
     public function tileUrlToFilename($url)
     {
-        return $this->tileCacheBaseDir . "/" . str_replace(array('http://'), '', $url);
+        $parsed_url = parse_url($url);
+        return $this->tileCacheBaseDir . "/" . $parsed_url['host'] . $parsed_url['path'];
     }
 
     public function checkTileCache($url)
@@ -341,7 +343,8 @@ Class staticMapLite
     public function fetchTile($url)
     {
         if ($this->useTileCache && ($cached = $this->checkTileCache($url))) return $cached;
-        $ch = curl_init();
+        //disable curl some website mishandle the request for png files
+        /*$ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0");
 		
@@ -353,6 +356,8 @@ Class staticMapLite
         curl_setopt($ch, CURLOPT_URL, $url);
         $tile = curl_exec($ch);
         curl_close($ch);
+        */
+        $tile = file_get_contents($url);
         if ($tile && $this->useTileCache) {
             $this->writeTileToCache($url, $tile);
         }
