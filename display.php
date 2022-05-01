@@ -6,7 +6,7 @@ require_once(__DIR__ . '/lib/varcave/functions.php');
 $htmlstr = '';
 
 $auth = new varcaveAuth();
-$cave = new varcaveCave;
+$cave = new varcaveCave();
 $logger = $cave->logger;
 
 
@@ -593,34 +593,24 @@ elseif( isset($_POST['nextPrev'] ) & $_POST['nextPrev'] != '' )
 	 */
 	try
 	{
-		$logger->debug('Fetching next/previous info in display.php');
+		$logger->debug(basename(__FILE__) . ' : Fetching next/previous info in display.php');
 		
 		if (strlen($_POST['nextPrev']) != 36)
 		{
 			throw new exception('Bad guid : ' . $_POST['nextPrev'] );
 		}
-		
-		$qIndexid = 'SELECT indexid FROM ' . $cave->getTablePrefix() . 'caves WHERE guidv4=' . $cave->PDO->quote($_POST['nextPrev']);	
-		$PDOStmt = $cave->PDO->query($qIndexid);
-		
-		$results = $PDOStmt->fetch(PDO::FETCH_ASSOC);
-		$indexid = $results['indexid'];
-
 		$arrMaxVal = count($_SESSION['nextPreviousCaveList']) - 1; //minus 1 to avoid array decay.
-		$currentArrPos = array_keys( $_SESSION['nextPreviousCaveList'],$indexid ) ;
+		$currentArrPos = array_keys( $_SESSION['nextPreviousCaveList'], $_POST['nextPrev'] ) ;
 		$currentArrPos = $currentArrPos[0] ;
 		
 		
-		$logger->debug('current cave guid : ' . $_POST['nextPrev'] );
-		$logger->debug('Find indexid for cave : ' . $qIndexid );
-		$logger->debug('Indexid is : ' . $indexid);
-		$logger->debug('Total index entries : ' . ($arrMaxVal + 1 ));
-		$logger->debug('found cave at position : ' . $currentArrPos );
-		$logger->debug('index list:' . print_r($_SESSION['nextPreviousCaveList'],true) );
+		$logger->debug('  current cave guid : ' . $_POST['nextPrev'] );
+		$logger->debug('  Total histo search index entries : ' . ($arrMaxVal + 1 ));
+		$logger->debug('  found cave at position : ' . $currentArrPos );
 		
 		if ($arrMaxVal == 0)
 		{
-			$logger->debug('no next/prev cave : only one cave');
+			$logger->debug('  no next/prev cave : only one cave');
 			$values = array( 0 => -1, 1 => -1);
 			$ret = json_encode($values,JSON_PRETTY_PRINT| JSON_FORCE_OBJECT) ;
 			jsonWrite( $ret );
@@ -642,18 +632,9 @@ elseif( isset($_POST['nextPrev'] ) & $_POST['nextPrev'] != '' )
 			$nextArrPos = $currentArrPos + 1;
 		}
 		
-	
-
-		$logger->debug('fetching cave info from DB...');
-		$qPrev = 'SELECT guidv4,name FROM ' .  $cave->getTablePrefix() . 'caves WHERE indexid=' . $_SESSION['nextPreviousCaveList'][$prevArrPos];
-		$qNext = 'SELECT guidv4,name FROM ' .  $cave->getTablePrefix() . 'caves WHERE indexid=' . $_SESSION['nextPreviousCaveList'][$nextArrPos];
-		
-		$PDOStmt = $cave->PDO->query($qPrev);
-		$prev = $PDOStmt->fetch(PDO::FETCH_ASSOC);
-		
-		$PDOStmt = $cave->PDO->query($qNext);
-		$next = $PDOStmt->fetch(PDO::FETCH_ASSOC);
-		$logger->debug('Success');
+        $prev = $cave->selectByGUID($_SESSION['nextPreviousCaveList'][$nextArrPos]);
+        $next = $cave->selectByGUID($_SESSION['nextPreviousCaveList'][$nextArrPos]);
+		$logger->debug('  Success');
 	}
 	catch (exception $e)
 	{

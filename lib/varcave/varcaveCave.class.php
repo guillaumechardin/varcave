@@ -339,7 +339,7 @@ class VarcaveCave extends Varcave
 		$reqSearch = 'SELECT ' . $colsReq .  ' FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ' . $groupby . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//prepare a list of cave for next/previs in display.php
-		$qSearchNextPrevious = 'SELECT  indexid FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ' . $groupby . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
+		$qSearchNextPrevious = 'SELECT  guidv4 FROM ' . $this->dbtableprefix .  'caves ' . $join . ' WHERE ' . $req . ' ' . $groupby . ' ORDER BY `' . $sortField . '` ' . $ascDesc . ' ' . $limit . ';';
 	
 		//no LIMIT to get total item founds
 		$reqCount = 'SELECT COUNT(*) FROM ' . $this->dbtableprefix  . 'caves ' . $join . ' WHERE ' . $req ;

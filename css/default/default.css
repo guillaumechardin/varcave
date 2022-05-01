@@ -342,6 +342,15 @@ home-caveChgtContent {
     margin : 0.5em;
 }
 
+#search-gpx-download
+{
+	font-size: 1em;
+	font-style: bold;
+	font-weight: bolder;
+	color: #454545;
+	background: #E6E6E6;
+}
+
 /* input in seach page*/
 input[name^="value_"] {
     margin: 0 0 0 0.5em;

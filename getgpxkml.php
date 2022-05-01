@@ -15,34 +15,60 @@ if ( !$auth->isSessionValid() ||  !$auth->isMember( $acl[0]) )
     $html->stopWithMessage(L::errors_ERROR, L::errors_pageAccessDenied, 401, 'Unauthorized ');
 }
 
-
 $cave = new varcaveCave();
+switch($_GET['action'])
+{
+    case 'cave':
+        if(isset($_GET['guid']) && !empty($_GET['guid']) ){
+            $cave->logger->debug('getgpxkml.php : start collecting data for file creation');
+            
+            //fetch and start download of gpx file
+            $GPXdata = $cave->createGPX($_GET['guid']);
+            $cave->logger->debug('GPXdata :' . print_r($GPXdata, true) );
+            $caveData = $cave->selectByGUID( $_GET['guid'], false, false );
+            if ($caveData == false)
+            {
+                $cave->logger->error('  No data or fail to get data');
+                header('HTTP/1.1 400' . L::errors_badArgs);
+                echo L::errors_ERROR . ' : ' . L::errors_badArgs;
+                exit();
+            }
 
-if(isset($_GET['guid']) && !empty($_GET['guid']) && isset($_GET['gpx']) ) {
-    $cave->logger->debug('getgpxkml.php : start collecting data for file creation');
+            header('Content-Type: application/gpx+xml');
+            //clean cav name susbtr is here to remove the 6last letter of dummy file extension and makes cleanStringFilename works
+            $filename = substr(cleanStringFilename($caveData['name'].'.dummy'), 0,-6);
+            header('Content-Disposition: attachment; filename=' . $filename . '.gpx');
+            echo $GPXdata ;
+            exit();
+        }
+        else 
+        {
+            header('HTTP/1.1 400' . L::errors_badArgs);
+            echo L::errors_ERROR . ' : ' . L::errors_badArgs;
+            exit();
+        }
+        break;
     
-    //fetch and start download of gpx file
-	$GPXdata = $cave->createGPX($_GET['guid']);
-    $cave->logger->debug('GPXdata :' . print_r($GPXdata, true) );
-    $caveData = $cave->selectByGUID( $_GET['guid'], false, false );
-	if ($caveData == false)
-	{
-        $cave->logger->error('No data or fail to get data');
+    //start downloading gpx data from a search
+    case 'searchgpxdownload':
+        $cave->logger->debug( __FILE__ . ' start collecting data for collection creation');
+        if( (isset($_GET['searchid']) && !empty($_GET['searchid'])) && isset($_SESSION['searchid']) && $_SESSION['searchid'] == $_GET['searchid'] )
+        {
+            echo ok;
+        }
+        else
+        {
+            $cave->logger->error('  collection build failed, bad args');
+            header('HTTP/1.1 400' . L::errors_badArgs);
+            echo L::errors_ERROR . ' : ' . L::errors_badArgs;
+            exit();  
+        }
+        break;
+    
+    default:
         header('HTTP/1.1 400' . L::errors_badArgs);
         echo L::errors_ERROR . ' : ' . L::errors_badArgs;
-		exit();
-	}
-
-	header('Content-Type: application/gpx+xml');
-	//clean cav name susbtr is here to remove the 6last letter of dummy file extension and makes cleanStringFilename works
-	$filename = substr(cleanStringFilename($caveData['name'].'.dummy'), 0,-6);
-	header('Content-Disposition: attachment; filename=' . $filename . '.gpx');
-	echo $GPXdata ;
-}
-else {
-    header('HTTP/1.1 400' . L::errors_badArgs);
-    echo L::errors_ERROR . ' : ' . L::errors_badArgs;
-    exit();
+        exit();
 }
 
 ?>

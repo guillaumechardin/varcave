@@ -60,8 +60,8 @@ if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	{
         $(".loadingSpiner").show();
 		var form_data = new FormData();
-		form_data.append("type_indexid", ">");
-		form_data.append("value_indexid", 0);
+		form_data.append("type_guidv4", ">");
+		form_data.append("value_guidv4", 0);
 		$.ajax({
 				type: "post",
 				url: "search.php",
@@ -153,6 +153,10 @@ elseif( !IsNullOrEmptyArray($_POST) )
         
         //save search terms for later use
         $_SESSION['lastSearch'] = $_POST;
+
+		//define a unique search id for later use on gpx download
+		$searchid = time();
+		$_SESSION['searchid'] = $searchid ; 
         
 		if (!$list)
 		{
@@ -259,6 +263,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	
 	
 	//send back to browser
+	$return['searchid'] = $searchid;
 	$json = json_encode($return,JSON_FORCE_OBJECT);
 	jsonWrite($json, $httpError, $httpErrorStr);
 	exit();
@@ -292,32 +297,6 @@ elseif( isset($_GET['autocomplete']) )
 		$logger->error('Autocomplete failed.' . $e->getmessage() );
 		$html->writeJson( array('false'), 400, 'Bad Request' );
 	}
-	
-
-	/*
-	$cave = new varcaveCave();
-            $search = array(
-                array(
-                    "field"=>'indexid',
-                    'type' => '!=',
-                    'value' => '',
-                ),
-              );
-            $res = $cave->search($search,$sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999, true, 'name');
-            //return search field is only name for autocomplete
-            $cave->setConfigSettings('returnSearchFields','name');
-
-            $this->html .= "\n" . '<script>var availableNames = ['."\n";
-            while($caveName = $res[0]->fetch(PDO::FETCH_ASSOC) ){
-                //print_r($caveName);
-                $this->html .= "'". addslashes ($caveName['name']) . '\','."\n";
-            }
-            $this->html .= '];' . "\n";
-            $this->html .= '</script>';
-		*/
-
-
-
 }
 else
 {
@@ -334,7 +313,7 @@ else
 	 * /
 	 
 	/*
-	 * get back from cave display.php when user click on "back to serach button"
+	 * get back from cave display.php when user click on "back to search button"
 	 * display the result table
 	 */
 	$resumeSearchJs  = false;
