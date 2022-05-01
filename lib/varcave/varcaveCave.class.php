@@ -218,9 +218,18 @@ class VarcaveCave extends Varcave
 	*	$return[2] => total depth sum for founded caves
 	*	$return[3] => total length sum for founded caves
 	*	$return[4] => list of col and their respective localized name
+    *   $return[5] => searchid a unique id for current search
 	* 
     */
-	function search($searchInput, $sortField = 'name', $ascDesc = 'ASC', $limitOffset = 0,$limitMax = 9999999, $noSaveSearch = false, $reqFields = false)
+	function search($searchInput,
+                    $sortField = 'name',
+                    $ascDesc = 'ASC',
+                    $limitOffset = 0,
+                    $limitMax = 9999999,
+                    $noSaveSearch = false,
+                    $reqFields = false,
+                    $updateSearchid = true
+    )
 	{
 		$this->logger->debug('Start search for cave');
 		$this->logger->debug('requested info :');
@@ -394,12 +403,24 @@ class VarcaveCave extends Varcave
 			$_SESSION['lastSearch'] = $searchInput ;
 			$_SESSION['nextPreviousCaveList'] = $nextPreviousList ;
 		}
+
+        //update session searchid to be used in getgpxkml.php and display.php
+        if($updateSearchid)
+        {
+		    $_SESSION['searchid'] = time() ;
+            $searchid = $_SESSION['searchid'];
+        }
+        else
+        {
+            $searchid = -1;
+        }
 		
 		$return =  array(
 				$reqPDOstmt, //list of caves
 				$caveCount[0], // number of item founds
 				$metrics['totalDepth'], //metrics for total depth
 				$metrics['totalLength'], //metrics for total length
+                $searchid, //corresponding searchid if available
 				);
 
 		return $return;
@@ -1124,87 +1145,94 @@ class VarcaveCave extends Varcave
 	 * 
 	 * Get coordinates and build GPX data from a designated cave.
 	 * 
-	 * @param int $caveid  cave indexid to obtain gpx file
-	 * @param bool $PointNameAsRef  use the cave reference or number 
-	 * as points names instead of cave name
-	 * @param bool $outputAsFile a flag to force a file download 
+	 * @param  mixed string|array if string expected a single cave guid, else a non associative array of guid 
+	 * @param bool $PointNameAsRef  use the cave name as prefix for marker if true. Else, cave reference is used
+	 * @param bool $outputAsFile a flag to force a file download DEPRECATED
 	 * @return string or false
 	 */
-	public function createGPX($caveid, $PointRefAsName = false, $outputAsFile = false)
+	public function createGPX($caveguid, $PointRefAsName = false, $outputAsFile = false)
 	{
-		
-
-
-		$this->logger->debug(__METHOD__ . ' : build gpx data from :' . $caveid);
-		$cavedata = $this->selectByGUID($caveid,false,false);
-		
-		$coords = json_decode($cavedata['json_coords']);
-		$this->logger->debug('json data :  '. print_r($coords, true) );
-		$coordsList = $coords->features;
-		
-		if(empty($coordsList) )
-		{
-			$this->logger->debug('no coords for cave');
-			return false;
-		}
-		
-		$gpx_file = new GpxFile();
-		
-		// Creating Metadata
-		$gpx_file->metadata 			= new  Metadata();
-		$description = L::cave . ' : ' . $cavedata['name'] . "\n";
-		$description .= $this->config['httpdomain'] . '/' . 	
-						$this->config['httpwebroot'] .  '/display.php?guid=' . $caveid;
-		$gpx_file->metadata->description =  $description;
-		
-		//add website link
-		$link 							= new Link();
-		$link->href 					= $this->config['httpdomain'] . '/' . 	
-						$this->config['httpwebroot'] .  '/display.php?guid=' . $caveid;
-		$gpx_file->metadata->links[] 	= $link;
-		
-		
-		$namePrefix = $cavedata['name'];
-		if($PointRefAsName)
-		{
-			$this->logger->debug('using cave ref as point name');
-			$namePrefix = $cavedata['caveRef'];
-		}
-		
-		// Creating points
-		
-        if( count($coordsList) > 1)
+        $this->logger->debug(__METHOD__ . ': start gpx process creation');
+        $gpx_file = new GpxFile();
+        if( !is_array($caveguid) ) //id caveguid is string => `convert` to array
         {
-            $i=0;
-            foreach($coordsList as $key => $value)
+                $caveguid = array($caveguid);
+                $this->logger->debug('  single cave given');
+        }
+        else
+        {
+            $this->logger->debug('  array given : ' . count($caveguid) . ' elements');
+        }
+        foreach ($caveguid as $key => $guid)
+        {
+            $cavedata = $this->selectByGUID($guid,false,false);
+    
+            $coords = json_decode($cavedata['json_coords']);
+            $this->logger->debug('  json data :  '. print_r($coords, true) );
+            $coordsList = $coords->features;
+            if(empty($coordsList) )
             {
-                $long = $value->geometry->coordinates[0];
-                $lat = $value->geometry->coordinates[1];
-                $elev = $value->geometry->coordinates[2];
+                $this->logger->debug('  no coords for cave');
+                continue;
+            }
+            
+            // Creating Metadata
+            $gpx_file->metadata 			= new  Metadata();
+            $description = L::cave . ' : ' . $cavedata['name'] . "\n";
+            $description .= $this->config['httpdomain'] . '/' . 	
+                            $this->config['httpwebroot'] .  '/display.php?guid=' . $cavedata['guidv4'];
+            $gpx_file->metadata->description =  $description;
+            
+            //add website link
+            $link 							= new Link();
+            $link->href 					= $this->config['httpdomain'] . '/' . 	
+                            $this->config['httpwebroot'] .  '/display.php?guid=' . $cavedata['guidv4'];
+            $gpx_file->metadata->links[] 	= $link;
+            
+            
+            $namePrefix = $cavedata['name'];
+            
+            if($PointRefAsName)
+            {
+                $this->logger->debug('  using cave ref as point name');
+                $namePrefix = $cavedata['caveRef'];
+            }
+            
+            // Creating points
+            
+            if( count($coordsList) > 1)
+            {
+                $i=0;
+                foreach($coordsList as $key => $value)
+                {
+                    $long = $value->geometry->coordinates[0];
+                    $lat = $value->geometry->coordinates[1];
+                    $elev = $value->geometry->coordinates[2];
+                    
+                    $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
+                    $point                 = new Point(Point::WAYPOINT);
+                    $point->name           = $namePrefix . '_' . $i ;
+                    $point->latitude       = $lat;
+                    $point->longitude      = $long;
+                    $point->elevation      = $elev;
+                    $gpx_file->waypoints[] = $point;
+                    
+                    $i++;
+                }
+            }else {
+                $long = $coordsList[0]->geometry->coordinates[0];
+                $lat = $coordsList[0]->geometry->coordinates[1];
+                $elev = $coordsList[0]->geometry->coordinates[2];
                 
                 $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
-                $point->name           = $namePrefix . '_' . $i ;
+                $point->name           = $namePrefix;
                 $point->latitude       = $lat;
                 $point->longitude      = $long;
                 $point->elevation      = $elev;
                 $gpx_file->waypoints[] = $point;
                 
-                $i++;
             }
-        }else {
-            $long = $coordsList[0]->geometry->coordinates[0];
-            $lat = $coordsList[0]->geometry->coordinates[1];
-            $elev = $coordsList[0]->geometry->coordinates[2];
-            
-            $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
-            $point                 = new Point(Point::WAYPOINT);
-            $point->name           = $namePrefix;
-            $point->latitude       = $lat;
-            $point->longitude      = $long;
-            $point->elevation      = $elev;
-            $gpx_file->waypoints[] = $point;
-            
         }
 		
 		$this->logger->debug('gpx content : ' . print_r($gpx_file, true) );

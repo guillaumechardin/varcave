@@ -154,10 +154,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
         //save search terms for later use
         $_SESSION['lastSearch'] = $_POST;
 
-		//define a unique search id for later use on gpx download
-		$searchid = time();
-		$_SESSION['searchid'] = $searchid ; 
-        
+		//define a unique search id for later use on gpx download        
 		if (!$list)
 		{
 			throw new Exception ("Empty search");
@@ -263,7 +260,7 @@ elseif( !IsNullOrEmptyArray($_POST) )
 	
 	
 	//send back to browser
-	$return['searchid'] = $searchid;
+	$return['searchid'] = $_SESSION['searchid'];
 	$json = json_encode($return,JSON_FORCE_OBJECT);
 	jsonWrite($json, $httpError, $httpErrorStr);
 	exit();
