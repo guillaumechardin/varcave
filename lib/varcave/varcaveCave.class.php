@@ -1178,20 +1178,16 @@ class VarcaveCave extends Varcave
             
             // Creating Metadata
             $gpx_file->metadata 			= new  Metadata();
-            $description = L::cave . ' : ' . $cavedata['name'] . "\n";
-            $description .= $this->config['httpdomain'] . '/' . 	
-                            $this->config['httpwebroot'] .  '/display.php?guid=' . $cavedata['guidv4'];
+            $description = $this->config['httpdomain'] . '/' . $this->config['httpwebroot'];
             $gpx_file->metadata->description =  $description;
             
             //add website link
             $link 							= new Link();
-            $link->href 					= $this->config['httpdomain'] . '/' . 	
-                            $this->config['httpwebroot'] .  '/display.php?guid=' . $cavedata['guidv4'];
+            $link->href 					= $this->config['httpdomain'] . '/' . $this->config['httpwebroot'];
             $gpx_file->metadata->links[] 	= $link;
             
             
             $namePrefix = $cavedata['name'];
-            
             if($PointRefAsName)
             {
                 $this->logger->debug('  using cave ref as point name');
@@ -1199,39 +1195,41 @@ class VarcaveCave extends Varcave
             }
             
             // Creating points
-            
+            $multipleCaveCoord = false;
+            $i=1;
             if( count($coordsList) > 1)
             {
-                $i=0;
-                foreach($coordsList as $key => $value)
-                {
-                    $long = $value->geometry->coordinates[0];
-                    $lat = $value->geometry->coordinates[1];
-                    $elev = $value->geometry->coordinates[2];
-                    
-                    $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
-                    $point                 = new Point(Point::WAYPOINT);
-                    $point->name           = $namePrefix . '_' . $i ;
-                    $point->latitude       = $lat;
-                    $point->longitude      = $long;
-                    $point->elevation      = $elev;
-                    $gpx_file->waypoints[] = $point;
-                    
-                    $i++;
-                }
-            }else {
-                $long = $coordsList[0]->geometry->coordinates[0];
-                $lat = $coordsList[0]->geometry->coordinates[1];
-                $elev = $coordsList[0]->geometry->coordinates[2];
+                $multipleCaveCoord = true;
+            }
+
+            foreach($coordsList as $key => $value)
+            {
+                $long = $value->geometry->coordinates[0];
+                $lat = $value->geometry->coordinates[1];
+                $elev = $value->geometry->coordinates[2];
                 
-                $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
+                $this->logger->debug('  add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
-                $point->name           = $namePrefix;
+
+                $point->name           = $namePrefix  ;
+                if($multipleCaveCoord)
+                {
+                    //add suffix to name if multiple coords
+                    $point->name .= '_' . $i ;
+                }
                 $point->latitude       = $lat;
                 $point->longitude      = $long;
                 $point->elevation      = $elev;
+
+                $url = $this->config['httpdomain'] . '/' . $this->config['httpwebroot'] . '/display.php?guid=' . $cavedata['guidv4'];
+                
+                $point->description = $url;
+                $link 		 = new Link();
+                $link->href  = $url ;
+                $point->links[] = $link;
                 $gpx_file->waypoints[] = $point;
                 
+                $i++;
             }
         }
 		
