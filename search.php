@@ -35,10 +35,23 @@ if( isset($_SESSION['datatablesMaxItems']) ){
 }
 else{
     $htmlstr .= '  var maxSearchResults = ' . $html->getconfigelement('maxSearchResults_default') . ';';
+	
 }
 
+//load JS information to display button download GPX
+$acl = $auth->getacl('52f41225-92c9-4926-a24f-d62f1e824f8d');
+if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) )
+{
+	$htmlstr .= '  var downloadGPXbutton =  \'<button id="search-gpx-download" data-searchid="{json.searchid}">' . L::display_gpxDownload . '</button></th>\';';
+}
+else
+{
+	$htmlstr .= '  var downloadGPXbutton = "" ;';
+	//$htmlstr .= '';
 
+}
 $htmlstr .= '</script>';
+
 
 if(!IsNullOrEmptyArray($_GET) && isset($_GET['search']) ) {
 	/*

@@ -56,16 +56,7 @@ switch($_GET['action'])
         if( (isset($_GET['searchid']) && !empty($_GET['searchid'])) && isset($_SESSION['searchid']) && $_SESSION['searchid'] == $_GET['searchid'] )
         {
             $GPXdata = $cave->createGPX($_SESSION['nextPreviousCaveList']);
-            //$cave->logger->debug('  GPXdata :' . print_r($GPXdata, true) );
-            /*$caveData = $cave->selectByGUID( $_GET['guid'], false, false );
-            if ($caveData == false)
-            {
-                $cave->logger->error('  No data or fail to get data');
-                header('HTTP/1.1 400' . L::errors_badArgs);
-                echo L::errors_ERROR . ' : ' . L::errors_badArgs;
-                exit();
-            }*/
-
+            
             header('Content-Type: application/gpx+xml');
             $date = new DateTime('now');
             $timef =  $date->format('Y-m-d_H-i-s');
