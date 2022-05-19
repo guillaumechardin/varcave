@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/lib/varcave/varcaveHtml.class.php');
 require_once(__DIR__ . '/lib/varcave/varcaveCave.class.php');
+require_once(__DIR__ . '/lib/varcave/varcaveUsers.class.php');
 require_once(__DIR__ . '/lib/varcave/functions.php');
 
 $htmlstr = '';
@@ -59,7 +60,6 @@ if (isset($_GET['guid']) )
 	{
 		$cave->stats_exists($caveData['indexid']);
 		$cave->updateStats($caveData['indexid']);
-		
 	}
 	
     $acl = $auth->getacl('91562650-629a-4461-aa38-e9e5c7cbd432');
@@ -150,7 +150,8 @@ if (isset($_GET['guid']) )
                         </div>';
                         
         }
-                        
+        
+        //Send email for errors
         $htmlstr .= '   <div class="fa-3x display-send-msg" data-guid="' . $caveData['guidv4'] . '">
 		                  <span class="fas fa-envelope" title="' . L::display_updatecave . '"></span>
                           <script>
@@ -174,7 +175,34 @@ if (isset($_GET['guid']) )
                           </script>
                           <script src="lib/varcave/contact.js"></script>
                         </div>';
-	
+        
+        //user add favorites, only for auth users, not anon
+        if( $auth->isSessionValid() && isset($_SESSION['isauth']) && $_SESSION['isauth'] == true )
+        {
+            if( isset($_SESSION['favorites_caves']) )
+            {
+                $users = new varcaveUsers();
+                if ( $users->isCaveFavorite( $caveData['guidv4'] ) )
+                {
+                    $iconClass = 'fas'; //solid
+                }
+                else
+                {
+                    $iconClass = 'far'; //regular
+                }
+                
+            }
+            else
+            {
+                $iconClass = 'far'; //regular
+            }
+            $htmlstr .= '<div class="fa-3x display-set-favorite" data-guid="' . $caveData['guidv4'] . '">';
+            $htmlstr .= '  <span  title="' . L::display_add_favorites . '">';
+            $htmlstr .= '    <i class="' . $iconClass . ' fa-star"></i>';
+            $htmlstr .= '  </span>';
+            $htmlstr .= '</div>';
+        }
+
 	$htmlstr .= '</div>'; // end displayTitleWrapper
 	
 	

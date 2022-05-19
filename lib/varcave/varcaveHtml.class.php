@@ -259,6 +259,7 @@ class VarcaveHtml extends Varcave {
 			$accountMenu .= '</button>';
 			$accountMenu .= '<div class="dropdown-content">';
 			$accountMenu .= '      <a href="/myaccount.php">' . L::menu_myaccount . '</a>';
+			$accountMenu .= '      <a href="/myaccount.php#myaccount_favorites">' . L::menu_myaccount_saved_caves . '</a>';
 			$accountMenu .= '      <a href="/login.php?logout=1">' . L::menu_logout . '</a>';
 			$accountMenu .= '</div>';
 			

@@ -1656,6 +1656,6 @@ class VarcaveCave extends Varcave
             $this->logger->debug('query : '. $q);
             return false;
         }
-     }
+    }
 }    
 ?>

@@ -96,19 +96,24 @@ class VarcaveAuth extends Varcave
                 }*/
 			}
 			
+
 			//add `users` default group  to current connected user.
             $groupsMembership = explode ( ',' , $_SESSION['groups']);
+            $users = new VarcaveUsers();
             if( !in_array('users' , $groupsMembership) )
             {
                 //update $_SESSION['group']
                 $_SESSION['groups'] .= ',users';
                 
                 //update db
-                $users = new VarcaveUsers();
                 $users->setUserProp( $_SESSION['uid'], 'groups', $_SESSION['groups'] );
             }
             
 			$this->logger->debug('User $_SESSION info :' . print_r($_SESSION,true));
+
+            //populate  info on login  and force update of $SESSION['favorites_caves'] from database
+            $users->getFavoritesCaves($_SESSION['uid']);
+
 			return true;
 		}
 		catch (Exception $e)

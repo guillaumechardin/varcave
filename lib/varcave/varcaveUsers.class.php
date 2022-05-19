@@ -688,4 +688,121 @@ class VarcaveUsers extends Varcave
         }
          
      }
+
+	 /*
+     * this add/remove specified cave guid to a list of favorites in database
+     * and update session var
+     * @param $guid a guid to toggle on/off the list
+	 * @param userid : target user id used to check if cave as to be bookmarked
+	 * @param updateSession  set to false if you do not force $_session[favoritescave] updated
+     * @return true or array on sucess false if it fails
+     */
+    public function favoritesCaveToggle($guid, $userid, $updateSession = true)
+    {
+        $this->logger->debug(__METHOD__ . ' : update database favorites for userid:' . $userid . ' GUID: ' . substr($guid, 0, 7));
+        
+        try
+        {
+            if( strlen($guid) != 36 )
+            {
+                throw new exception('  ERROR : bad guid');
+            }
+            //check if user already have guid saved, if so we remove if from db else add
+            if( in_array($guid, $_SESSION['favorites_caves']) )
+            {
+                //delete entry
+				$this->logger->debug('  cave will be toggled off');
+                $q = 'DELETE FROM '  . $this->dbtableprefix . 'users_favorites WHERE cave_guid=' . $this->PDO->quote($guid) . ' AND userid=' . $this->PDO->quote($userid); 
+            }
+            else
+            {
+                //add entry
+				$this->logger->debug('  cave will be toggled on');
+                $q = 'INSERT INTO ' . $this->dbtableprefix . 'users_favorites (`indexid`, `addDate`, `cave_guid`, `userid`) ' .  
+                '  VALUES (NULL, ' . time() . ',' .  $this->PDO->quote($guid) . ',' . $this->PDO->quote($userid) . ')';
+            }
+
+            $res = $this->PDO->query($q);
+
+            if($updateSession)
+            {
+                return $this->getFavoritesCaves($userid);
+            }
+
+            return true;
+        }
+        catch(excption $e)
+        {
+            $this->logger->error('  Fail to update database:' . $e->getmessage()) ;
+            $this->logger->debug(  'full query:' . $q);
+            return false;
+
+        }
+    }
+ 
+    /*
+     * fetch a list of saved caves in database
+     * and populate $_SESSION[favorites_caves] accordingly
+     * @param $userid = id of target user
+     * @return array on success false on failure. Note that array can be empty.
+     */
+    public function getFavoritesCaves($userid)
+    {
+        $this->logger->debug(__METHOD__ . ': fetch user saved caves');
+        try
+        {
+            $q = 'SELECT * FROM ' .  $this->dbtableprefix . 'users_favorites WHERE `userid`=' .  $this->PDO->quote($userid);
+            $pdostmt = $this->PDO->query($q);
+            $data = $pdostmt->fetchall(PDO::FETCH_ASSOC);
+            $return = array();
+            foreach($data as $key => $info)
+            {
+                $return[] = $info['cave_guid'];
+            }
+            $_SESSION['favorites_caves'] = $return;
+            $this->logger->debug('  Computed user favorites caves : ' . print_r($_SESSION['favorites_caves'],true) );
+            return $return;
+        }
+        catch (exception $e)
+        {
+            $this->logger->error('  Fail to fetch database:' . $e->getmessage()) ;
+            $this->logger->debug('  full query:' . $q);
+            return false;
+        }
+    }
+
+	/*
+     * Check if cave is save in current session
+     * @param $userid = id of target user
+     * @return true on success, or false
+     */
+    public function isCaveFavorite($guid)
+	{
+		$this->logger->debug(__METHOD__ . ': check if cave ' . substr($guid, 0, 7) . 'is bookmarked');
+
+		//update sessionvar
+		try
+		{
+			if( strlen($guid) != 36 )
+            {
+                throw new exception('  ERROR : bad guid : ' . $guid);
+            }
+
+			$this->getFavoritesCaves($_SESSION['uid']);
+			if(in_array($guid, $_SESSION['favorites_caves']))
+			{
+				$this->logger->debug('  cave IS favorite');
+				return true;
+			}
+			$this->logger->debug('  cave IS NOT favorite');
+			return false;
+		}
+		catch(Exception $e)
+		{
+			$this->logger->error('  check failed' . $e->getmessage() );
+			return false;
+		}
+		
+
+	}
 }

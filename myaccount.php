@@ -129,21 +129,57 @@ elseif ( !empty($_POST) && isset($_POST['update'])   && isset($_POST['value']) )
 	exit();
 
 }
+elseif( isset($_POST['action']) )
+{
+	$html = new VarcaveHtml(L::pagename_myaccount);
+	switch($_POST['action'])
+	{
+		case 'toggleCaveToFav':
+			$users->logger->debug(__FILE__ . ' : toggle cave to fav');
+			$users->favoritesCaveToggle($_POST['guid'], $_SESSION['uid']);
+			$state = 'unsaved';
+			
+			//check if cave is currently saved
+			$savedState = $users->isCaveFavorite( $_POST['guid'] );
+			if ( $savedState) 
+			{
+				$state = 'saved';
+			}
+			$html->writeJson( array('title'=> 'ok','msg'=> 'success', 'state'=> $state) );
+			break;
+		
+		default:
+			$html->writeJson( array('title'=> L::errors_ERROR,'msg'=> L::errors_badArgs),  400, 'Bad Request');
+			//end of script
+			break;
+
+	}
+}
 else
 {
-
-	$htmlstr = '';
+	/*
+	 * TABS definitions
+	 */
 	$html = new VarcaveHtml(L::pagename_myaccount);
-	$htmlstr .= '<div id="jqUiDialog" ><div id="jqUiDialogContent">  </div></div>';	
-	$htmlstr .= '<h1 class="userWelcome">';
-	$htmlstr .= '    Bonjour ' . $_SESSION['firstname'] . ' ' . strtoupper($_SESSION['lastname']);
-	$htmlstr .= '</h1> ';
-	$htmlstr .=  '<h2><i class="fas fa-info-circle"></i> ' . L::myaccount_userSessionInfo .' </h2>';
-	$htmlstr .= '<p><ul>';
-	$htmlstr .= '<li>' . L::myaccount_yourSessionExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['sessionend']) . '. </li>';
-	$htmlstr .= '<li>' . L::myaccount_yourAccountExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['expire']) .'. </li>';
-	$htmlstr .= '<li>' . L::myaccount_groupList . ' : ' . $_SESSION['groups'] . '</li>';
-	$htmlstr .= '</ul></p>';     
+	$htmlstr = '<div id="myaccount_tabs">';
+	$htmlstr .= '  <div id="jqUiDialog" ><div id="jqUiDialogContent">  </div></div>';	
+	$htmlstr .= '  <ul>';
+    $htmlstr .= '    <li><a href="#myaccount_account_info">'. L::myaccount_myaccount . '</a></li>';
+    $htmlstr .= '    <li><a href="#myaccount_preferences">' . L::myaccount_preferences . '</a></li>';
+    $htmlstr .= '    <li><a href="#myaccount_favorites">' . L::myaccount_favorites_caves . '</a></li>';
+	$htmlstr .= '  </ul>';
+	//end tabs def
+
+	$htmlstr .= '<div id="myaccount_account_info">';
+	$htmlstr .= '  <h1 class="userWelcome">';
+	$htmlstr .=      L::myaccount_hello . ' ' . $_SESSION['firstname'] . ' ' . strtoupper($_SESSION['lastname']);
+	$htmlstr .= '  </h1> ';
+	$htmlstr .= '  <h2>  <i class="fas fa-info-circle"></i> ' . L::myaccount_userSessionInfo .' </h2>';
+	$htmlstr .= '  <p><ul>';
+	$htmlstr .= '    <li>' . L::myaccount_yourSessionExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['sessionend']) . '. </li>';
+	$htmlstr .= '    <li>' . L::myaccount_yourAccountExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['expire']) .'. </li>';
+	$htmlstr .= '    <li>' . L::myaccount_groupList . ' : ' . $_SESSION['groups'] . '</li>';
+	$htmlstr .= '  </ul></p>';     
 	
     /*
 	 * CHANGE PERSONAL INFO
@@ -165,28 +201,27 @@ else
 	/*
 	 * CHANGE PASSWORD
 	 */
-	$htmlstr .=  '<h2>' . '<i class="fas fa-key"></i> ' . L::myaccount_changePwd . '</h2>';
-	$htmlstr .= '<p>';
-	$htmlstr .= '<form id="chgtPasswd">';
-    $htmlstr .= '  <fieldset>';
-    $htmlstr .= '    <legend>' . L::usermgmt_identification  . '</legend>';
-	$htmlstr .=	'      <input type="password"   placeholder="' . L::myaccount_enterPwdHint .'" id="pass1" size="30" maxlength="25" autocomplete="off" value="" />';
+	$htmlstr .= '  <h2>' . '<i class="fas fa-key"></i> ' . L::myaccount_changePwd . '</h2>';
+	$htmlstr .= '  <p>';
+	$htmlstr .= '  <form id="chgtPasswd">';
+    $htmlstr .= '    <fieldset>';
+    $htmlstr .= '      <legend>' . L::usermgmt_identification  . '</legend>';
+	$htmlstr .=	'        <input type="password"   placeholder="' . L::myaccount_enterPwdHint .'" id="pass1" size="30" maxlength="25" autocomplete="off" value="" />';
 	$htmlstr .= ' ';
-	$htmlstr .= '      <input type="password" placeholder="' . L::myaccount_confirmPwdHint .'" id="pass2" size="30" maxlength="25" autoc5omplete="off" value=""/>';
-	$htmlstr .= '      <p><input type="submit" value="OK"></p>';
-    $htmlstr .= '  </fieldset>';
-	$htmlstr .= '</form>';
-	$htmlstr .= '</p>';     
-	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
-	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
-
+	$htmlstr .= '        <input type="password" placeholder="' . L::myaccount_confirmPwdHint .'" id="pass2" size="30" maxlength="25" autoc5omplete="off" value=""/>';
+	$htmlstr .= '        <p><input type="submit" value="OK"></p>';
+    $htmlstr .= '    </fieldset>';
+	$htmlstr .= '  </form>';
+	$htmlstr .= '  </p>';     
+	$htmlstr .= '</div>'; // end account_info
  	
     
 	/*
+	 * PREFERENCES TABS
 	 * CHANGE THEME
 	 */
-	$htmlstr .=  '<h2><i class="fas fa-palette"></i> ' . L::myaccount_customInterfaces .' </h2>';
+	$htmlstr .= '<div id="myaccount_preferences">';
+	$htmlstr .= '  <h2><i class="fas fa-palette"></i> ' . L::myaccount_customInterfaces .' </h2>';
 	
 	/*
 	 * get any folder list from "css/custom" dir
@@ -284,6 +319,52 @@ else
         $htmlstr .= '  <option value="' . $value . '" ' . $selected . '>' .  $value .'</option>';
     }
     $htmlstr .= '</select>';
+	$htmlstr .= '</div>'; // end favorites
+
+	/*
+	 * FAVORITES CAVE TAB
+	 */
+	$htmlstr .= '<div id="myaccount_favorites">';
+	$htmlstr .= '<h2>' . L::myaccount_my_fav_caves . '</h2>';
+	if( isset($_SESSION['favorites_caves']) && !empty($_SESSION['favorites_caves']) )
+	{
+		$caveObj = new varcaveCave();
+		$results = array();
+		foreach($_SESSION['favorites_caves'] as $key => $cave )
+		{
+			$thiscave = $caveObj->selectByGuid($cave);
+			$link = '<a href="display.php?guid='. $cave . '">' . $thiscave['name'] . '</a>';
+			$results[]= array($key,$link,'<span data-guid="' . $cave . '" class="myaccount-del-fav"><i class="fas fa-trash delete-favorite"></i></span>');  //<i  class="fas fa-edit">
+			
+		}
+		$htmlstr .= '<table id="myaccount_table_fav_caves" class="display" width="100%"></table>';
+		$htmlstr .= '<script> var favCaveData = ' . json_encode($results) . '</script>';
+	}
+	else
+	{
+		$htmlstr .= '<p>' . L::myaccount_no_fav_caves . '</p>';
+		$htmlstr .= '<script> var favCaveData = [[0]];  </script>';
+	}
+
+	$htmlstr .= '</div>'; //end favorites caves
+
+	$htmlstr .= '</div>'; // myaccount_tabs
+	$htmlstr .= '</div>'; // end account_info
+
+	// load jquery/JS libs
+	//$htmlstr .= '<script src="lib/varcave/datatables-i18n.php"></script>';
+	//$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
+	$htmlstr .= '<link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>';
+	$htmlstr .= '<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>';
+	$htmlstr .= '<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>';
+	
+	//sha256 for passwords
+	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
+	//jquery and jquery ui
+	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
+	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
+	//varcave
+	$htmlstr .= '<script src="lib/varcave/myaccount.js"></script>';
 }
 
 $html->insert($htmlstr,true);

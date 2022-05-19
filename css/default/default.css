@@ -1141,6 +1141,7 @@ div[id^="ressources-filelink"]
 .display-pdf-dwnld:hover,
 .display-files-dwnld:hover,
 .display-send-msg:hover,
+.display-set-favorite:hover,
 #display-adminBar > a:hover
 {
 	cursor:pointer;
@@ -1150,6 +1151,7 @@ div[id^="ressources-filelink"]
 .display-gpx-dwnld,
 .display-pdf-dwnld,
 .display-files-dwnld,
+.display-set-favorite,
 .display-send-msg,
 #display-adminBar > a
 {
@@ -1378,6 +1380,28 @@ div[id^="ressources-filelink"]
     margin: 0.7em;
     font-size: 1em;
     padding: 0.2em;
+}
+
+#account_info
+{
+	padding : 0 0 0 1.5em;
+}
+
+#myaccount_table_fav_caves_wrapper
+{
+	max-width: 45%;
+}
+
+.myaccount-del-fav
+{
+	/*margin:0.3em 0 0.3em 0.5em;*/
+	padding: 0.3em;
+	border-radius:0.2em;
+}
+
+.myaccount-del-fav:hover
+{
+	background-color: grey;
 }
 
 #myaccount_personal_data > fieldset > input,
