@@ -127,6 +127,8 @@ $JSdata .= '];';//end of POI
 $coordOrigin =  $coordList[0]->geometry->coordinates[0] . ',' . $coordList[0]->geometry->coordinates[1];
 $nearCaves = $cave->findNearCaves($coordOrigin, $cave->getConfigElement('near_caves_max_radius'), $cave->getConfigElement('near_caves_max_number'), $caveData['indexid'], false );
 
+//echo '' var_dump($nearCaves);
+
 if($nearCaves != false){
     $nearPoiNbr = 0;
     $JSdata .= 'var nearCavesPoi = [';
@@ -175,9 +177,15 @@ if($nearCaves != false){
 EOT;
         $nearPoiNbr++;
     }
+
 $JSdata .= '];';//end of nearCavesPoi
 
 
+
+}
+else{
+    //create an issue with cave poi not show if not set to false
+    $JSdata .= 'var nearCavesPoi = false;';
 
 }
 
