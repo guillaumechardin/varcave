@@ -77,18 +77,20 @@ class VarcaveUsers extends Varcave
             
             
 			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . 'users(' .
-                            'username, groups, password, expire, created,' .
+                            'username, groups, password, expire, bad_login_ctr, created,' .
                             'lastUpdate, firstname, lastname, theme,'.
                             'geo_api, last_php_session, datatablesMaxItems,'.
                             'pref_coord_system, disabled, emailaddr, streetNum,'.
                             'address1,address2,postCode, town,country,licenceNumber,'.
-                            'phoneNum,cavingGroup,notes,uiLanguage) '. 
+                            'phoneNum,cavingGroup,notes,uiLanguage,
+							reset_pwd_id, reset_pwd_max_age ) '. 
 									
                         'VALUES (' . 
                             $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
                             $this->PDO->quote($userSettings['groups']) . ','.
                             $this->PDO->quote($userSettings['password']) . ','.
                             $this->PDO->quote($userSettings['expire']) . ','. 
+							'0,' . //bad_login_ctr
                             time() . ','. //creation date
                             time() . ',' . //last update
                             $this->PDO->quote($userSettings['firstname']) . ','.
@@ -110,7 +112,9 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote($userSettings['phoneNum']) . ','.
                             $this->PDO->quote($userSettings['cavingGroup']) . ','.
                             $this->PDO->quote($userSettings['notes']) . ','.
-                            $this->PDO->quote($userSettings['uiLanguage']) .
+                            $this->PDO->quote($userSettings['uiLanguage']) . ',' .
+							'\'\',' . //reset_pwd_id
+							'0'  . //reset_pwd_max_age
                     ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qNewUser);
@@ -489,7 +493,7 @@ class VarcaveUsers extends Varcave
 			$this->PDO->query($q);
 			$this->PDO->commit();
 			
-			//force update of session var to prevent security issue
+			//force update of other data session var to prevent security issue 
 			switch($item)
 			{
 				case 'groups':
@@ -503,6 +507,15 @@ class VarcaveUsers extends Varcave
 					}
 					
 				break ;
+				case 'disabled':
+					//User is enabled, clear bad logon counter
+					if($value == 0)
+					{
+						$this->logger->info('  user enabled, reset bad login counter');
+						$q = 'UPDATE ' . $this->getTablePrefix() . 'users SET `bad_login_ctr` = 0 WHERE `indexid` = ' . $this->PDO->quote( $uid );
+						$this->PDO->query($q);
+					}
+					break;
 				
 			}
 			
@@ -672,7 +685,13 @@ class VarcaveUsers extends Varcave
                 if ( ! $this->getUserDetails($user['uid']) || ! $this->changeUserPwd($sha256, $user['uid']) ){
                     throw new Exception(' failed');
                 }
-                //delete link from db
+				
+				//enable user
+                $q = 'UPDATE ' . $this->getTablePrefix() . 'users ' .
+				     ' SET disabled = 0, bad_login_ctr = 0 WHERE indexid = ' . $this->PDO->quote( $user['uid'] );
+				$stm = $this->PDO->query($q); 
+				
+				//delete link from db
                 $q = 'DELETE FROM ' . $this->getTablePrefix() . 'password_reset ' .
                      'WHERE reset_pwd_id = ' . $this->PDO->quote($resetPwdId);
                 $stm = $this->PDO->query($q);
@@ -803,6 +822,57 @@ class VarcaveUsers extends Varcave
 			return false;
 		}
 		
+
+	}
+
+	/*
+     * Increment bad login counter
+     * @param $userid = id of target user
+     * @return true on success, or false
+     */
+    public function incrementUserBadLoginCounter($username)
+	{
+		$this->logger->warning(__METHOD__ . ' update user bad login ctr');
+		try
+		{
+			$q = 'UPDATE ' .  $this->dbtableprefix . '`users` ' . 
+			     '  SET bad_login_ctr = bad_login_ctr + 1' .
+				 '  WHERE username = ' . $this->PDO->quote($username);
+			$this->PDO->query($q);
+			//disable user if max BadPwdCount reached
+			$this->disableUserOnBadPwdCount($username);
+			return true;
+		}
+		catch(Exception $e)
+		{
+			$this->logger->error('  Update failed : ' . $e->getmessage() );
+			return false;
+		}
+
+	}
+
+	/*
+     * Disable user if counter >= config[badPwdCount]
+     * @param $username = target username to check
+     * @return true on success, or false
+     */
+    public function disableUserOnBadPwdCount($username)
+	{
+		$this->logger->debug(__METHOD__ . ' check last max logon attempt reached');
+		try
+		{
+			$q = 'UPDATE ' .  $this->dbtableprefix . '`users` ' . 
+			     '  SET disabled = IF( bad_login_ctr > ' . $this->getConfigElement('badPwdCount') . ', 1, 0)' . 
+				 '  WHERE username = ' . $this->PDO->quote($username);
+			$this->PDO->query($q);
+			return true;
+		}
+		catch(Exception $e)
+		{
+			$this->logger->error('  Update badPwdCount failed : ' . $e->getmessage() );
+			$this->logger->debug($q);
+			return false;
+		}
 
 	}
 }

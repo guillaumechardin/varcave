@@ -22,7 +22,7 @@ class VarcaveAuth extends Varcave
 		try 
 		{
             $this->logger->info('Trying to authenticate [' . $user . ']from IP: [' . $_SERVER['REMOTE_ADDR'] .']' );
-			$this->logger->debug('using password :' . $pwd  );
+			$this->logger->debug('using password :' . substr($pwd,0,7) . '...'  );
 			//force destroy session vars and environement
 			$this->logout();
 			
@@ -33,32 +33,39 @@ class VarcaveAuth extends Varcave
 			
 			setcookie(session_name(), session_id(), time()+ $this->config['sessionlifetime'], '/' );
 		
-			$user = $this->PDO->quote($user);
 			$pwd = $this->PDO->quote($pwd);
-			$req = 'SELECT *,indexid as uid FROM ' . $this->dbtableprefix . 'users WHERE username=' . strtolower($user)  . ' AND password='. $pwd;
+			$req = 'SELECT *,indexid as uid FROM ' . $this->dbtableprefix . 'users WHERE username=' . $this->PDO->quote( strtolower($user) ) . ' AND password=' . $pwd;
 			$PDOstmt = $this->PDO->query($req);
 			$results = $PDOstmt->fetch(PDO::FETCH_ASSOC);
 		} 
 		catch (Exception $e)
 		{
 			$this->setErrorMsg(__METHOD__,date(),L::authFailed ) ;
-			$this->logger->debug('authentication failed ' .$e->getmessage() );
+			$this->logger->debug('  authentication failed ' .$e->getmessage() );
 			
 			return false;
 		}
 		
 		try 
 		{
+            $users = new VarcaveUsers();
+
+            //login with password failed
 			if ($results == false)
 			{
+                //$this->isBruteForce($IP)
+                // increment bad login error counter
+                $users->incrementUserBadLoginCounter($user);
 				throw new Exception(L::auth_badUserNamePassword);
 			}
 			
+            // user account has expired
 			if ( time() > $results['expire']  )
 			{
 				throw new Exception(L::auth_accountExpired);
 			}
 			
+            //account disabled
 			if ( $results['disabled']  )
 			{
 				throw new Exception(L::auth_userDisabled);
@@ -99,7 +106,6 @@ class VarcaveAuth extends Varcave
 
 			//add `users` default group  to current connected user.
             $groupsMembership = explode ( ',' , $_SESSION['groups']);
-            $users = new VarcaveUsers();
             if( !in_array('users' , $groupsMembership) )
             {
                 //update $_SESSION['group']
@@ -114,11 +120,16 @@ class VarcaveAuth extends Varcave
             //populate  info on login  and force update of $SESSION['favorites_caves'] from database
             $users->getFavoritesCaves($_SESSION['uid']);
 
+            $this->logger->info('  login success');
 			return true;
 		}
 		catch (Exception $e)
 		{
-            $this->logger->info('loggin failed : ' . $e->getmessage());
+            $this->logger->info('login failed : ' . $e->getmessage());
+            if(isset($results['password']) )
+            {
+                $results['password'] = substr($results['password'], 0,4) . '...';
+            }
 			$this->logger->debug('user details from DB : ' . print_r($results,true));
 			
 			$errMsg = L::authFailed . ' : ' .  $e->getmessage();
