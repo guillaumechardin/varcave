@@ -1605,14 +1605,14 @@ class VarcaveCave extends Varcave
      public function findNearCaves($origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
         $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
         $q = 'SELECT ' . 
-               '  caves.guidv4,caves.name, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), location) as distance ' .
+               '  caves.guidv4,caves.name, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) as distance ' .
                'FROM ' .
                '   caves_coordinates ' .
                'INNER JOIN ' .
                ' caves ' .
                'ON caveid=indexid ' .
                'WHERE ' . 
-               '   ST_Distance_Sphere(Point(' . $origin . '), location) <' . (int)$maxRadius . ' AND indexid != ' . (int)$excludecaveid . ' ' .
+               '   ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) <' . (int)$maxRadius . ' AND indexid != ' . (int)$excludecaveid . ' ' .
                'ORDER BY distance ASC, name ASC ' .
                'LIMIT ' . $maxCavesToFind;
             
