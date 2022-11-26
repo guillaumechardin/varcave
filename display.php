@@ -543,6 +543,13 @@ if (isset($_GET['guid']) )
                     }
                     
                     if ( ! isNullOrEmptyArray($docsArr) ){
+                        //show rescue data only if user in required group
+                        $acl = $auth->getacl('e168744a-cdf4-4f6b-825c-13a92b571745');
+                        if ( $docField == 'rescue_data'  && ! $auth->isMember( $acl[0]) ){
+                           
+                            break;
+                        }
+
                         //find key in array of localized fields name for current field
                         $i18n_key = array_search($docField, array_column($allfields, 'field'));
                         

@@ -49,6 +49,7 @@ class VarcaveUsers extends Varcave
 					'notes',
 					'uiLanguage',
                     'pref_coord_system',
+					//'bad_login_ctr',
 			);
 			
 			//populate missing fields if needed to void UPDATE errors
@@ -82,7 +83,7 @@ class VarcaveUsers extends Varcave
                             'geo_api, last_php_session, datatablesMaxItems,'.
                             'pref_coord_system, disabled, emailaddr, streetNum,'.
                             'address1,address2,postCode, town,country,licenceNumber,'.
-                            'phoneNum,cavingGroup,notes,uiLanguage) '. 
+                            'phoneNum,cavingGroup,notes,uiLanguage,bad_login_ctr) '. 
 									
                         'VALUES (' . 
                             $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
@@ -110,8 +111,9 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote($userSettings['phoneNum']) . ','.
                             $this->PDO->quote($userSettings['cavingGroup']) . ','.
                             $this->PDO->quote($userSettings['notes']) . ','.
-                            $this->PDO->quote($userSettings['uiLanguage']) .
-                    ')';
+                            $this->PDO->quote($userSettings['uiLanguage']) . ','.
+                            5  . // bad login counter
+                            ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qNewUser);
 			$userIndexid = $this->PDO->lastinsertid();

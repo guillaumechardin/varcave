@@ -22,7 +22,7 @@ catch (Exception $e)
 
 class Varcave {
 	//engine version
-	public const version = '3.4';
+	public const version = '3.4.1';
 	
     //logger interface
     public $logger;
