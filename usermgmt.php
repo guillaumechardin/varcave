@@ -150,6 +150,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     $htmlstr .= '  </script>';
 	$htmlstr .= '   <div id="usermgmt-container-import">';
     $htmlstr .= '       <p>' . L::usermgmt_import_users . '</p>';
+    $htmlstr .= '       <p>CSV format : username;password;firstname;lastname;email;organisation</p>';
     $htmlstr .= '       <form id="import-data">';
     $htmlstr .= '           <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '           <fieldset><legend>' . L::usermgmt_import_settings  . '</legend>';
@@ -496,7 +497,9 @@ else
                 $logger->error('expiration date cannot be null');
                 throw new Exception("expiration date cannot be null");
             }
-            $expire_days = time() + (int)$_POST['expire-days'] * 86400 ;// convert expire days to seconds
+			
+			// convert account expire days in seconds
+            $expire_days = time() + (int)$_POST['expire-days'] * 86400 ;
             $logger->debug('account expiration set to :' . date('Y-m-d H:i:s', $expire_days) );
             
             if ( empty($_POST['coord-system']) ){
@@ -507,23 +510,40 @@ else
             $logger->debug('Prefered coords set  :' . $pref_coord_system );
             
             $logger->debug('User import start');
-            //check csv file before injection
+            
+			//add or update user if file upload OK
             if ($_FILES['file']['error'] == UPLOAD_ERR_OK){
                 $fileinfo = pathinfo($_FILES['file']['name']);
-                $finfo = finfo_open(FILEINFO_MIME_TYPE); // Return mimetype only
-                $mimeType = finfo_file($finfo, $_FILES['file']['tmp_name']);
-                finfo_close($finfo);
-                if ( strcasecmp($fileinfo["extension"], "csv") !== 0 ||  $mimeType != 'text/plain'){
+                $mimeType = mime_content_type($_FILES['file']['tmp_name']);
+				
+                if ( strcasecmp($fileinfo["extension"], "csv") !== 0 &&  $mimeType != 'text/plain'){
                     $logger->debug('mime type: [' . $mimeType . '], extension: [' . $fileinfo["extension"] . ']');
                     throw new Exception("User import failed, extension or mime/type mismatch");
                 }
 
                 $varcaveUsers = new VarcaveUsers();
-                $count = 1;
+                $count = $userAdd = $userUpd = 0;
+				$csvUsers=array();
                 if ( ($handle = fopen($_FILES['file']['tmp_name'], "r") ) !== FALSE) {
-                    while ( ($line = fgetcsv($handle, 1500, ";") ) !== FALSE) {
-                         $line = array_map("utf8_encode", $line); //convert CSV line strings to utf8
-                        //check if user exist in database
+					
+                    while ( ($line = fgetcsv($handle, 1500, ";") ) !== FALSE) 
+					{
+						$csvUsers[] = $line[0];
+                        //basic check content of line. max 6 fields
+						if( count($line) != 6 ) 
+						{
+							$logger->error('Skip line : ' . $count +1  . ' : line size :' . count($line) );
+							$count++;
+							continue;
+						}
+						
+						
+						//do not encode utf8
+						//$line = array_map("utf8_encode", $line); //convert CSV line strings to utf8
+						
+						//exit(print_r($line));
+                        
+						//check if user exist in database
                         $q = 'SELECT EXISTS(SELECT * FROM `users` WHERE `username`="' . $line[0] . '") AS USER_EXISTS';
                         $stmt = $auth->PDO->query($q);
                         $results = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -533,36 +553,54 @@ else
                         //update expiration date for existing users
                         if($results['USER_EXISTS'] == 1)
                         {
-                            $q = 'UPDATE `users` SET expire="'. $auth->PDO->quote($expire_days) . 
-                                 '", password="' . $auth->PDO->quote($userpwd) . 
-                                 '", pref_coord_system="' . $auth->PDO->quote($pref_coord_system) .  
-                                 '", emailaddra="' . $auth->PDO->quote($line[4]) .
-                                 '" WHERE username="' . $auth->PDO->quote($line[0]) .'"';
+                            $q = 'UPDATE `users` 
+									SET 
+										expire="'. $auth->PDO->quote($expire_days) . '",  
+                                 		emailaddr="' . $auth->PDO->quote($line[4]) . '" 
+                                 WHERE username="' . $auth->PDO->quote($line[0] ) .'"';
                             $logger->debug('$query : ' . $q);
                             $auth->PDO->query($q);
+							$userUpd++;
                         }
                         else  //add user to db
                         {
                             $settings = array(
                                 'username' => $line[0],
                                 'password' => $userpwd,
-                                'firstname' => utf8_encode($line[2]),
-                                'lastname' => utf8_encode($line[3]),
+                                'firstname' => $line[2],
+                                'lastname' => $line[3],
                                 'emailaddr' => $line[4],
-                                'licenceNumber' => $line[5],
-                                'cavingGroup' => utf8_encode($line[6]),
+                                'licenceNumber' => $line[0],
+                                'cavingGroup' => $line[6],
                                 'pref_coord_system' => $pref_coord_system,
                                 'expire' => $expire_days,
                             );
-                            //$logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' name:' . $line[2] . ' expire:' . $settings['expire']);
+                            $logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' name:' . $line[2] . ' expire:' . $settings['expire']);
                             $varcaveUsers->adduser($settings);
+							$userAdd++;
                         }
                         $count++;
                     }
                 }
+
+				//now delete old accounts from DB, if not present in db
+				/*$q = 'SELECT username FROM users WHERE username REGEXP \'^[a-zA-Z][0-9]{2}-[0-9]{3}-[0-9]{3}\'';
+				$stmt = $auth->PDO->query($q);
+				$dbUsers = $stmt->fetchall(PDO::FETCH_ASSOC);
+				exit(print_r($dbUsers));
+				foreach($dbUsers[0] as $user)
+				{
+					if( !array_search($user, $csvUsers) )
+					{
+						echo 'delete user ' . $user;
+					}
+				}*/
+
                 fclose($handle);
-                $data = L::usermgmt_import_success . ' (' . $count . ' ' . L::usermgmt_users . ')';
+                $data = L::usermgmt_import_success . ' (' . $count . ' ' . L::usermgmt_users . '[Update:' . $userUpd . ', add:' . $userAdd . ' total: ' . $count . ')';
             }
+
+			
             
         }
         else

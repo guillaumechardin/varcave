@@ -15,7 +15,7 @@ ressources/*
 !ressources/readme.md
 sessions/*
 !sessions/readme.md
-upgradeTools
+upgradeTools*
 logs/*
 !logs/index.php
 !logs/readme.md
@@ -26,3 +26,4 @@ Varcave.phprj
 lang/custom/*.ini
 staticmap/cache/*
 !staticmap/cache/readme.md
+
