@@ -1605,7 +1605,7 @@ class VarcaveCave extends Varcave
      public function findNearCaves($origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
         $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
         $q = 'SELECT ' . 
-               '  caves.guidv4,caves.name, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) as distance ' .
+               '  caves.guidv4,caves.name,z, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) as distance ' .
                'FROM ' .
                '   caves_coordinates ' .
                'INNER JOIN ' .
@@ -1640,6 +1640,7 @@ class VarcaveCave extends Varcave
                                     'coords' => 'POINT(' . $caveData['caveCoords'][0]['lat'] . ',' . $caveData['caveCoords'][0]['long'] . ')',
                                     'X' => $caveData['caveCoords'][0]['lat'],
                                     'Y' => $caveData['caveCoords'][0]['long'],
+                                    'Z' => $caveData['caveCoords'][0]['z'],
                                     'distance' => $values['distance'],
                                     );
             }
