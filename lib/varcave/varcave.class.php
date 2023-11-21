@@ -22,13 +22,15 @@ catch (Exception $e)
 
 class Varcave {
 	//engine version
-	public const version = '3.4.1';
+	public const version = '3.4.2';
 	
     //logger interface
     public $logger;
     
     //PDO object to run queries...
 	public $PDO;
+    
+    private $pdoDSN;
 	
 	//end user config file to store some local info like DB users and passwd
 	private $configFile = __DIR__ . '/../../include/localconfig.php' ;
@@ -41,7 +43,7 @@ class Varcave {
 	protected $dbpasswd;
 	
 	protected $config = false;
-	protected $allConfigInfo = false;
+	protected $allConfigInfo = null;
 	//realpath of website
 	protected $ROOT_DIR ='';
 	

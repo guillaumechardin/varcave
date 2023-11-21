@@ -236,6 +236,8 @@ if (isset($_GET['guid']) )
         ini_set("max_execution_time",5);
         $end = end($results);  //last element of i18n array
         
+        //exit(print_r($results) );
+        
         foreach($results as $subArray) {
             //create/open col wrapper
             if($subArray['field'] == 'name' ){
@@ -271,6 +273,12 @@ if (isset($_GET['guid']) )
                     {
                         $caveDataCpy[ $subArray['field'] ] = L::_no ;
                     }
+                }
+
+                if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'list_select') )
+                {
+                    $str = 'table_cave_field_pollution_lst' . $caveDataCpy[ $subArray['field'] ]; 
+                    $caveDataCpy[ $subArray['field'] ] = constant('L::'. $str);
                 }
                 
                 /*
@@ -551,7 +559,8 @@ if (isset($_GET['guid']) )
                         }
 
                         //find key in array of localized fields name for current field
-                        $i18n_key = array_search($docField, array_column($allfields, 'field'));
+                        $arrCol = array_column($allfields, 'field');
+                        $i18n_key = array_search($docField, $arrCol);
                         
                         //1st col or thumb (todo :) )
                         $htmlstr .= '<div class="displaySciDataCol-'. $i . '">';

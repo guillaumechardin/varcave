@@ -266,7 +266,8 @@ class VarcaveCave extends Varcave
                 }
                 else{
                     //not supported req
-                    $this->logger->error(__METHOD__ . ' : ERROR invalid choice on boolean value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                    $msg = __METHOD__ . ' : ERROR invalid choice on boolean value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] ;
+                    $this->logger->error($msg);
                     return false;
                     throw new Exception($msg,0);
                 }
@@ -280,7 +281,8 @@ class VarcaveCave extends Varcave
                 }
                 else{
                     //not supported req
-                    $this->logger->error(__METHOD__ . ' : ERROR invalid choice on file type value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                    $msg = __METHOD__ . ' : ERROR invalid choice on file type value : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] ;
+                    $this->logger->error($msg);
                     return false;
                     throw new Exception($msg,0);
                 }
@@ -324,7 +326,8 @@ class VarcaveCave extends Varcave
                 $req .=  $value['field'] . ' != ' . $this->PDO->quote($value['value']) . ' ';
             }
             else{
-				$this->logger->debug(__METHOD__ . ' : ERROR invalid choice : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] );
+                $msg = __METHOD__ . ' : ERROR invalid choice : ' . $value['field'] . ' type: ' . $value['type'] . ' value:  ' . $value['value'] ;
+				$this->logger->debug($msg);
 				return false;
 				throw new Exception($msg,0);
             }
@@ -516,7 +519,7 @@ class VarcaveCave extends Varcave
 	* 					0 => get all fields
 	* 					1 => get  search field only
 	* 					2 => get display.php fields
-	* @return on success : array (colName => localizedColName) 
+	* @return array  success : array (colName => localizedColName) 
 	*            on failure false 
 	**/
 	function getI18nCaveFieldsName($filter)
@@ -577,7 +580,7 @@ class VarcaveCave extends Varcave
      * @param    $forceRandomCoords force obfuscation of cave coors
      * @param    $skipCoords disable processing of coords. Remove coords from result set
      *           
-	 * @return on success  : assoc array
+	 * @return array success  : assoc array
 	 *         on failure to find cave : false
 	 * 		   on error   : throw exception
 	 **/
@@ -999,7 +1002,7 @@ class VarcaveCave extends Varcave
 		if( empty($caveName) )
 		{
 			$this->logger->error('No cave name specified');
-			throw new exception (L::varcaveCaveemptycavename);			
+			throw new exception (L::varcaveCave_emptycavename);			
 		}
 			
 		try
@@ -1428,7 +1431,7 @@ class VarcaveCave extends Varcave
                 $r[] = $res[0];
             }
             return $r;
-        }catch(exeption $e){
+        }catch(exception $e){
             $this->logger->error('Failed to get document list' . $e->getmessage() );
             $this->logger->debug('Full query :' . $q);
             return false;
@@ -1451,7 +1454,7 @@ class VarcaveCave extends Varcave
                 $r[] = $res[0];
             }
             return $r;
-        }catch(exeption $e){
+        }catch(exception $e){
             $this->logger->error('Failed to get boolean list' . $e->getmessage() );
             $this->logger->debug('Full query :' . $q);
             return false;
@@ -1474,7 +1477,7 @@ class VarcaveCave extends Varcave
                 $r[] = $res[0];
             }
             return $r;
-        }catch(exeption $e){
+        }catch(exception $e){
             $this->logger->error('Failed to get files list' . $e->getmessage() );
             $this->logger->debug('Full query :' . $q);
             return false;
@@ -1583,7 +1586,7 @@ class VarcaveCave extends Varcave
                 return $unWrFiles;
             }
          }
-         catch(exception $ee){
+         catch(exception $e){
             $this->logger->error('Unable to delete cave: ' . $e->getmessage() );
             $this->logger->debug('Full query :' . $q);
             if(!empty($unWrFiles) ){

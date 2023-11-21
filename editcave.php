@@ -55,6 +55,7 @@ if( isset($_GET['guid']) ){
         
         $fieldList = $caveObj->getI18nCaveFieldsName('ONEDIT');
         $chkbxs = array();
+        $listsSelect = '';
         $areas = array();
         $texts = array(); 
 		$filesHTML = '';
@@ -75,6 +76,8 @@ if( isset($_GET['guid']) ){
         //build cave `files` from json
 		$filesObj = $caveObj->getCaveFileList($cave['guidv4'], 'all');
 		
+        //exit(print_r($fieldList));
+
 		foreach($fieldList as $fieldInfo)
 		{   
 			/**
@@ -107,6 +110,30 @@ if( isset($_GET['guid']) ){
                      </div>';
 				}
 			}
+            elseif ( strstr( $fieldInfo['type'] , 'list_select') )
+            {
+                $listsSelect .= '<div class="edit-flexItem"><span class="editDisplayName-Title">';
+                $listsSelect .= $fieldInfo['display_name'] . '</span>' ;
+                $listsSelect .= '<select name="' . $fieldInfo['field'] . '">';
+                $lists = $caveObj->getListElements('pollution');
+                
+                foreach($lists as $list)
+                {
+                    $str = 'table_cave_field_pollution_lst' . $list['list_item']; 
+                    $i18str = constant('L::'. $str);
+                    $selected = '';
+                    if($cave[ $fieldInfo['field'] ] == $list['list_item'])
+                    {
+                        $selected = 'selected';
+                    }
+                    $listsSelect .= '  <option value="'. $list['list_item'] . '" ' . $selected . '>' . $list['list_item'] . ' - ' . $i18str . '</option>';
+                }
+
+                $listsSelect .= '</select>';
+                $listsSelect .= '</div>'; //end edit-flexItem
+
+
+            }
             elseif(  $fieldInfo['field'] == 'json_coords' )
             {
                 $logger->debug('editcave.php : process field edit elements: json_coords' );
@@ -167,7 +194,6 @@ if( isset($_GET['guid']) ){
 			//process files documents type depending on $listOfFilesInput
             elseif( strstr_from_arr($listOfFilesInput, $fieldInfo['field'] ) ) 
             {   
-
                 $currentField = $fieldInfo['field'];
                 $logger->debug('editcave.php : process field edit elements:' . $currentField );
     
@@ -243,7 +269,6 @@ if( isset($_GET['guid']) ){
 				$filesHTML .= $curHtml;
 
             }
-
 			elseif( $fieldInfo['type'] == 'text' &&  strlen($cave[ $fieldInfo['field'] ]) > 40 )
             {
                 $areas[] = '<div class="edit-flexItem"><span class="editDisplayName-Title">'
@@ -268,7 +293,8 @@ if( isset($_GET['guid']) ){
         {
           $htmlstr .= $text;
         }
-        
+        $htmlstr .= $listsSelect;
+
         $htmlstr .= $coordsHtml;
         
         foreach($chkbxs as $chkbx)
@@ -276,7 +302,6 @@ if( isset($_GET['guid']) ){
           $htmlstr .= $chkbx;
         }
      
-        
         foreach($areas as $area)
         {
           $htmlstr .= $area;
@@ -285,11 +310,7 @@ if( isset($_GET['guid']) ){
     
         $htmlstr .= $filesHTML;
         $htmlstr .= $sketchAccessHtml;
-        
-		
-		
-		
-		
+
 		
         $htmlstr .= '</div>'; //genFlexContainerWrap
 		
@@ -707,7 +728,7 @@ elseif( isset($_POST['delete']) ){
             $httpErrorStr = ' OK';
         }
         catch (Exception $e){
-            $logger->debug('Failed to delete cave:' . $e->getmessage);
+            $logger->debug('Failed to delete cave:' . $e->getmessage() );
             $return = array(
                     'title' => L::errors_ERROR,
                     'stateStr' => L::editcave_cannotDeleteCave,

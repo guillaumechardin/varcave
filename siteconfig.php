@@ -136,7 +136,15 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                     {
                         $selected = 'selected';
                     }
-                    $htmlstr .= '   <option value="' . $listItem['list_item'] . '"' .  $selected . '>' . $listItem['list_item'] . ' </option>';
+
+                    $lstItemHlp = 'L::siteconfighelp_' . $listItem['list_name'] . '_lst' . $listItem['list_item'];
+                    $configStrHlp = '';
+                    if( defined($lstItemHlp) )
+                    {
+                        $configStrHlp = ' - ' . constant($lstItemHlp);
+                    }
+ 
+                    $htmlstr .= '   <option value="' . $listItem['list_item'] . '"' .  $selected . '>' . $listItem['list_item'] . $configStrHlp . ' </option>';
                 }
                 $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
                 $htmlstr .= '    </select ';
