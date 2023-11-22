@@ -105,7 +105,7 @@ class VarcavePdf extends TCPDF {
 		$this->SetAutoPageBreak(TRUE, $this->marginbottom);
 		
 		//start new default pagegroup on init
-		$this->startPageGroup();
+		//$this->startPageGroup();
 		
 		//start a new page
 		$this->addpage();
@@ -183,7 +183,7 @@ class VarcavePdf extends TCPDF {
 				//skip empty fields
 				continue;
 			}
-            
+           
 			//show only 3 item/row
 			if ($i < 2)
 			{
@@ -195,6 +195,13 @@ class VarcavePdf extends TCPDF {
 						$this->cavedata[ $field['field'] ]  = LNE::_no;
 					}
 				}
+				elseif( strstr( $field['type'] , 'list_select') )
+				{
+					
+					$str = 'table_cave_field_' . $field['field'] . '_lst'. $this->cavedata[ $field['field'] ] ; 
+                    $this->cavedata[ $field['field'] ]  = constant('L::'. $str);
+				}
+				
 
                 //change editDate format
                 if ( $field['field'] == 'editDate' ){

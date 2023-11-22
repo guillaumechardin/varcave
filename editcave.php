@@ -118,8 +118,8 @@ if( isset($_GET['guid']) ){
                 $lists = $caveObj->getListElements('pollution');
                 
                 foreach($lists as $list)
-                {
-                    $str = 'table_cave_field_pollution_lst' . $list['list_item']; 
+                { 
+                    $str = 'table_cave_field_' . $fieldInfo['field'] . '_lst' . $list['list_item']; 
                     $i18str = constant('L::'. $str);
                     $selected = '';
                     if($cave[ $fieldInfo['field'] ] == $list['list_item'])
