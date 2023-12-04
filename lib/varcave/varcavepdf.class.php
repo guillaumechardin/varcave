@@ -198,8 +198,8 @@ class VarcavePdf extends TCPDF {
 				elseif( strstr( $field['type'] , 'list_select') )
 				{
 					
-					$str = 'table_cave_field_' . $field['field'] . '_lst'. $this->cavedata[ $field['field'] ] ; 
-                    $this->cavedata[ $field['field'] ]  = constant('L::'. $str);
+					$str = 'L::table_cave_field_' . $field['field'] . '_lst'. $this->cavedata[ $field['field'] ] ; 
+                    $this->cavedata[ $field['field'] ]  = constant($str);
 				}
 				
 

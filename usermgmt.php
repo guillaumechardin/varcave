@@ -150,7 +150,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     $htmlstr .= '  </script>';
 	$htmlstr .= '   <div id="usermgmt-container-import">';
     $htmlstr .= '       <p>' . L::usermgmt_import_users . '</p>';
-    $htmlstr .= '       <p>CSV format : username;password;firstname;lastname;email;organisation</p>';
+    $htmlstr .= '       <p>CSV format (UTF-8) : username;password;firstname;lastname;email;organisation</p>';
     $htmlstr .= '       <form id="import-data">';
     $htmlstr .= '           <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '           <fieldset><legend>' . L::usermgmt_import_settings  . '</legend>';
@@ -555,9 +555,9 @@ else
                         {
                             $q = 'UPDATE `users` 
 									SET 
-										expire="'. $auth->PDO->quote($expire_days) . '",  
-                                 		emailaddr="' . $auth->PDO->quote($line[4]) . '" 
-                                 WHERE username="' . $auth->PDO->quote($line[0] ) .'"';
+										 expire=' . $auth->PDO->quote($expire_days) . ', ' . 
+                                 		'emailaddr=' . $auth->PDO->quote($line[4]) . 
+                                 ' WHERE username=' . $auth->PDO->quote($line[0] ) ;
                             $logger->debug('$query : ' . $q);
                             $auth->PDO->query($q);
 							$userUpd++;
@@ -575,7 +575,7 @@ else
                                 'pref_coord_system' => $pref_coord_system,
                                 'expire' => $expire_days,
                             );
-                            $logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' name:' . $line[2] . ' expire:' . $settings['expire']);
+                            $logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' firstname:' . $line[2] . ' expire:' . $settings['expire']);
                             $varcaveUsers->adduser($settings);
 							$userAdd++;
                         }

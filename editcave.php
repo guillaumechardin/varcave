@@ -119,8 +119,8 @@ if( isset($_GET['guid']) ){
                 
                 foreach($lists as $list)
                 { 
-                    $str = 'table_cave_field_' . $fieldInfo['field'] . '_lst' . $list['list_item']; 
-                    $i18str = constant('L::'. $str);
+                    $str = 'L::table_cave_field_' . $fieldInfo['field'] . '_lst' . $list['list_item']; 
+                    $i18str = constant($str);
                     $selected = '';
                     if($cave[ $fieldInfo['field'] ] == $list['list_item'])
                     {
