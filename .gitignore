@@ -26,4 +26,5 @@ Varcave.phprj
 lang/custom/*.ini
 staticmap/cache/*
 !staticmap/cache/readme.md
+geoconvert
 
