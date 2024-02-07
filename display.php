@@ -157,9 +157,9 @@ if (isset($_GET['guid']) )
         $htmlstr .= '   <div class="fa-3x display-send-msg" data-guid="' . $caveData['guidv4'] . '">
 		                  <span class="fas fa-envelope" title="' . L::display_updatecave . '"></span>
                           <script>
-                            var subject = \'' . L::display_updatecave . ' : '. $caveData['caveRef'] . '\';
-                            var newmessage = \'' . L::email_newmessage . '\'
-                            
+                            var subject = \'' . L::display_updatecave . ' : '. $caveData['name'] . '\';
+                            var newmessage = \'' . L::email_newmessage . '\';
+                            var mailBody = "Lien vers la cavité : ' . $html->getConfigElement('httpdomain')  . '/' . $caveData['guidv4'] . '";
                             var maxfilesize = "' . $html->getConfigElement('smtp_max_attach_size') * 1000 . '";
                             var maxtotalfilessize = "' . $html->getConfigElement('smtp_max_attach_global_size') * 1000 . '";
                             var infoRequired = "' . L::errors_inforequired . '";

@@ -494,7 +494,8 @@ elseif( isset($_POST['update'] ) ){
                             'xls', 'xlsx',
                             'png',
                             'zip',
-                            'txt','csv'
+                            'txt','csv',
+                            'gpx',
                     );
                             
                     $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
