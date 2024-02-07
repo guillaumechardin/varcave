@@ -488,7 +488,7 @@ else
             }
             else{
        
-                throw new Exception('load ACL template:' . L::error_badAction);
+                throw new Exception('load ACL template:' . L::errors_badAction);
             }
         }
         elseif($_POST["action"] == "import")
@@ -523,12 +523,12 @@ else
 
                 $varcaveUsers = new VarcaveUsers();
                 $count = $userAdd = $userUpd = 0;
-				$csvUsers=array();
+				//$csvUsers=array(); //for delete procedure
                 if ( ($handle = fopen($_FILES['file']['tmp_name'], "r") ) !== FALSE) {
 					
                     while ( ($line = fgetcsv($handle, 1500, ";") ) !== FALSE) 
 					{
-						$csvUsers[] = $line[0];
+						//$csvUsers[] = $line[0]; //for delete procedure
                         //basic check content of line. max 6 fields
 						if( count($line) != 6 ) 
 						{
@@ -556,9 +556,10 @@ else
                             $q = 'UPDATE `users` 
 									SET 
 										 expire=' . $auth->PDO->quote($expire_days) . ', ' . 
-                                 		'emailaddr=' . $auth->PDO->quote($line[4]) . 
+                                 		'emailaddr=' . $auth->PDO->quote($line[4])  . ', ' .  
+										'cavingGroup=' . $auth->PDO->quote($line[5]) .
                                  ' WHERE username=' . $auth->PDO->quote($line[0] ) ;
-                            $logger->debug('$query : ' . $q);
+                            $logger->debug('update existing user : $query : ' . $q);
                             $auth->PDO->query($q);
 							$userUpd++;
                         }
@@ -571,7 +572,7 @@ else
                                 'lastname' => $line[3],
                                 'emailaddr' => $line[4],
                                 'licenceNumber' => $line[0],
-                                'cavingGroup' => $line[6],
+                                'cavingGroup' => $line[5],
                                 'pref_coord_system' => $pref_coord_system,
                                 'expire' => $expire_days,
                             );
@@ -605,7 +606,7 @@ else
         }
         else
 		{
-			throw new Exception(L::error_badAction);
+			throw new Exception(L::errors_badAction);
 		}
 		
 		//preparing info back to user

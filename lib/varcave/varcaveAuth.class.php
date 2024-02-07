@@ -108,7 +108,7 @@ class VarcaveAuth extends Varcave
                 //update db
                 $users->setUserProp( $_SESSION['uid'], 'groups', $_SESSION['groups'] );
             }
-            
+            $this->logger->info('User login succeed');
 			$this->logger->debug('User $_SESSION info :' . print_r($_SESSION,true));
 
             //populate  info on login  and force update of $SESSION['favorites_caves'] from database
@@ -172,7 +172,7 @@ class VarcaveAuth extends Varcave
      */
 	public function isSessionValid()
 	{
-		$this->logger->info('Check if user as valid session');
+		$this->logger->debug('Check if user as valid session');
         
 		try 
 		{
@@ -191,7 +191,7 @@ class VarcaveAuth extends Varcave
             {
                 // user is automatically accepted as anonymous
                 // user do not have an authenticated session and global config use_anon_ is set
-                $this->logger->debug('Connected as anonymous user (user valid)');
+                $this->logger->info('Connected as anonymous user (user valid)');
 				$this->logger->debug('Session variables' . print_r($_SESSION,true) );
 				return true;
             }
@@ -254,7 +254,7 @@ class VarcaveAuth extends Varcave
 	 */
 	public function isMember($grp)
 	{
-        $this->logger->debug(__METHOD__ . ' : Check user group membership on :[' . $grp . '] for user :[' . $_SESSION['username'] . ']');
+        $this->logger->info(__METHOD__ . ' : Check user group membership on :[' . $grp . '] for user :[' . $_SESSION['username'] . ']');
 		try 
 		{
 			if (session_status() == PHP_SESSION_NONE)
@@ -281,7 +281,7 @@ class VarcaveAuth extends Varcave
 					}
 				}
 			}
-            $this->logger->info('failed: user is NOT member');
+            $this->logger->error('failed: user is NOT member');
 			return false;
 		}
 		catch (exception $e)

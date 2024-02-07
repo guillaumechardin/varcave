@@ -61,6 +61,8 @@ if (isset($_GET['guid']) )
 		$cave->stats_exists($caveData['indexid']);
 		$cave->updateStats($caveData['indexid']);
 	}
+
+    $logger->info('Display cave ' . $caveData['name'] . '[' . $caveData['guidv4'] . ']');
 	
     $acl = $auth->getacl('91562650-629a-4461-aa38-e9e5c7cbd432');
 	if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) )
@@ -453,7 +455,7 @@ if (isset($_GET['guid']) )
 		 **/
         $acl = $auth->getacl('da77ca5f-1e0a-4b02-a49b-a4ac428902d5');
         if ( $auth->isSessionValid() &&  $auth->isMember( $acl[0]) ){
-            $cave->logger->info('Getting cave_maps');		 
+            $cave->logger->debug('Retreive cave_maps');		 
             $topoArr = $cave->getCaveFileList($caveData['guidv4'], 'cave_maps');;
             
             $htmlstr .= '<h2>' .  L::display_caveTopos . '</h2>';
@@ -491,7 +493,7 @@ if (isset($_GET['guid']) )
             
             try
             {
-                $cave->logger->info('Getting photos');		 
+                $cave->logger->debug('Retreive photos');		 
                 $photosArr = $cave->getCaveFileList($caveData['guidv4'], 'photos');
             }
             catch (exception $e)
@@ -542,7 +544,7 @@ if (isset($_GET['guid']) )
                         //$allfields = $cave->getI18nCaveFieldsName('ALL');
                         $allfields = $fields;
                         
-                        $cave->logger->info('Getting' . $docField . ' documents');		 
+                        $cave->logger->debug('Retreive ' . $docField . ' documents');		 
                         $docsArr = $cave->getCaveFileList($caveData['guidv4'], $docField);
                     }
                     catch (exception $e)
