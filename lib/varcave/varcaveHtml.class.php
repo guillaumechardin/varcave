@@ -446,7 +446,6 @@ class VarcaveHtml extends Varcave {
 
 						function eulaAccept(d)
 						{
-							alert('ok');
 							var form_data = new FormData();
 							form_data.append('action', 'acceptEULA');
 							form_data.append('EULA_accepted', '1');
