@@ -250,6 +250,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	
 	//website settings
 	$htmlstr .= '   <fieldset><legend>' . L::usermgmt_sitesettings  . '</legend>';
+	$htmlstr .=     '<p><label for="EULA_accepted">' .  L::table_users_field_EULA_accepted  . '</label><input type="checkbox" name="EULA_accepted" id="EULA_accepted"></input></p>';
 	$htmlstr .=     '<label for="theme">' .  L::table_users_field_theme  . '</label><input type="text" name="theme" id="theme" value=""></input>';
 	$htmlstr .=     '<label for="geo_api">' .  L::table_users_field_geoapi  . '</label><input type="text" name="geo_api" id="geo_api" value=""></input>';
 	$htmlstr .= '   </fieldset>';
