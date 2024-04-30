@@ -194,7 +194,7 @@ function getFaIcon($fileExt, $faStyle = 'fas')
             
         case 'gpx':
         case 'kml':
-			return $faStyle . ' fa-map-marked-alt';
+			return $faStyle . '  fa-file';
 			break;
 			
 		default:

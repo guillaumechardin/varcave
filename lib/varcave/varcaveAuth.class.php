@@ -41,7 +41,7 @@ class VarcaveAuth extends Varcave
 		} 
 		catch (Exception $e)
 		{
-			$this->setErrorMsg(__METHOD__,date(),L::authFailed ) ;
+			$this->setErrorMsg(__METHOD__, date("ddmmyyyy"), L::authFailed ) ;
 			$this->logger->debug('authentication failed ' .$e->getmessage() );
 			
 			return false;
@@ -157,7 +157,7 @@ class VarcaveAuth extends Varcave
 		}
 		catch (Exception $e)
 		{
-			$this->setErrorMsg(__METHOD__,date(),$e->getmessage() );
+			$this->setErrorMsg(__METHOD__, date("ddmmyyy"), $e->getmessage() );
 			return false;
 		}
 	}

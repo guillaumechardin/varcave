@@ -22,7 +22,7 @@ catch (Exception $e)
 
 class Varcave {
 	//engine version
-	public const version = '3.4.3';
+	public const version = '3.4.4';
 	
     //logger interface
     public $logger;
@@ -109,22 +109,23 @@ class Varcave {
 				$_SESSION['geo_api'] =  $this->getConfigElement('default_geo_api');
 			}
 
-            //set default group anonymous for anonymous users
+            //set default group "anonymous" to anonymous users
 			if (!isset($_SESSION['groups']) )
 			{
 				$_SESSION['groups'] =  'anonymous';
                 $_SESSION['username'] =  'anonymous';
                 $this->logger->debug('Full anon user, adding anonymous group');
 			}
-            else
+            else //What is purpose of this part ???
             {
+                
                 $groups = explode(',', $_SESSION['groups']);
                 
                 if( !in_array('anonymous', $groups) )
                 {
                     $this->logger->debug('anonymous group not found adding group');
                 }
-            }
+            } ////end strange part
 			
 		}
 		
@@ -1047,6 +1048,31 @@ class Varcave {
             return false;
         }
 
+    }
+
+    /*
+     * Fetch EULA from database 
+     * @param $lang : desired language
+     * return eula content.
+     */
+    protected function getEULA($lang)
+    {
+        $this->logger->debug(__METHOD__ . ' Fetch EULA for language : ' . $lang);
+
+        $q = 'SELECT content FROM eula WHERE lang = ' . $this->PDO->quote($lang);
+        try
+        {
+            $pdostmt = $this->PDO->query($q);
+            $result = $pdostmt->fetch(PDO::FETCH_ASSOC);
+            return $result['content'];
+        }
+        catch(exception $e)
+        {
+            $this->logger->error("error : " . $e->getmessage() );
+            $this->logger->debug('full query : ' . $q );
+            throw new exception("EULA NOT FOUND" . $e->getmessage() ) ;
+            exit();
+        }
     }
 }
 ?>

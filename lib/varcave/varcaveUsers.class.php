@@ -18,7 +18,7 @@ class VarcaveUsers extends Varcave
 			//arg should be an array
 			if(!is_array($userSettings) )
 			{
-				throw new exception(L::error_badArgs );	
+				throw new exception(L::errors_badArgs );	
 			}
 			
 			
@@ -49,6 +49,8 @@ class VarcaveUsers extends Varcave
 					'notes',
 					'uiLanguage',
                     'pref_coord_system',
+					'EULA_accepted',
+					'EULA_read_on',
 					//'bad_login_ctr',
 			);
 			
@@ -83,7 +85,8 @@ class VarcaveUsers extends Varcave
                             'geo_api, last_php_session, datatablesMaxItems,'.
                             'pref_coord_system, disabled, emailaddr, streetNum,'.
                             'address1,address2,postCode, town,country,licenceNumber,'.
-                            'phoneNum,cavingGroup,notes,uiLanguage,bad_login_ctr) '. 
+                            'phoneNum,cavingGroup,notes,uiLanguage,bad_login_ctr,' . 
+							'EULA_accepted,EULA_read_on) '. 
 									
                         'VALUES (' . 
                             $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
@@ -112,7 +115,9 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote($userSettings['cavingGroup']) . ','.
                             $this->PDO->quote($userSettings['notes']) . ','.
                             $this->PDO->quote($userSettings['uiLanguage']) . ','.
-                            5  . // bad login counter
+                            5 . ',' .  // bad login counter
+							0 . ',' .  //EULA_accepted
+							0 . ',' .  //EULA_read_on
                             ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qNewUser);
@@ -147,7 +152,7 @@ class VarcaveUsers extends Varcave
 			//arg should be an array
 			if(!is_array($groupSettings) )
 			{
-				throw new exception(L::error_badArgs );	
+				throw new exception(L::errors_badArgs );	
 			}
 			
 			
@@ -293,6 +298,7 @@ class VarcaveUsers extends Varcave
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qUpdateUser);
 			$this->PDO->commit();
+			$this->logger->debug('Query: ' . $qUpdateUser);
 			$this->logger->info('Update '. $prefName . ' successfully');
 			
             //force $_SESSION update for some settings
@@ -305,8 +311,11 @@ class VarcaveUsers extends Varcave
 				case 'geo_api':
 					$_SESSION['geo_api'] = $prefValue;
 					break;
+
 				case 'firstname':
                 case 'lastname':
+				case 'EULA_read_on':	
+				case 'EULA_accepted':
                 case 'emailaddr':
                     $_SESSION[$prefName] = $prefValue;
                     break;
@@ -380,7 +389,7 @@ class VarcaveUsers extends Varcave
 		catch(Exception $e)
 		{
 			$this->logger->error('Unable to fetch users list'. $e->getmessage() );
-			throw new Exception(L::varcaveUser_failuserlist . ' : ' .$e->getmessage);
+			throw new Exception(L::varcaveUser_failuserlist . ' : ' .$e->getmessage() );
 		}
 	}
 	
@@ -412,7 +421,7 @@ class VarcaveUsers extends Varcave
 		catch(Exception $e)
 		{
 			$this->logger->error('Unable to fetch groups list'. $e->getmessage() );
-			throw new Exception(L::varcaveUser_failgrouplist . ' : ' .$e->getmessage);
+			throw new Exception(L::varcaveUser_failgrouplist . ' : ' .$e->getmessage() );
 		}
 		
 	}
@@ -733,7 +742,7 @@ class VarcaveUsers extends Varcave
 
             return true;
         }
-        catch(excption $e)
+        catch(exception $e)
         {
             $this->logger->error('  Fail to update database:' . $e->getmessage()) ;
             $this->logger->debug(  'full query:' . $q);

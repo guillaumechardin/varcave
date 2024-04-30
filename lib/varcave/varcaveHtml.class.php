@@ -98,7 +98,10 @@ class VarcaveHtml extends Varcave {
 		//adding website menu
 		$this->addTopMenu();
 		$this->html .= '<div class="userPageContent">';
-		$this->html .= '<div id="jqUiDialog" ><div id="jqUiDialogContent">  </div></div>';
+		$this->html .= '<div id="jqUiDialog"><div id="jqUiDialogContent">  </div></div>';
+		$this->html .= '<div id="jqUiDialog-EULA"><div id="jqUiDialog-EULA-content">';
+		$this->html .=     $this->showUserEULA();
+		$this->html .= '</div></div>'; //jqUiDialog-EULA & jqUiDialog-EULA-content closing
 	}
 	
 	private function buildFooter()
@@ -139,7 +142,7 @@ class VarcaveHtml extends Varcave {
 	
 	public function save()
 	{
-			return $this->html;
+		return $this->html;
 	}
 	
 	/*
@@ -358,7 +361,7 @@ class VarcaveHtml extends Varcave {
         $this->logger->debug(__CLASS__ . ' : reply json data to client browser');
         if( !is_array($clientReturnData) )
         {
-            $this->error(__CLASS__  . 'argument is not array');
+            $this->logger->error(__CLASS__  . 'argument is not array');
         }
         
         //send back to browser
@@ -367,6 +370,118 @@ class VarcaveHtml extends Varcave {
         echo json_encode($clientReturnData);
         exit();
     }
+
+	/*
+	 * Display EULA to user if required
+	 */
+	private function showUserEULA()
+	{
+		$auth =  new VarcaveAuth;
+		$html = '';
+		$this->logger->debug(__CLASS__ . '.' . __METHOD__ .  ' : Check if user need EULA acceptance');
+		if($this->getConfigElement('user_must_accept_EULA') == true)
+		{
+			if( $auth->isSessionValid() && $_SESSION["username"] != 'anonymous')
+			//if( $auth->isSessionValid() )
+			{
+				if($_SESSION['EULA_accepted'] == false)
+				{
+					$html .= '<div id="EULA">';
+					$html .= $this->getEULA($this->langcode);
+					$html .= '</div>';
+					$html .= <<<'EOF'
+					<script>
+					var h = Math.floor( $(window).height() * 0.7 );
+					var w = Math.floor( $(window).width() * 0.4 );
+					$( document ).ready( function() {
+						$( "#jqUiDialog-EULA" ).dialog(
+						{
+							title: "Contrat d'utilisation",
+							modal:true,
+							width:w,
+							height:h,
+							buttons: [
+								{
+									id:"accept",
+									text:"J'accepte",
+									click: function(){
+										eulaAccept( $(this) );
+										//$( this ).dialog( "close" );
+									},
+								},
+								/*{
+									id:"deny",
+									text:"Quitter",
+									click: function(){
+										eulaAccept();
+									},
+								}*/
+							],
+							create: function (e, ui) {
+								var buttonPane = $(this).dialog("widget").find(".ui-dialog-buttonpane");
+								$("<label for='confirm-read' ><input id='confirm-read' type='checkbox'/> J'ai lu le reglement</label>").prependTo(buttonPane);
+								$( "#accept" ).prop("disabled", true).addClass("ui-state-disabled");
+								//$(this).dialog("widget").find(".ui-dialog-buttonpane")
+								buttonPane.focus();
+								$(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+							},
+
+						});
+
+						$("#confirm-read").change(function() {
+							if( $(this).prop("checked") )
+							{
+								$( "#accept" ).prop("disabled", false).removeClass("ui-state-disabled");
+							}
+							else
+							{
+								$( "#accept" ).prop("disabled", true).addClass("ui-state-disabled");
+							}
+						});
+
+						function eulaAccept(d)
+						{
+							alert('ok');
+							var form_data = new FormData();
+							form_data.append('action', 'acceptEULA');
+							form_data.append('EULA_accepted', '1');
+													
+							$.ajax({
+								type: 'post',
+								url: 'myaccount.php',
+								processData: false,
+								contentType: false,
+								data: form_data,
+								dataType: "json",
+								success: function(data, textStatus, jqXHR)
+								{
+									d.dialog( "close" );
+								},
+								error: function(){
+									d.dialog( "close" );
+									showDialog("title", "Vous n'avez pas accepté le contrat");
+									location.reload();
+								},
+							});
+						};
+					});
+					
+					
+					
+					</script>
+EOF;
+
+				}
+				return $html;
+			}
+
+		}
+		else
+		{
+			//nothing to do
+		}
+
+	}
     
 }
 

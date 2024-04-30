@@ -148,6 +148,19 @@ elseif( isset($_POST['action']) )
 			$html->writeJson( array('title'=> 'ok','msg'=> 'success', 'state'=> $state) );
 			break;
 		
+		case 'acceptEULA':
+			$users->logger->info(__FILE__ . ' : user uid[ ' . $_SESSION['uid'] . '] accepted EULA');
+			$users->changeUserPref('EULA_read_on', time(), $_SESSION['uid']);
+			$result = $users->changeUserPref('EULA_accepted', '1', $_SESSION['uid']);
+			if ( $result ) 
+			{
+				$html->writeJson( array('title'=> 'ok','msg'=> 'EULA accept success', 'state'=> 'read') );
+				break;
+			}
+			$users->logger->error('Fail to save eula accepted');
+			$html->writeJson( array('title'=> 'fail','msg'=> 'EULA accept failed', 'state'=> 'not_ok'), 500, 'FAILED');
+			break;
+
 		default:
 			$html->writeJson( array('title'=> L::errors_ERROR,'msg'=> L::errors_badArgs),  400, 'Bad Request');
 			//end of script
@@ -176,8 +189,9 @@ else
 	$htmlstr .= '  </h1> ';
 	$htmlstr .= '  <h2>  <i class="fas fa-info-circle"></i> ' . L::myaccount_userSessionInfo .' </h2>';
 	$htmlstr .= '  <p><ul>';
-	$htmlstr .= '    <li>' . L::myaccount_yourSessionExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['sessionend']) . '. </li>';
-	$htmlstr .= '    <li>' . L::myaccount_yourAccountExpire . ' : ' . date("d-m-Y H:i:s",$_SESSION['expire']) .'. </li>';
+	$htmlstr .= '    <li>' . L::myaccount_yourSessionExpire . ' : ' . date("d-m-Y H:i:s", $_SESSION['sessionend']) . '. </li>';
+	$htmlstr .= '    <li>' . L::myaccount_yourAccountExpire . ' : ' . date("d-m-Y H:i:s", $_SESSION['expire']) .'. </li>';
+	$htmlstr .= '    <li>' . L::myaccount_eulaReadOn . ' : ' . date("d-m-Y H:i:s", $_SESSION['EULA_read_on']) .'. </li>';
 	$htmlstr .= '    <li>' . L::myaccount_groupList . ' : ' . $_SESSION['groups'] . '</li>';
 	$htmlstr .= '  </ul></p>';     
 	
@@ -192,7 +206,7 @@ else
     $htmlstr .= '      <input type="text"  name="firstname" id="firstname" value="' . $_SESSION['firstname'] . '"></input>';
 	$htmlstr .= '      <label for="lastname">' .  L::table_users_field_lastname  .   '</label>';
     $htmlstr .= '      <input type="text" name="lastname" id="lastname" value="' . $_SESSION['lastname'] . '"></input>';
-	$htmlstr .= '      <label for="emailaddr">' .  L::table_users_field_username  .  '</label>';
+	$htmlstr .= '      <label for="emailaddr">' .  L::table_users_field_emailaddr  .  '</label>';
     $htmlstr .= '      <input type="text" name="emailaddr" id="emailaddr" value="' . $_SESSION['emailaddr'] . '"></input>';
     $htmlstr .= '    </fieldset>';
     $htmlstr .= '  </form>';
@@ -249,7 +263,7 @@ else
 	}
 	else
 	{
-		$htmlstr .= '<b>' . L::myaccount_CssFolderFailOpen . '</b>';
+		$htmlstr .= '<b>' . L::myaccount_unableToOpenCssFolder . '</b>';
 	}
 	
 	
