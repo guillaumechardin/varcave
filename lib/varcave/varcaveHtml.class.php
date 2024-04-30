@@ -387,23 +387,30 @@ class VarcaveHtml extends Varcave {
 				if($_SESSION['EULA_accepted'] == false)
 				{
 					$html .= '<div id="EULA">';
-					$html .= $this->getEULA($this->langcode);
+					$html .= $this->getEULA($this->langcode); // EULA content should be html formated
 					$html .= '</div>';
-					$html .= <<<'EOF'
+
+					//some var used into Heredoc statement
+					$eula_read_checkbox = L::eula_read_checkbox;
+					$eula_i_accept = html_entity_decode(L::eula_i_accept, ENT_QUOTES , "UTF-8");
+					$eula_licence_usage = html_entity_decode(L::eula_licence_usage, ENT_QUOTES , "UTF-8");
+					$eula_not_accepted = L::eula_not_accepted;
+					
+					$html .= <<<EOF
 					<script>
 					var h = Math.floor( $(window).height() * 0.7 );
 					var w = Math.floor( $(window).width() * 0.4 );
 					$( document ).ready( function() {
 						$( "#jqUiDialog-EULA" ).dialog(
 						{
-							title: "Contrat d'utilisation",
+							title: "{$eula_licence_usage}",
 							modal:true,
 							width:w,
 							height:h,
 							buttons: [
 								{
 									id:"accept",
-									text:"J'accepte",
+									text:"{$eula_i_accept}",
 									click: function(){
 										eulaAccept( $(this) );
 										//$( this ).dialog( "close" );
@@ -419,10 +426,8 @@ class VarcaveHtml extends Varcave {
 							],
 							create: function (e, ui) {
 								var buttonPane = $(this).dialog("widget").find(".ui-dialog-buttonpane");
-								$("<label for='confirm-read' ><input id='confirm-read' type='checkbox'/> J'ai lu le reglement</label>").prependTo(buttonPane);
+								$("<label for='confirm-read' ><input id='confirm-read' type='checkbox'/>{$eula_read_checkbox}</label>").prependTo(buttonPane);
 								$( "#accept" ).prop("disabled", true).addClass("ui-state-disabled");
-								//$(this).dialog("widget").find(".ui-dialog-buttonpane")
-								buttonPane.focus();
 								$(this).parent().children().children('.ui-dialog-titlebar-close').hide();
 							},
 
@@ -459,8 +464,8 @@ class VarcaveHtml extends Varcave {
 								},
 								error: function(){
 									d.dialog( "close" );
-									showDialog("title", "Vous n'avez pas accepté le contrat");
-									location.reload();
+									showDialog("title", "{$eula_not_accepted}");
+									setTimeout(window.location.reload(), 5000);
 								},
 							});
 						};
