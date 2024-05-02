@@ -26,24 +26,22 @@ if(empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == "off")
 }
 
 //load main page
-if ( (isset($_POST['resetpwd']) && $_POST['resetpwd'] == true) && $_POST['username'] != '' ){
-    
-
-            //user founded
-            //add reset information to table reset pwd
-            /*
-             * SELECT password_reset.*,users.username FROM `password_reset` 
-                RIGHT JOIN users ON users.indexid = password_reset.users_indexid
-                WHERE username = 'gui'*/
+if ( (isset($_POST['resetpwd']) && $_POST['resetpwd'] == true) && $_POST['username'] != '' )
+{
     $html->logger->debug('Get user request for password reset');
     $userID = $users->getUidByUsername($_POST['username']);
-    $linkid = $users->updPwdResetLink($userID['uid']);
+    
+    if($userID)
+    {
+        $linkid = $users->updPwdResetLink($userID['uid']);
+    }
+
     $useremail = '';
     if( $userID && $linkid )
     {
         //generate a unique linkid and update database
         $userinfo = $users->getUserDetails($userID['uid']);
-        $useremail = '(' . hideEmail($userinfo['emailaddr']) . ')';        
+        $useremail = '(' . hideEmail($userinfo['emailaddr']) . ')';    
     }
     //on if userid and linkid generation succeed emailaddr is populated
     // on failure, this var is not populated and prevent data leak 
@@ -54,7 +52,13 @@ if ( (isset($_POST['resetpwd']) && $_POST['resetpwd'] == true) && $_POST['userna
                         'message' => L::resetpassword_reset_notice,
                         'emailaddr' => $useremail,
                         ),
-             );
+    );
+
+    //no user found or email address empty
+    if(empty($useremail))
+    {
+        $html->writeJson($return);
+    }
     /* ******************************
        ****    START SENDMAIL    ****
        ******************************/
