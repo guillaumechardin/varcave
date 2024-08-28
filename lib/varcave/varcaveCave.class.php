@@ -72,7 +72,7 @@ class VarcaveCave extends Varcave
 			 
 			}
   
-            $req = 'SELECT name,indexid_caves,chgLogTxt,guidv4,date,changelog.indexid,isVisible  
+            $req = 'SELECT name,indexid_caves,chgLogTxt,author,guidv4,date,changelog.indexid,isVisible  
                         FROM  ' . $this->dbtableprefix . 'caves as caves join  ' . $this->dbtableprefix . 'changelog as changelog
                         WHERE caves.indexid=indexid_caves AND ' . $where_indexid . ' AND ' . $where_changelog . '
                         ORDER BY changelog.date DESC limit 0,' . $max ;
@@ -111,6 +111,7 @@ class VarcaveCave extends Varcave
 				'guid' => 		$col['guidv4'],
 				'name' => 			$col['name'],
 				'chgLogTxt' => 		$col['chgLogTxt'],
+                'author'   =>       $col['author'],
 				'date' => 			$col['date'],
 				'indexid' => 		$col['indexid'],
 				'isVisible' => 		$col['isVisible'],
@@ -162,18 +163,20 @@ class VarcaveCave extends Varcave
 	 * return on success true
 	 *        on failure throw exception
 	*/
-	function AddLastModificationsLog($guid, $msg, $isVisible)
+	function AddLastModificationsLog($guid, $msg, $author, $isVisible)
 	{
 		$this->logger->info('trying to add row [' . $guid . '] to changelog with visibility : [' . $isVisible . ']');
 		try
 		{
             $result = $this->selectByGUID($guid);
             $this->logger->debug('cave indexid is :' . $result['indexid']);
+
 			$req = 'INSERT INTO  ' . $this->dbtableprefix . 'changelog ' .
-                   '  (indexid_caves, chgLogTxt, isVisible) ' .
+                   '  (indexid_caves, chgLogTxt, author, isVisible) ' .
 			       '  VALUES (' . 
                                $result['indexid']  . ',' . 
                                $this->PDO->quote($msg) . ',' . 
+                               $this->PDO->quote($author) . ',' .
                                $this->PDO->quote($isVisible) . 
                              ')';
 			$pdoStatement = $this->PDO->query( $req );

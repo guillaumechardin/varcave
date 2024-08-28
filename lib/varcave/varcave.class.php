@@ -21,8 +21,11 @@ catch (Exception $e)
 }
 
 class Varcave {
-	//engine version
-	public const version = '3.4.4';
+	//varcave engine version
+	public const version = '3.5.0';
+
+    //global versions db and php engine
+    public $versions = false;
 	
     //logger interface
     public $logger;
@@ -69,6 +72,8 @@ class Varcave {
 		//is not yet retreive
 		$this->logger = new Katzgrau\KLogger\Logger(__DIR__ . '/../../logs', Psr\Log\LogLevel::INFO );
 		$this->retreiveConfig();
+
+        $this->versions = $this->version();
         
 		/* realpath of website
 		 * 2 levels strip "/lib/varcave" from real path
@@ -138,7 +143,8 @@ class Varcave {
     }
     
 	#get current configuration from database
-	private function retreiveConfig(){
+	private function retreiveConfig()
+    {
 		try
 		{
 			

@@ -43,23 +43,7 @@ if ( isNullOrEmptyArray($_POST) )
     $htmlstr .= '  <div id="login-resetpwd" style="display:none"><a href="resetpassword.php">' . L::resetpassword_resetpassword . '</a></div>';
     $htmlstr .= '</form>';
     
-    
-    
-    
-	/*$htmlstr .= '<div id="userpwdform" >';
-	$htmlstr .= '  <p>' . L::login_loginPrompt . '</p>';;
-	$htmlstr .=    L::login_userName . '<br />';
-	$htmlstr .= '  <input type="text" name="username" id="username" />';
-	$htmlstr .= '  <br />';
-	$htmlstr .=    L::login_userPassword . '<br />';
-	$htmlstr .= '  <input type="password" name="password" id="password"/>';
-	$htmlstr .= '  <br />';
-	$htmlstr .= '  <button id="login-doLogin"> OK </button>';
-	$htmlstr .= '</div>';*/
-	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
-	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
-	
+	$htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';	
 } 
 elseif ( isset($_POST['username']) && isset($_POST['password']) ) 
 {

@@ -165,7 +165,6 @@ EOF;
         $htmlstr .= <<<EOF
         <script src="lib/varcave/olconfigplugins.js"></script>
         <script src="lib/varcave/datatables-i18n.php"></script>
-        <script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>
         <link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>
         <link rel="stylesheet" type="text/css" href="lib/Datatables/Select-1.2.6/css/select.jqueryui.min.css"/>
         <script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>

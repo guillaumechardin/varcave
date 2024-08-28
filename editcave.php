@@ -342,8 +342,6 @@ if( isset($_GET['guid']) ){
 		
 		//spinner to show db write progress
 		$htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
-        $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-        $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
         $htmlstr .= '<script src="lib/varcave/common.js"></script>';
         $htmlstr .= '<script>var guid="' . $cave['guidv4'] . '"</script>';
         $htmlstr .= '<script src="lib/varcave/editcave.js"></script>';
@@ -650,7 +648,8 @@ elseif( isset($_POST['update'] ) ){
             switch($_POST['actionType'])
             {
                 case 'add':
-                    $newEntry = $caveObj->AddLastModificationsLog($_POST['guid'], $_POST['value'], $_POST['visility']);
+                    $author = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
+                    $newEntry = $caveObj->AddLastModificationsLog($_POST['guid'], $_POST['value'], $author, $_POST['visility']);
                     $logData = $caveObj->findLastModificationsLog(1, $cave['indexid'], 2,true);
                     $actionType = 'add';
                     break;

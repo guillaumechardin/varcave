@@ -75,8 +75,6 @@ if( !isset($_POST) || empty($_POST) )
 	$htmlstr .=   '</div>';
 	$htmlstr .= '</fieldset>';
 
-	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-    $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
 	$htmlstr .= '<script src="lib/varcave/common.js"></script>';
 	$htmlstr .= '<script src="lib/varcave/newcave.js"></script>';
 	

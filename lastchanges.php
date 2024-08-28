@@ -30,7 +30,7 @@ else
 	foreach ($res as $caveMods)
 	{	
 		
-		$htmlstr .=  '<div class="changelogItem" guid="'. $caveMods['guid'] . '"> <i class="fas fa-arrow-alt-circle-right"></i> 	' . $caveMods['date'] . ' » ' . $caveMods['name'] . ' » ' . $caveMods['chgLogTxt'] . '</div> '; 
+		$htmlstr .=  '<div class="changelogItem" guid="'. $caveMods['guid'] . '"> <i class="fas fa-arrow-alt-circle-right"></i> ' . $caveMods['date'] . ' » ' . $caveMods['name'] . ' » ' . $caveMods['chgLogTxt'] . ' (' . L::general_edit_by . ' : ' . $caveMods['author'] . ')</div> '; 
 		
 	}
 	$htmlstr .= '</div>';

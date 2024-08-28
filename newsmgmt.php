@@ -16,9 +16,6 @@ const DATATABLES_JS_CSS = '
 	<script src="lib/varcave/common.js"></script>
 	<script src="lib/varcave/newsmgmt.js"></script>
 	<script src="lib/varcave/datatables-i18n.php"></script>
-	<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>
-	<script src="lib/jqueryui/i18n/datepicker-fr.js"></script>
-	<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />
 	
 	<link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/Datatables/Select-1.2.6/css/select.jqueryui.min.css"/>

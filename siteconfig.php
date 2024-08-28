@@ -203,8 +203,6 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
         }
 	}
 	$htmlstr .= '<script src="lib/varcave/siteconfig.js"></script>';
-	$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-	$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
 	$htmlstr .= '</div>';
 
 	$html->insert($htmlstr,true);

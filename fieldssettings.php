@@ -124,8 +124,6 @@ if($_SERVER['REQUEST_METHOD'] === 'GET'){
     $htmlstr .= '  var mustBeLetters = "' . html_entity_decode(L::errors_mustBeLetters) . '";';
     $htmlstr .= '</script>';
     $htmlstr .= '<script src="lib/varcave/common.js"></script>';
-    $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-    $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
     $html->insert($htmlstr, true);
     echo $html->save();
     exit();

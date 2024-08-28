@@ -284,7 +284,7 @@ class VarcaveUsers extends Varcave
 	}
 	
 	/*
-	 * this method delete an existing user in database.
+	 * this method change  existing user's data in database.
 	 * @param string $themeName a string contening the new css requested by user. Theme name is the folder name containing css files inf css/custom/<ThemeName>
 	 * @param int $id user ID (primary key) 
 	 *

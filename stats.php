@@ -36,8 +36,6 @@ $htmlstr .= '</div>';
 
 $htmlstr .= '<script src="lib/varcave/stats.js"></script>';
 $htmlstr .= '<script src="lib/varcave/datatables-i18n.php"></script>';
-$htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-$htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
 $htmlstr .= '<link rel="stylesheet" type="text/css" href="lib/Datatables/DataTables-1.10.18/css/dataTables.jqueryui.min.css"/>';
 $htmlstr .= '<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>';
 $htmlstr .= '<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>';

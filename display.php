@@ -371,14 +371,7 @@ if (isset($_GET['guid']) )
             $htmlstr .= '<script src="lib\gp-ol\3.2.11\GpPluginOpenLayers.js"></script>';
             $htmlstr .= '<script src="lib/varcave/openlayers.php?caveguid='  . $caveData['guidv4'] . '"></script>';	
     
-            
-            //load jqueryUI for Dialog
-            $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-            $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
-                
-
-            
-            $htmlstr .= '    </div>';
+			$htmlstr .= '    </div>';
             $htmlstr .= '    <div class="sketchAccessTxt">';
             if($caveData['noAccess']){
                 $htmlstr .=  '<div id="display-noaccess">' . $cave->getConfigElement('noAccessDisclaimer') . '</div>';
@@ -608,7 +601,7 @@ if (isset($_GET['guid']) )
 			foreach ($logs as $caveMods)
 			{	
 				$htmlstr .= '<div class="caveMod ">';
-				$htmlstr .=  '<li><i class="fas fa-edit fa-lg"></i>' . $caveMods['date'] . ' » ' .  $caveMods['chgLogTxt'] . '</li>';
+				$htmlstr .=  '<li><i class="fas fa-edit fa-lg"></i>' . $caveMods['date'] . ' » ' .  $caveMods['chgLogTxt'] . ' (' . L::general_edit_by . ' : ' . $caveMods['author'] . ')</li>';
 				$htmlstr .= '</div>';
 			}
 			$htmlstr .= '</ul>';

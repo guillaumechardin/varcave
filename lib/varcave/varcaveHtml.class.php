@@ -64,8 +64,25 @@ class VarcaveHtml extends Varcave {
 		$this->html .= '<script defer src="/lib/fontawesome-free/5.6.3/web/js/all.js" data-auto-replace-svg="nest"></script>';
 		//script for fontawesome special features
 		
-        $this->html .= '<script src="/lib/jquery/jquery-3.3.1.min.js"></script>';
+		
+
+        /*
+		 * Load Jquery lib
+		 */
+		$this->html .= '<script src="/lib/jquery/jquery-3.7.1.min.js"></script>';
+		
+		/*
+		 * Load JqueryUi libs
+		 */
+		$this->html .= '<script src="lib/jqueryui/jquery-ui-1.13.3/jquery-ui.js"></script>';
+		$this->html .= '<script src="lib/jqueryui/i18n/datepicker-fr.js"></script>';
+		$this->html .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.13.3/jquery-ui.css" />';
+		
+		/*
+		 * Varcave js lib depending on jquery
+		 */
 		$this->html .= '<script src="/lib/varcave/common.js"></script>';
+
         /*
          * handling javascript payload for login
          */

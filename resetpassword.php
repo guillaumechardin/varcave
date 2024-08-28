@@ -163,8 +163,6 @@ elseif(isset($_GET['resetlink']) && $_GET['resetlink'] != '')
         $htmlstr .= '</form>';
         $htmlstr .= '</p>';     
         $htmlstr .= '<script src="lib/js-sha256/js-sha256.js"></script>';
-        $htmlstr .= '<script src="lib/jqueryui/jquery-ui-1.12.1/jquery-ui.js"></script>';
-        $htmlstr .= '<link rel="stylesheet" href="lib/jqueryui/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css" />';
     } 
 }
 /*
