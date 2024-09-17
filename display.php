@@ -137,10 +137,13 @@ if (isset($_GET['guid']) )
         
         //detect if documents exists for cave and show section if some doc founds
         $isDoc = false;
-        foreach($results as $key => $value){
+        foreach( $results as $key => $value )
+        {
             $documentsFields[] = $value['field'];
             if( $cave->documentExists($caveData['guidv4'], $value['field']) ) {
-                $isDoc = true;;
+                $isDoc = true;
+                $logger->debug('display.php'  .  __LINE__ . ']: document found (' . $value['field'] . ')');
+                break; //stop on first occurence checking other doc type has no meaning here.
             }
         }
         
@@ -152,32 +155,7 @@ if (isset($_GET['guid']) )
                         </div>';
                         
         }
-        
-        //Send email for errors
-        $htmlstr .= '   <div class="fa-3x display-send-msg" data-guid="' . $caveData['guidv4'] . '">
-		                  <span class="fas fa-envelope" title="' . L::display_updatecave . '"></span>
-                          <script>
-                            var subject = \'' . L::display_updatecave . ' : '. $caveData['name'] . '\';
-                            var newmessage = \'' . L::email_newmessage . '\';
-                            var mailBody = "Lien vers la cavité : ' . $html->getConfigElement('httpdomain')  . '/' . $caveData['guidv4'] . '";
-                            var maxfilesize = "' . $html->getConfigElement('smtp_max_attach_size') * 1000 . '";
-                            var maxtotalfilessize = "' . $html->getConfigElement('smtp_max_attach_global_size') * 1000 . '";
-                            var infoRequired = "' . L::errors_inforequired . '";
-                            var send = "' . L::email_send . '";
-                            var newmessage = "' . L::email_newmessage . '";
-                            var mailUseCaptcha = "' . $html->getConfigElement('mail_use_captcha') . '";
-                            var email_usermail = "' . L::email_usermail . '";
-                            var email_subject = "' . L::email_subject . '";
-                            var email_yourmessage = "' . L::email_yourmessage . '";
-                            var email_attachfiles = "' . L::email_attachfiles . '";
-                            var contact_fileSizeNotice = "' . L::contact_fileSizeNotice . ' ' . round($html->getConfigElement('smtp_max_attach_size')/1024,1) . ' ' . 'Mo.";
-                            var contact_TotalFileSizeNotice = "' . L::contact_TotalFileSizeNotice . ' ' . round($html->getConfigElement('smtp_max_attach_global_size')/1024,1) . ' ' . 'Mo.";
-                            var captchaPubKey = "' . $html->getConfigElement('captcha_public_key') . '"; 
-        
-                          </script>
-                          <script src="lib/varcave/contact.js"></script>
-                        </div>';
-        
+
         //user add favorites, only for auth users, not anon
         if( $auth->isSessionValid() && isset($_SESSION['isauth']) && $_SESSION['isauth'] == true )
         {
@@ -204,6 +182,33 @@ if (isset($_GET['guid']) )
             $htmlstr .= '  </span>';
             $htmlstr .= '</div>';
         }
+
+        //show button to send email for errors
+        //javascript part & html
+        $htmlstr .= '   <div class="fa-3x display-send-msg" data-guid="' . $caveData['guidv4'] . '">
+		                  <span class="fas fa-envelope" title="' . L::display_updatecave . '"></span>
+                          <script>
+                            var subject = \'' . L::display_updatecave . ' : '. $caveData['name'] . '\';
+                            var newmessage = \'' . L::email_newmessage . '\';
+                            var mailBody = "Lien vers la cavité : ' . $html->getConfigElement('httpdomain')  . '/' . $caveData['guidv4'] . '";
+                            var maxfilesize = "' . $html->getConfigElement('smtp_max_attach_size') * 1000 . '";
+                            var maxtotalfilessize = "' . $html->getConfigElement('smtp_max_attach_global_size') * 1000 . '";
+                            var infoRequired = "' . L::errors_inforequired . '";
+                            var send = "' . L::email_send . '";
+                            var newmessage = "' . L::email_newmessage . '";
+                            var mailUseCaptcha = "' . $html->getConfigElement('mail_use_captcha') . '";
+                            var email_usermail = "' . L::email_usermail . '";
+                            var email_subject = "' . L::email_subject . '";
+                            var email_yourmessage = "' . L::email_yourmessage . '";
+                            var email_attachfiles = "' . L::email_attachfiles . '";
+                            var contact_fileSizeNotice = "' . L::contact_fileSizeNotice . ' ' . round($html->getConfigElement('smtp_max_attach_size')/1024,1) . ' ' . 'Mo.";
+                            var contact_TotalFileSizeNotice = "' . L::contact_TotalFileSizeNotice . ' ' . round($html->getConfigElement('smtp_max_attach_global_size')/1024,1) . ' ' . 'Mo.";
+                            var captchaPubKey = "' . $html->getConfigElement('captcha_public_key') . '"; 
+        
+                          </script>
+                          <script src="lib/varcave/contact.js"></script>
+                        </div>';
+        //end javascript
 
 	$htmlstr .= '</div>'; // end displayTitleWrapper
 	
