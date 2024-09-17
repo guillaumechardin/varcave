@@ -272,19 +272,21 @@ class Varcave {
        switch($level)
        {
             case 7:
-                return Psr\Log\LogLevel::EMERGENCY;
+                return Psr\Log\LogLevel::DEBUG;
             case 6:
-                return Psr\Log\LogLevel::ALERT;
-            case 5:
-                return Psr\Log\LogLevel::CRITICAL;
-            case 4:
-                return Psr\Log\LogLevel::ERROR;
-            case 3:
-                return Psr\Log\LogLevel::WARNING;
-            case 2:
-                return Psr\Log\LogLevel::NOTICE;
-            case 1:
                 return Psr\Log\LogLevel::INFO;
+            case 5:
+                return Psr\Log\LogLevel::NOTICE;
+            case 4:
+                return Psr\Log\LogLevel::WARNING;
+            case 3:
+                return Psr\Log\LogLevel::ERROR;
+            case 2:
+                return Psr\Log\LogLevel::CRITICAL;
+            case 1:
+                return Psr\Log\LogLevel::ALERT;
+            case 0:
+                return Psr\Log\LogLevel::EMERGENCY;
             default:
                 return Psr\Log\LogLevel::DEBUG;
         }
