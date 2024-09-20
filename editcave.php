@@ -166,9 +166,9 @@ if( isset($_GET['guid']) ){
                     foreach($cave['caveCoords'] as $coord )
                     {
                         $coordsHtml .= '<div class="editCoords" data-coordset="' . $coord['id'] . '">'; 
-                        $coordsHtml .= '   X:<input type="text" class="coords" data-coord="lat"  value="' .   $coord['lat'] . '" />';
-                        $coordsHtml .= '   Y:<input type="text" class="coords" data-coord="long" value="' .   $coord['long'] . '" />';
-                        $coordsHtml .= '   Z:<input type="text" class="coords" data-coord="z"    value="' .   $coord['z'] . '" />';
+                        $coordsHtml .= '   long:<input type="text" class="coords" data-coord="long"  value="' .   $coord['long'] . '"  placeholder="43.12345" />';
+                        $coordsHtml .= '   lat:<input type="text" class="coords" data-coord="lat" value="' .   $coord['lat'] . '" placeholder="5.123456"/>';
+                        $coordsHtml .= '   Alt:<input type="text" class="coords" data-coord="z"    value="' .   $coord['z'] . '" />';
                         $coordsHtml .= '  &nbsp<span class="fas fa-trash-alt fa-lg" data-coordset="' . $coord['id'] . '" id="edit-delCoordSet-' . $coord['id'] . '"></span>';
                         $coordsHtml .= '</div>';
                         $i++;
@@ -183,9 +183,9 @@ if( isset($_GET['guid']) ){
                 $coordsHtml .= '  </span>';
                 $coordsHtml .= '  <span id="edit-add-coordset" style="display:none" data-isnewcoordset="1">';
                 $coordsHtml .= '    <div class="editCoords">'; 
-                $coordsHtml .= '       X:<input type="text" class="coords" data-coord="lat"  value="" />';
-                $coordsHtml .= '       Y:<input type="text" class="coords" data-coord="long" value="" />';
-                $coordsHtml .= '       Z:<input type="text" class="coords" data-coord="z"    value="" />';
+                $coordsHtml .= '       long:<input type="text" class="coords" data-coord="long" value="" placeholder="43.12345"/>';
+                $coordsHtml .= '       lat:<input type="text" class="coords" data-coord="lat"  value="" placeholder="5.123456"/>';
+                $coordsHtml .= '       Alt:<input type="text" class="coords" data-coord="z"    value="" />';
                 $coordsHtml .= '    </div>';
                 $coordsHtml .= '  </span>';
                 $coordsHtml .= '</div>'; //flexItem

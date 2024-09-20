@@ -132,7 +132,7 @@ if (isset($_GET['guid']) )
          */
         $fields = $cave->getI18nCaveFieldsName('ONDISPLAY');
          //keep only required fields; here is "files" section
-        $results = filter_by_value($fields, 'field_group', 'files'); 
+        $results = filter_by_value($fields, 'field_group', 'files');
         $documentsFields = array();
         
         //detect if documents exists for cave and show section if some doc founds
@@ -143,10 +143,9 @@ if (isset($_GET['guid']) )
             if( $cave->documentExists($caveData['guidv4'], $value['field']) ) {
                 $isDoc = true;
                 $logger->debug('display.php'  .  __LINE__ . ']: document found (' . $value['field'] . ')');
-                break; //stop on first occurence checking other doc type has no meaning here.
             }
         }
-        
+
         //show goto linked files button
         if( $isDoc ){
         $htmlstr .= '   <div class="fa-3x display-files-dwnld">
@@ -367,6 +366,8 @@ if (isset($_GET['guid']) )
             $logger->debug("using openlayers");
             $htmlstr .= '<link rel="stylesheet" href="lib/openlayers/v6.14.1-dist/ol.css" type="text/css">';
             $htmlstr .= '<script src="lib/openlayers/v6.14.1-dist/ol.js"></script>';
+            //$htmlstr .= '<link rel="stylesheet" href="lib/openlayers/10.1.0-package/ol.css" type="text/css">';
+            //$htmlstr .= '<script src="lib/openlayers/10.1.0-package/dist/ol.js"></script>';
             
             /*
              * load geoportail API to have a quick layer selector 
@@ -374,6 +375,8 @@ if (isset($_GET['guid']) )
             */
             $htmlstr .= '<link rel="stylesheet" href="lib\gp-ol\3.2.11\GpPluginOpenLayers.css" type="text/css">';
             $htmlstr .= '<script src="lib\gp-ol\3.2.11\GpPluginOpenLayers.js"></script>';
+            //$htmlstr .= '<link rel="stylesheet" href="lib\gp-ol\3.4.4\GpPluginOpenLayers.css" type="text/css">';
+            //$htmlstr .= '<script src="lib\gp-ol\3.4.4\GpPluginOpenLayers.js"></script>';
             $htmlstr .= '<script src="lib/varcave/openlayers.php?caveguid='  . $caveData['guidv4'] . '"></script>';	
     
 			$htmlstr .= '    </div>';
@@ -423,9 +426,9 @@ if (isset($_GET['guid']) )
             foreach ($coordList as $key => $coord)
             {
                 $htmlstr .= '<li data-id="' . $key . '">';
-                $htmlstr .= '<span id="x-' . $key . '">X:' . $coord->geometry->coordinates[0] . '</span> '.
-                            '<span id="y-' . $key . '">Y:' . $coord->geometry->coordinates[1] . '</span> '.
-                            '<span id="z-' . $key . '">Z:' . $coord->geometry->coordinates[2] . '</span>m';
+                $htmlstr .= 'long: <span id="x-' . $key . '">' . $coord->geometry->coordinates[0] . '</span> '.
+                            'lat: <span id="y-' . $key . '">' .  $coord->geometry->coordinates[1] . '</span> '.
+                            ' <span id="z-' . $key . '">Alt:' .  $coord->geometry->coordinates[2] . '</span>m';
                 $htmlstr .= '</li>';
                 
             }
@@ -535,6 +538,8 @@ if (isset($_GET['guid']) )
                 $htmlstr .= '<h2 id="display-files-section">' .  L::display_caveDocuments . '</h2>';
                 $htmlstr .= '<div class="displaySciData">';
                 
+                $logger->debug('Documents Type list to fetch from db' . print_r($documentsFields, true));
+
                 $i=0; //increment to  columns numbering
                 foreach ($documentsFields as $key => $docField)
                 {	try

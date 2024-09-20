@@ -99,7 +99,8 @@ else //try to create new cave with user supplied infos
 	
 	
         $newguid = $cave->createNewCave($_POST['cavename']);
-        $cave->AddLastModificationsLog($newguid, $_POST['changelogEntry'],  $_POST['changelogEntryVisibility']);
+		$author = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
+        $cave->AddLastModificationsLog($newguid, $_POST['changelogEntry'], $author, $_POST['changelogEntryVisibility']);
 	
         //copy cave data from user specified cave guid to new cave
         if( isset($_POST['srccaveguid']) && !empty($_POST['srccaveguid']) )

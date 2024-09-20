@@ -22,7 +22,7 @@ catch (Exception $e)
 
 class Varcave {
 	//varcave engine version
-	public const version = '3.5.0';
+	public const version = '3.7.0';
 
     //global versions db and php engine
     public $versions = false;

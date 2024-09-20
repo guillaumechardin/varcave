@@ -10,7 +10,7 @@ function convert2GEOGRAPHIC($coord)
                 'x' => $coord[0],
                 'y' => $coord[1],
                 'z' => $coord[2],
-                'string' => 'X: ' . $coord[0] . ' Y: ' . $coord[0] . ' ' . $coord[2] . 'm',
+                'string' => ' long:' . $coord[0] . '  latitude' . $coord[1] . ' ' . $coord[2] . 'm',
                 );
     return $convCoords;
 }

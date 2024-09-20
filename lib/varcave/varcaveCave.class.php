@@ -608,7 +608,7 @@ class VarcaveCave extends Varcave
 			$result = $PDOstmtCave->fetch(PDO::FETCH_ASSOC);
             
             
-            $reqCoords = 'SELECT id,guidv4,name,ST_X(location) lat,ST_Y(location) "long", z FROM ' . $this->dbtableprefix  . 'caves ' . 
+            $reqCoords = 'SELECT id,guidv4,name,ST_X(location) "long" ,ST_Y(location) "lat", z FROM ' . $this->dbtableprefix  . 'caves ' . 
                          ' INNER JOIN caves_coordinates ' .
                          ' ON ' .  $this->dbtableprefix . 'caves.indexid = ' .  $this->dbtableprefix . 'caves_coordinates.caveid ' .  
                          ' WHERE guidv4=' . $this->PDO->quote($guid);
@@ -619,6 +619,7 @@ class VarcaveCave extends Varcave
             $geoJsonObj = new stdClass();
             $geoJsonObj->type = "FeatureCollection";
             $geoJsonObj->features = array();
+            //exit( '<pre>' . print_r($resultCoords,true) .'</pre>' );
             
 			if (!$result)
 			{
@@ -678,7 +679,7 @@ class VarcaveCave extends Varcave
                          $coordSet['long'] = 43.12016;
                          $coordSet['lat']  = 5.93144;
                          
-                        $this->logger->debug('new coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
+                        $this->logger->debug('new fake coords are : ' . $coordSet['long'] . ' ' . $coordSet['lat']);
                     }
                 }
             }
@@ -695,13 +696,15 @@ class VarcaveCave extends Varcave
                 $geoJsonObj->features[$key]->geometry = new stdClass();
                 $geoJsonObj->features[$key]->geometry->type = 'Point';
                 $geoJsonObj->features[$key]->geometry->coordinates = array(
-                                                0 => (float)$coordSet['lat'],
-                                                1 => (float)$coordSet['long'],
+                                                0 => (float)$coordSet['long'],
+                                                1 => (float)$coordSet['lat'],
                                                 2 => (float)$coordSet['z'],
                                                 );
+                                                
                 $geoJsonObj->features[$key]->properties = new stdClass();
                 $geoJsonObj->features[$key]->properties->id = $coordSet['id'];                            
             }
+
             //store original coords php formated data 
             $result['caveCoords'] = $resultCoords;
             unset($resultCoords);
@@ -813,12 +816,12 @@ class VarcaveCave extends Varcave
             case 'add':
                 $values = json_decode($values,true); //convert js string to php array
                 $q = 'INSERT INTO ' . $this->dbtableprefix . 'caves_coordinates (id,caveid,z,location) '.
-                     ' VALUES( null,' . (int)$cavedata['indexid'] . ', ' . (int)$values['z'] . ', ST_PointFromText("POINT(' . (float)$values['lat'] . ' ' . (float)$values['long'] .')", 4326) )';
+                     ' VALUES( null,' . (int)$cavedata['indexid'] . ', ' . (int)$values['z'] . ', ST_PointFromText("POINT(' . (float)$values['long'] . ' ' . (float)$values['lat'] .')", 4326) )';
                 break;
             case 'edit':
                 $values = json_decode($values,true); //convert js string to php array
                 $q = 'UPDATE ' . $this->dbtableprefix . 'caves_coordinates SET ' .
-                     '  location = ST_PointFromText("POINT(' . (float)$values['lat'] . ' ' . (float)$values['long'] .')",4326),'.
+                     '  location = ST_PointFromText("POINT(' . (float)$values['long'] . ' ' . (float)$values['lat'] .')",4326),'.
                      '  z = '. (int)$values['z'] . 
                      '  WHERE `caves_coordinates`.`id` = ' . (int)$targetCoordsetId;
                 break;
@@ -1210,8 +1213,8 @@ class VarcaveCave extends Varcave
 
             foreach($coordsList as $key => $value)
             {
-                $long = $value->geometry->coordinates[0];
-                $lat = $value->geometry->coordinates[1];
+                $long = $value->geometry->coordinates[1];
+                $lat = $value->geometry->coordinates[0];
                 $elev = $value->geometry->coordinates[2];
                 
                 $this->logger->debug('  add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
@@ -1336,8 +1339,8 @@ class VarcaveCave extends Varcave
                 $i=0;
                 foreach($coordsList as $key => $value)
                 {
-                    $long = $value->geometry->coordinates[0];
                     $lat = $value->geometry->coordinates[1];
+                    $long = $value->geometry->coordinates[0];
                     $elev = $value->geometry->coordinates[2];
                     
                     $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
@@ -1354,8 +1357,8 @@ class VarcaveCave extends Varcave
             }
             else
             {
-                $long = $coordsList[0]->geometry->coordinates[0];
-                $lat = $coordsList[0]->geometry->coordinates[1];
+                $long = $coordsList[0]->geometry->coordinates[1];
+                $lat = $coordsList[0]->geometry->coordinates[0];
                 $elev = $coordsList[0]->geometry->coordinates[2];
                 
                 $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
@@ -1603,17 +1606,17 @@ class VarcaveCave extends Varcave
      /*
       * Find location of caves located near a point
       * 
-      * @param int $origin origin coordinate for radius calculation
+      * @param int $origin origin coordinate for radius calculation as "long,lat"
       * @param int $maxRadius max radius around a point to locate caves
       * @param int $maxCavesToFind limit result set to a number of caves
       * @return mixed array on success, false on other cases
       */
-     public function findNearCaves($origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
+     public function findNearCaves(string $origin, $maxRadius, $maxCavesToFind, $excludecaveid, $jsarray = false){
         $this->logger->debug(__METHOD__ . ': try to locate caves around a point : [' . $origin . '] Radius : [' . $maxRadius . ']');
         $q = 'SELECT ' . 
-               '  caves.guidv4,caves.name,z, ST_astext(location) as coords,ST_X(location) as X, ST_Y(location) as Y, ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) as distance ' .
+               '  ' . $this->getTablePrefix() . 'caves.guidv4, ' . $this->getTablePrefix() . 'caves.name, z, ST_astext(location) as coords, ST_X(location) as "long", ST_Y(location) as "lat", ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) as distance ' .
                'FROM ' .
-               '   caves_coordinates ' .
+               '   ' . $this->getTablePrefix() . 'caves_coordinates ' .
                'INNER JOIN ' .
                ' caves ' .
                'ON caveid=indexid ' .
@@ -1621,32 +1624,35 @@ class VarcaveCave extends Varcave
                '   ST_Distance_Sphere(Point(' . $origin . '), Point(ST_X(location), ST_Y(location))) <' . (int)$maxRadius . ' AND indexid != ' . (int)$excludecaveid . ' ' .
                'ORDER BY distance ASC, name ASC ' .
                'LIMIT ' . $maxCavesToFind;
-            
         try{
             $pdostm = $this->PDO->query($q);
-                          
+            $this->logger->debug('near cave query : ' . $q);
+            $this->logger->debug('Total near caves found: ' . $pdostm->rowCount());
+
             if($pdostm->rowCount() <= 0){
                 $this->logger->debug('No caves found!');
                 return false;
             }
-            
-            //$coordsSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
             $caveSet = $pdostm->fetchall(PDO::FETCH_ASSOC);
             
             $returnData = array();
 
             foreach($caveSet as $cave => $values)
             {
-                $caveData = $this->selectByGUID($values['guidv4'], false, false);
-                $this->logger->debug('cavedata: ' . print_r($caveData, true));
-                // old version $jsreturn[]= array( $caveData['name'], $caveData['guidv4'], array($caveData['X'], $caveData['Y']) ) ;
+                $caveData = $this->selectByGUID($values['guidv4'], false, false); //pass trought selectByGUID to apply data formating/obfuscation if needed
+                $this->logger->debug(__FILE__ . '[' . __METHOD__ .'] current cavedata from nearcave set: ' . print_r($caveData, true));
                 $returnData[] = array( 
                                     'name' => $caveData['name'], 
                                     'guidv4' => $caveData['guidv4'],
                                     'coords' => 'POINT(' . $caveData['caveCoords'][0]['lat'] . ',' . $caveData['caveCoords'][0]['long'] . ')',
-                                    'X' => $caveData['caveCoords'][0]['lat'],
-                                    'Y' => $caveData['caveCoords'][0]['long'],
+                                    'long' => $caveData['caveCoords'][0]['long'],
+                                    'lat' => $caveData['caveCoords'][0]['lat'] ,
+                                    'altitude' => $caveData['caveCoords'][0]['z'],
+                                    /*
+                                    'X' => $caveData['caveCoords'][0]['lat'],  //deprecated
+                                    'Y' => $caveData['caveCoords'][0]['long'], //deprecated
                                     'Z' => $caveData['caveCoords'][0]['z'],
+                                    */
                                     'distance' => $values['distance'],
                                     );
             }

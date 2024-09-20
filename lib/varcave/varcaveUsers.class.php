@@ -404,7 +404,9 @@ class VarcaveUsers extends Varcave
 		try
 		{
 			$this->logger->info(__METHOD__. ' : Starting to fetch a list of groups');
-			$q = 'SELECT indexid,groupName,description FROM ' . $this->getTablePrefix() . 'groups WHERE 1';
+			$q = 'SELECT indexid,groupName,description FROM ' . $this->dbtableprefix . '`groups` WHERE 1';
+			$this->logger->debug('group query :' . $q);
+
 			$usersPDOstmt = $this->PDO->query($q);
 			if($assocArray == true)
 			{

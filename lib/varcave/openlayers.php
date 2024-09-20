@@ -52,7 +52,6 @@ foreach($plugins as $key => $plugin)
     echo ($$tmpVar);
 
 }
-//print_r($coordList);
 
 $JSdata = 'var map = false;';
 $JSdata .= 'var lsControl = false;';
@@ -63,7 +62,7 @@ $JSdata .= '    target: "miniMap", /*HTML id target where map is render*/';
 $JSdata .= '    view: new ol.View({';
 $JSdata .= '        /*projection: "EPSG:4326",*/';
 $JSdata .= '        center: new ol.proj.fromLonLat(';
-$JSdata .= '            ['. $coordList[0]->geometry->coordinates[0] . ','. $coordList[0]->geometry->coordinates[1] . '],'; //first cave coordinate to center view
+$JSdata .= '            ['. $coordList[0]->geometry->coordinates[1] . ','. $coordList[0]->geometry->coordinates[0] . '],'; //first cave coordinate to center view
 $JSdata .= '            "EPSG:3857"';
 $JSdata .= '        ),';
 $JSdata .= '    zoom: ' . $varcaveHTML->getConfigElement('ol_zoom_map_lvl') . ',';
@@ -82,7 +81,7 @@ $JSdata .= 'var poi = [';
         $JSdata .= '     main: "main",';
         $JSdata .= '     geometry: new ol.geom.Point(';
         $JSdata .= '         ol.proj.fromLonLat(';
-        $JSdata .= '             [' .  $coord->geometry->coordinates[0] . ',' .  $coord->geometry->coordinates[1] . ']';
+        $JSdata .= '             [' .  $coord->geometry->coordinates[1] . ',' .  $coord->geometry->coordinates[0] . ']';
         $JSdata .= '         )';
         $JSdata .= '     ),';
         $JSdata .= '}),';
@@ -127,8 +126,6 @@ $JSdata .= '];';//end of POI
 $coordOrigin =  $coordList[0]->geometry->coordinates[0] . ',' . $coordList[0]->geometry->coordinates[1];
 $nearCaves = $cave->findNearCaves($coordOrigin, $cave->getConfigElement('near_caves_max_radius'), $cave->getConfigElement('near_caves_max_number'), $caveData['indexid'], false );
 
-//echo '' var_dump($nearCaves);
-
 if($nearCaves != false){
     $nearPoiNbr = 0;
     $JSdata .= 'var nearCavesPoi = [';
@@ -140,7 +137,7 @@ if($nearCaves != false){
         $JSdata .= ' url: "' . $cave->getConfigElement('httpdomain') . '/display.php?guid=' . $coord['guidv4'] . '",';
         $JSdata .= '     geometry: new ol.geom.Point(';
         $JSdata .= '         ol.proj.fromLonLat(';
-        $JSdata .= '             [' .  $coord['X'] . ',' .  $coord['Y'] . ']';
+        $JSdata .= '             [' .  $coord['lat'] . ',' .  $coord['long'] . ']';
         $JSdata .= '         )';
         $JSdata .= '     ),';
         $JSdata .= '}),';

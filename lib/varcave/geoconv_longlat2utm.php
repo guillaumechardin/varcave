@@ -48,10 +48,10 @@ use proj4php\Point;
         $projWGS84  = new Proj('EPSG:4326', $proj4);  //WGS84 (long/lat)
         
         //Find current zone
-        $zone = long2UTMZone($coords[0]);
+        $zone = long2UTMZone($coords[1]);
         
         //find band (letter)
-        $band = getUTMLatBand($coords[1]);
+        $band = getUTMLatBand($coords[0]);
         
         //build proj data for proj4
         //depending on zone ; may not be suitable for all zones like 32V or 31X
@@ -59,7 +59,7 @@ use proj4php\Point;
         $currUTM = new Proj($currUtmDefinition, $proj4);
         
         //create new point
-        $pointSrc = new Point($coords[0], $coords[1], $projWGS84);
+        $pointSrc = new Point($coords[1], $coords[0], $projWGS84);
         
         //convert point to utm
         $pointDest = $proj4->transform($currUTM, $pointSrc);

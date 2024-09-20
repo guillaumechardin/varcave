@@ -260,7 +260,7 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 		}
 		elseif($_POST['action'] == 'buildgpx')
 		{
-            ini_set('max_execution_time', 60);
+            ini_set('max_execution_time', 120);
             try{
                 $cave = new varcaveCave();
                 $gpxdata = $cave->createAllGPXKML('gpx');
