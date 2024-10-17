@@ -79,16 +79,17 @@ class VarcaveUsers extends Varcave
 			$Def_datatablesMaxItems = 10;
             
             
-			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . 'users(' .
-                            'username, groups, password, expire, created,' .
-                            'lastUpdate, firstname, lastname, theme,'.
-                            'geo_api, last_php_session, datatablesMaxItems,'.
-                            'pref_coord_system, disabled, emailaddr, streetNum,'.
-                            'address1,address2,postCode, town,country,licenceNumber,'.
-                            'phoneNum,cavingGroup,notes,uiLanguage,bad_login_ctr,' . 
-							'EULA_accepted,EULA_read_on) '. 
+			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . '`users`(' .
+						'`indexid`, `username`, `groups`, `password`, `expire`, `created`, `' .
+						'lastUpdate`, `firstname`, `lastname`, `theme`, `'.
+						'geo_api`, `last_php_session`, `datatablesMaxItems`, `'.
+						'pref_coord_system`, `disabled`, `emailaddr`, `streetNum`, `'.
+						'address1`, `address2`, `postCode`, `town`, `country`, `licenceNumber`, `'.
+						'phoneNum`, `cavingGroup`, `notes`, `uiLanguage`, `bad_login_ctr`, `' . 
+						'EULA_accepted`, `EULA_read_on`) '. 
 									
-                        'VALUES (' . 
+                        'VALUES (' .
+							'NULL,'. //indexid
                             $this->PDO->quote( strtolower($userSettings['username']) )  . ','.
                             $this->PDO->quote($userSettings['groups']) . ','.
                             $this->PDO->quote($userSettings['password']) . ','.
@@ -115,9 +116,9 @@ class VarcaveUsers extends Varcave
                             $this->PDO->quote($userSettings['cavingGroup']) . ','.
                             $this->PDO->quote($userSettings['notes']) . ','.
                             $this->PDO->quote($userSettings['uiLanguage']) . ','.
-                            5 . ',' .  // bad login counter
+                            0 . ',' .  // bad login counter
 							0 . ',' .  //EULA_accepted
-							0 . ',' .  //EULA_read_on
+							0 .   //EULA_read_on
                             ')';
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qNewUser);
@@ -610,8 +611,10 @@ class VarcaveUsers extends Varcave
         try
         {
             $q = 'SELECT indexid as uid,username FROM ' . $this->getTablePrefix() . 'users WHERE username = ' . $this->PDO->quote($username);
-            $pdoStmt = $this->PDO->query($q);
-            if($pdoStmt->rowcount() > 0)
+            $this->logger->debug('Query : ' . $q);
+			$pdoStmt = $this->PDO->query($q);
+            
+			if($pdoStmt->rowcount() > 0)
             {
                 $this->logger->debug('  user found');
                 return $pdoStmt->fetch(PDO::FETCH_ASSOC);
