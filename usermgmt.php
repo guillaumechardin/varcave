@@ -20,6 +20,7 @@ const DATATABLES_JS_CSS = '
 	<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="lib/Datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js"></script>
 	<script type="text/javascript" src="lib/Datatables/Select-1.2.6/js/dataTables.select.min.js"></script>
+	<script type="text/javascript" src="lib/jqueryui/i18n/datepicker-fr.js"></script>
 	';
 
 
@@ -148,6 +149,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	$htmlstr .= '   <div id="usermgmt-container-import">';
     $htmlstr .= '       <p>' . L::usermgmt_import_users . '</p>';
     $htmlstr .= '       <p>CSV format (UTF-8) : username;password;firstname;lastname;email;organisation</p>';
+	$htmlstr .= '       <p>No header line</p>';
     $htmlstr .= '       <form id="import-data">';
     $htmlstr .= '           <div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     $htmlstr .= '           <fieldset><legend>' . L::usermgmt_import_settings  . '</legend>';
@@ -551,18 +553,20 @@ else
                         //update expiration date for existing users
                         if($results['USER_EXISTS'] == 1)
                         {
+							$logger->debug('User exists');
                             $q = 'UPDATE `users` 
 									SET 
 										 expire=' . $auth->PDO->quote($expire_days) . ', ' . 
                                  		'emailaddr=' . $auth->PDO->quote($line[4])  . ', ' .  
 										'cavingGroup=' . $auth->PDO->quote($line[5]) .
-                                 ' WHERE username=' . $auth->PDO->quote($line[0] ) ;
-                            $logger->debug('update existing user : $query : ' . $q);
+                                        ' WHERE username=' . $auth->PDO->quote($line[0] ) ;
+                            $logger->debug('update query : ' . $q);
                             $auth->PDO->query($q);
 							$userUpd++;
                         }
                         else  //add user to db
                         {
+							$logger->debug('User do not exists, create new one');
                             $settings = array(
                                 'username' => $line[0],
                                 'password' => $userpwd,
@@ -574,7 +578,7 @@ else
                                 'pref_coord_system' => $pref_coord_system,
                                 'expire' => $expire_days,
                             );
-                            $logger->debug('add user : ' . $line[0] . ' passwd: ' . $userpwd . ' firstname:' . $line[2] . ' expire:' . $settings['expire']);
+                            $logger->debug('add user : ' . $line[0] . ' passwd: ' . substr($userpwd, 0, 8) . '...  firstname:' . $line[2] . ' expire:' . $settings['expire']);
                             $varcaveUsers->adduser($settings);
 							$userAdd++;
                         }

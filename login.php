@@ -36,7 +36,7 @@ if ( isNullOrEmptyArray($_POST) )
     $htmlstr .= '<form id="login-login-form" action="/login.php" >';
     $htmlstr .= '<p>' . L::login_loginPrompt . '</p>';
     $htmlstr .= '  <label for="username">' . L::login_userName . '</label><br>';
-    $htmlstr .= '  <input type="text" id="login-username" name="username"><br>';
+    $htmlstr .= '  <input type="text" id="login-username" name="username" placeholder="' . $html->getConfigElement('user_login_tip') . '" ><br>';
     $htmlstr .= '  <label for="password">' . L::login_userPassword . '</label><br>';
     $htmlstr .= '  <input type="password" id="login-password" name="password"><br>';
     $htmlstr .= '  <input type="submit" id="login-submit" name="submit" value="' . L::login_connect . '"><br>';

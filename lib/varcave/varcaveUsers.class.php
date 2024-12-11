@@ -80,13 +80,13 @@ class VarcaveUsers extends Varcave
             
             
 			$qNewUser = 'INSERT INTO ' . $this->dbtableprefix . '`users`(' .
-						'`indexid`, `username`, `groups`, `password`, `expire`, `created`, `' .
-						'lastUpdate`, `firstname`, `lastname`, `theme`, `'.
-						'geo_api`, `last_php_session`, `datatablesMaxItems`, `'.
-						'pref_coord_system`, `disabled`, `emailaddr`, `streetNum`, `'.
-						'address1`, `address2`, `postCode`, `town`, `country`, `licenceNumber`, `'.
-						'phoneNum`, `cavingGroup`, `notes`, `uiLanguage`, `bad_login_ctr`, `' . 
-						'EULA_accepted`, `EULA_read_on`) '. 
+						'`indexid`, `username`, `groups`, `password`, `expire`, `created`, ' .
+						'`lastUpdate`, `firstname`, `lastname`, `theme`, '.
+						'`geo_api`, `last_php_session`, `datatablesMaxItems`, '.
+						'`pref_coord_system`, `disabled`, `emailaddr`, `streetNum`, '.
+						'`address1`, `address2`, `postCode`, `town`, `country`, `licenceNumber`, '.
+						'`phoneNum`, `cavingGroup`, `notes`, `uiLanguage`, `bad_login_ctr`, ' . 
+						'`EULA_accepted`, `EULA_read_on`) '. 
 									
                         'VALUES (' .
 							'NULL,'. //indexid
@@ -172,8 +172,8 @@ class VarcaveUsers extends Varcave
 				}
 			}
 			
-			$q = 'INSERT INTO ' . $this->dbtableprefix . 'groups' . 
-                        '(groupName, description) '.
+			$q = 'INSERT INTO ' . $this->dbtableprefix . '`groups`' . 
+                        '(`groupName`, `description`) '.
                 'VALUES (' . 
                             $this->PDO->quote($groupSettings['groupName']) . ','.
                             $this->PDO->quote($groupSettings['description']) .
@@ -208,7 +208,7 @@ class VarcaveUsers extends Varcave
 		try
 		{
 			$intID = (int)$id;
-			$qDeleteUSer = 'DELETE FROM ' . $this->dbtableprefix . 'users WHERE indexid =' . $this->PDO->quote($intID);
+			$qDeleteUSer = 'DELETE FROM ' . $this->dbtableprefix . '`users` WHERE `indexid` =' . $this->PDO->quote($intID);
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qDeleteUSer);
 			$this->PDO->commit();
@@ -234,7 +234,7 @@ class VarcaveUsers extends Varcave
 		try
 		{
 			$intID = (int)$gid;
-			$qDeleteGrp = 'DELETE FROM ' . $this->dbtableprefix . 'groups WHERE indexid =' . $this->PDO->quote($intID);
+			$qDeleteGrp = 'DELETE FROM ' . $this->dbtableprefix . '`groups` WHERE `indexid` =' . $this->PDO->quote($intID);
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qDeleteGrp);
 			$this->PDO->commit();
@@ -267,7 +267,7 @@ class VarcaveUsers extends Varcave
 				throw new Exception ('Password is not a sha256 string'); 
 			}
 
-			$updateUserPwd = 'UPDATE ' . $this->dbtableprefix . 'users SET password=' . $this->PDO->quote($sha256) . ' WHERE indexid=' . $this->PDO->quote(intval($uid) );
+			$updateUserPwd = 'UPDATE ' . $this->dbtableprefix . '`users` SET `password` =' . $this->PDO->quote($sha256) . ' WHERE `indexid`=' . $this->PDO->quote(intval($uid) );
 			$this->PDO->beginTransaction();
 			$this->PDO->query($updateUserPwd);
 			$this->PDO->commit();
@@ -295,7 +295,7 @@ class VarcaveUsers extends Varcave
 		$this->logger->info('Trying to update ' . $prefName . '  for user: ' . $id);
 		try
 		{
-			$qUpdateUser = 'UPDATE ' . $this->dbtableprefix . 'users SET '. $prefName . '=' . $this->PDO->quote($prefValue) . ' WHERE indexid=' . $this->PDO->quote(intval($id) );
+			$qUpdateUser = 'UPDATE ' . $this->dbtableprefix . '`users` SET `' . $prefName . '`=' . $this->PDO->quote($prefValue) . ' WHERE `indexid`=' . $this->PDO->quote(intval($id) );
 			$this->PDO->beginTransaction();
 			$this->PDO->query($qUpdateUser);
 			$this->PDO->commit();
@@ -346,7 +346,7 @@ class VarcaveUsers extends Varcave
 		$this->logger->info('Trying to get theme  for user: ' . $id);
 		try
 		{
-			$getUserTheme = 'SELECT theme FROM  ' . $this->dbtableprefix . 'users WHERE indexid=' . $this->PDO->quote(intval($id) );
+			$getUserTheme = 'SELECT theme FROM  ' . $this->dbtableprefix . '`users` WHERE `indexid`=' . $this->PDO->quote(intval($id) );
 			$pdoStmt = $this->PDO->query($getUserTheme);
 			$currentTheme = $pdoStmt->fetch();
 			$this->logger->info('get theme successfully : ['. $currentTheme[0] . ']');
