@@ -30,4 +30,5 @@ You can also use phpMyadmin or any other tool to import database template.
 # Use and update data
 Reach the new created website https://server.domain.tld/login.php.
 Default account is "admin" and password "password". Keep in mind to change your password as soon as possible to prevent unwanted access to administration panel and data.
- 
+
+A working exemple of Varcave managment system is located at www.fichiertopo.fr. The current online database used by the Var Departmental Speleology Committee (France)

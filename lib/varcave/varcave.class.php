@@ -1063,7 +1063,7 @@ class Varcave {
      * @param $lang : desired language
      * return eula content.
      */
-    protected function getEULA($lang)
+    public function getEULA($lang)
     {
         $this->logger->debug(__METHOD__ . ' Fetch EULA for language : ' . $lang);
 

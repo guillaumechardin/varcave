@@ -36,8 +36,9 @@ if ( !$auth->isSessionValid() || !$auth->isMember($acl[0]))
 }
 
 if( ($_SERVER['REQUEST_METHOD']) == 'GET')
-{  //dsiplay default edit site configuration page
-	$html->logger->info('User access edit site configuration page');
+{
+    //display default edit site configuration page
+	$logger->info('User access edit site configuration page');
 	
 
 	//If advanced mode set, all configuration settings are available (use with caution :) )
@@ -57,6 +58,14 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 		$configItems = $varcave->getAllConfigElements();
 	}
 	
+    $htmlstr .= '<div id="siteconfig_tabs">' ; //start jquery tab
+    $htmlstr .= '  <ul>';
+    $htmlstr .= '    <li><a href="#tab-siteconfig">' . "Configuration du site" . '</a></li>';
+    $htmlstr .= '    <li><a href="#tab-EULA">Edition EULA</a></li>';
+    $htmlstr .= '  </ul>';
+    
+    
+    $htmlstr .= '<div id="tab-siteconfig">';
 	$htmlstr .= '<h2>' . L::siteconfig_title . '</h2>';
 	$htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     
@@ -203,7 +212,24 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
         }
 	}
 	$htmlstr .= '<script src="lib/varcave/siteconfig.js"></script>';
-	$htmlstr .= '</div>';
+    $htmlstr .= '</div>'; //end tab-siteconfig
+    
+    $htmlstr .= '<div id="#tab-EULA">'; //start tab-EULA
+    $htmlstr .= '<script src="/lib/trumbowyg/2.20/trumbowyg.min.js"></script>';
+
+	$htmlstr .= '<link rel="stylesheet" href="lib/trumbowyg/2.20/trumbowyg.min.css">';
+
+    $htmlstr .= '<h2>Edition EULA</h2>';
+    $htmlstr .= '<p>';
+    //$htmlstr .= '  <label for="siteconfig_editEULA">Edition EULA</label>';
+    $htmlstr .= '  <textarea id="siteconfig_editEULA">';
+    $htmlstr .=    $html->getEULA('fr');
+    $htmlstr .= '  </textarea>';
+    $htmlstr .= '</p>';
+    $htmlstr .= '<button id="siteconfig_eula-save">OK</button>';
+    $htmlstr .= '</div>'; //end tab-EULA
+
+    $htmlstr .= '</div>' ; //end siteconfig_tabs
 
 	$html->insert($htmlstr,true);
 	echo $html->save();
