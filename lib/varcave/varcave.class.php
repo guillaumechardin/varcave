@@ -1082,5 +1082,31 @@ class Varcave {
             exit();
         }
     }
+
+    /*
+     * Update EULA content for specified language 
+     * @param $eula : EULA html formated
+     * @param $lang : desired language
+     * return true on success
+     */
+    public function setEULA($eula, $lang)
+    {
+        $this->logger->info(__METHOD__ . ' Set new EULA for language : ' . $lang);
+
+        $q = 'UPDATE `' . $this->getTablePrefix() . 'eula` SET `content`= ' . $this->PDO->quote($eula) . ' WHERE `lang` = ' . $this->PDO->quote($lang);
+        try
+        {
+            $pdostmt = $this->PDO->query($q);
+            return true;
+        }
+        catch(exception $e)
+        {
+            $this->logger->error("error : " . $e->getmessage() );
+            $this->logger->debug('full query : ' . $q );
+            throw new exception("EULA NOT FOUND" . $e->getmessage() ) ;
+            return false;
+        }
+        return false;
+    }
 }
 ?>

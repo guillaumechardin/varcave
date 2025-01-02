@@ -938,6 +938,16 @@ div[id^="edit-imgEl"]
 	background-color: silver;
 }
 
+#siteconfig-eula-save, #siteconfig-EULA-wrapper
+{
+	margin: 0.5em;
+}
+
+#siteconfig-EULA-wrapper >  p
+{
+	background-color: aliceblue;
+}
+
 #usermgmt-userEditPage
 {
 	display:none;

@@ -40,8 +40,18 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     //display default edit site configuration page
 	$logger->info('User access edit site configuration page');
 	
+	$htmlstr .= '<div id="siteconfig_tabs">' ; //start jquery tab
+    $htmlstr .= '  <ul>';
+    $htmlstr .= '    <li><a href="#tab-siteconfig">' . "Configuration du site" . '</a></li>';
+    $htmlstr .= '    <li><a href="#tab-EULA">Edition EULA</a></li>';
+    $htmlstr .= '  </ul>';
+    
+    $htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
 
-	//If advanced mode set, all configuration settings are available (use with caution :) )
+    $htmlstr .= '<div id="tab-siteconfig">';
+	$htmlstr .= '<h2>' . L::siteconfig_title . '</h2>';
+    
+    //If advanced mode set, all configuration settings are available (use with caution :) )
 	if( isset($_GET['advanced']) )
 	{
 		$logger->info('Advanced mode is set');
@@ -57,17 +67,6 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 		$varcave->fetchConfigSettings(false, true);
 		$configItems = $varcave->getAllConfigElements();
 	}
-	
-    $htmlstr .= '<div id="siteconfig_tabs">' ; //start jquery tab
-    $htmlstr .= '  <ul>';
-    $htmlstr .= '    <li><a href="#tab-siteconfig">' . "Configuration du site" . '</a></li>';
-    $htmlstr .= '    <li><a href="#tab-EULA">Edition EULA</a></li>';
-    $htmlstr .= '  </ul>';
-    
-    
-    $htmlstr .= '<div id="tab-siteconfig">';
-	$htmlstr .= '<h2>' . L::siteconfig_title . '</h2>';
-	$htmlstr .= '<div class="loadingSpiner"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>';
     
     //reordering configItems by itemGroup
     $newconfigItems = array();
@@ -121,8 +120,8 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
                 $htmlstr .= '  </span>';
                 $htmlstr .= '  <span class="col-2">'; //item value
-                $htmlstr .= '    <input type="checkbox" ' . $checked . ' name="' . $value['configItem'] . '"></input>';
-                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '    <input type="checkbox" ' . $checked . ' name="' . $value['configItem'] . '">';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '">';
                 $htmlstr .= '  </span>';
                 
             }
@@ -143,7 +142,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                     $selected = '';
                     if ( $value['configItemValue'] == $listItem['list_item'] )
                     {
-                        $selected = 'selected';
+                        $selected = ' selected';
                     }
 
                     $lstItemHlp = 'L::siteconfighelp_' . $listItem['list_name'] . '_lst' . $listItem['list_item'];
@@ -155,8 +154,9 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
  
                     $htmlstr .= '   <option value="' . $listItem['list_item'] . '"' .  $selected . '>' . $listItem['list_item'] . $configStrHlp . ' </option>';
                 }
-                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
-                $htmlstr .= '    </select ';
+                $htmlstr .= '    </select> ';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '">';
+                
                 $htmlstr .= '  </span>';
                 
             }
@@ -167,10 +167,9 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
                 $htmlstr .= '  </span>';
                 $htmlstr .= '  <span class="col-2">'; //item value
-                $htmlstr .= '    <input type="number" name="' . $value['configItem'] . '" data="name" class="siteconfig-input-short" value="' . $value['configItemValue'] . '"></input>';
-                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '    <input type="number" name="' . $value['configItem'] . '" data="name" class="siteconfig-input-short" value="' . $value['configItemValue'] . '">';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '">';
                 $htmlstr .= '  </span>';
-                
             }
             elseif($value['configItemType'] === 'longtext'){ 
         
@@ -180,7 +179,7 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '  </span>';
                 $htmlstr .= '  <span class="col-2">'; //item value
                 $htmlstr .= '    <textarea name="' . $value['configItem'] . '" data="name" class="siteconfig-textarea">' . $value['configItemValue'] . '</textarea>';
-                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '">';
                 $htmlstr .= '  </span>';
             }
             else{ 
@@ -203,8 +202,8 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
                 $htmlstr .= '    <span>' . constant($L . '::' . $dspName) . ': </span>' ; //item name
                 $htmlstr .= '  </span>';
                 $htmlstr .= '  <span class="col-2">'; //item value
-                $htmlstr .= '    <input type="text" name="' . $value['configItem'] . '" data="name" class="' . $cssInputClass .'" value="' . $value['configItemValue'] . '"></input>';
-                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '"></input>';
+                $htmlstr .= '    <input type="text" name="' . $value['configItem'] . '" data="name" class="' . $cssInputClass .'" value="' . $value['configItemValue'] . '">';
+                $htmlstr .= '    <input type="hidden" name="' . $value['configIndexid'] . '" data="id" value="' . $value['configIndexid'] . '">';
                 $htmlstr .= '  </span>';
             }
             
@@ -214,11 +213,12 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	$htmlstr .= '<script src="lib/varcave/siteconfig.js"></script>';
     $htmlstr .= '</div>'; //end tab-siteconfig
     
-    $htmlstr .= '<div id="#tab-EULA">'; //start tab-EULA
+    $htmlstr .= '<div id="tab-EULA">'; //start tab-EULA
     $htmlstr .= '<script src="/lib/trumbowyg/2.20/trumbowyg.min.js"></script>';
 
 	$htmlstr .= '<link rel="stylesheet" href="lib/trumbowyg/2.20/trumbowyg.min.css">';
-
+    
+    $htmlstr .= '<div id="siteconfig-EULA-wrapper">'; //EULA edit wrapper
     $htmlstr .= '<h2>Edition EULA</h2>';
     $htmlstr .= '<p>';
     //$htmlstr .= '  <label for="siteconfig_editEULA">Edition EULA</label>';
@@ -226,7 +226,8 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
     $htmlstr .=    $html->getEULA('fr');
     $htmlstr .= '  </textarea>';
     $htmlstr .= '</p>';
-    $htmlstr .= '<button id="siteconfig_eula-save">OK</button>';
+    $htmlstr .= '<button id="siteconfig-eula-save" class="button" >OK</button>';
+    $htmlstr .= '</div>'; //end EULA edit wrapper
     $htmlstr .= '</div>'; //end tab-EULA
 
     $htmlstr .= '</div>' ; //end siteconfig_tabs
@@ -235,52 +236,104 @@ if( ($_SERVER['REQUEST_METHOD']) == 'GET')
 	echo $html->save();
 }
 else
-{ //Handling ajax with post request
+{ 
+    //Handling ajax post request
 	
-	try
-	{
-		$logger->info('User request update of website configuration : [' . $_POST['itemname'] . '],id[' . $_POST['itemid'] . ']');
-		
-		//check minimal args requirement
-		if(!isset($_POST['itemname']) || !isset($_POST['itemid']) || !isset($_POST['itemvalue']))
-		{
-			throw new exception(L::errors_badArgs);
-		}
-		
-		$logger->debug('Update value is:[' . $_POST['itemvalue'] .']');
-		
-		//update DB
-		//$id = $varcave->PDO->quote($_POST['itemid']);
-		//$value = $varcave->PDO->quote($_POST['itemvalue']);
-		$varcave->setConfigSettings($_POST['itemid'], $_POST['itemvalue']);
-		
-		//preparing info back to user
-		$return = array(
-                    'title' => L::general_edit,
-                    'stateStr'=> L::editcave_success,
-                    'newVal' => htmlentities($_POST['itemvalue']),
+    //post request error
+    if( ! isset($_POST['target']))
+    {
+        $return = array(
+            'title' => L::errors_ERROR,
+            'stateStr'=> L::general_operation_fail,
+            'state' => 0,
+            );
+        $httpError = 400;
+        $httpErrorStr = ' Bad Request ';
+    
+        jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
+        exit();
+    }
+
+    switch ($_POST['target'])
+    {
+        case 'updateConfig':
+            try
+            {
+                $logger->info('User request update of website configuration : [' . $_POST['itemname'] . '],id[' . $_POST['itemid'] . ']');
+                
+                //check minimal args requirement
+                if(!isset($_POST['itemname']) || !isset($_POST['itemid']) || !isset($_POST['itemvalue']))
+                {
+                    throw new exception(L::errors_badArgs);
+                }
+                
+                $logger->debug('Update value is:[' . $_POST['itemvalue'] .']');
+                
+                //update DB
+                //$id = $varcave->PDO->quote($_POST['itemid']);
+                //$value = $varcave->PDO->quote($_POST['itemvalue']);
+                $varcave->setConfigSettings($_POST['itemid'], $_POST['itemvalue']);
+                
+                //preparing info back to user
+                $return = array(
+                            'title' => L::general_edit,
+                            'stateStr'=> L::editcave_success,
+                            'newVal' => htmlentities($_POST['itemvalue']),
+                            );
+                $httpError = 200;
+                $httpErrorStr = ' OK';
+                
+            }
+            catch(Exception $e)
+            {
+                $logger->error('Update fail : '. $e->getmessage() );
+                $return = array(
+                    'title' => L::errors_ERROR,
+                    'stateStr'=> L::editcave_fail,
+                    'state' => 0,
                     );
-		$httpError = 200;
-		$httpErrorStr = ' OK';
-		
-	}
-	catch(Exception $e)
-	{
-		$logger->error('Update fail : '. $e->getmessage() );
-		$return = array(
-			'title' => L::errors_ERROR,
-			'stateStr'=> L::editcave_fail,
-			'state' => 0,
-			);
-		$httpError = 500;
-		$httpErrorStr = ' Internal server error';
-	}
-	
-	jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
-	exit();
-	
-	
+                $httpError = 500;
+                $httpErrorStr = ' Internal server error';
+            }
+            
+            jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
+            exit();
+            break;
+        
+        case 'updateEULA':
+            try
+            {
+                $varcave->setEula($_POST['eulaContent'], 'fr');
+            }
+            catch(Exception $e)
+            {
+                $return = array(
+                    'title' => L::errors_ERROR,
+                    'stateStr'=> L::siteconfig_eula_edit_fail,
+                    'state' => 0,
+                    );
+                $httpError = 500;
+                $httpErrorStr = ' Internal server error';
+
+            }
+
+            jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
+            exit();
+
+            break;
+        
+        //bad command exit with error
+        default:
+        $return = array(
+            'title' => L::errors_ERROR,
+            'stateStr'=> L::general_operation_fail,
+            'state' => 0,
+            );
+        $httpError = 400;
+        $httpErrorStr = ' Bad Request ';
+
+        jsonWrite(json_encode($return, JSON_UNESCAPED_SLASHES), $httpError, $httpErrorStr);
+        exit();
+    }
 }
-
-
 ?>
