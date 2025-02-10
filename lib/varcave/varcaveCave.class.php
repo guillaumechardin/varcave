@@ -1554,27 +1554,34 @@ class VarcaveCave extends Varcave
             //check if deletion possible 
             $unWrFiles = false;
             
+            clearstatcache();
             foreach($dirListingArr as $key => $path)
             {
-                if(filetype($path) == 'dir')
-                {
-                    $this->logger->debug('check dir rw mode: [' . $path .']');
-                    if( is_writable($path) == false ){
-                                $unWrFiles[] = $path;
+                if (file_exists($path) ) {
+                    if(filetype($path) == 'dir')
+                    {
+                        $this->logger->debug('check DIR rw mode: [' . $path .']');
+                        if( is_writable($path) == false ){
+                            $unWrFiles[] = $path;
+                        }
+                        else{
+                            $this->logger->info('dir deleted [' . $path .']');
+                            rmdir($path);
+                        }
                     }
-                    else{
-                        $this->logger->info('dir deleted [' . $path .']');
-                        rmdir($path);
+                    else{ // can only be a file ?? (see filetype help for other types)
+                        $this->logger->debug('check FILE rw mode: [' . $path .']');
+                        if( is_writable($path) == false ){
+                                $unWrFiles[] = $path;
+                        }
+                        else{
+                            $this->logger->info('file deleted [' . $path .']');
+                            unlink($path);
+                        }
                     }
                 }
-                else{ //is a file
-                    if( is_writable($path) == false ){
-                            $unWrFiles[] = $path;
-                    }
-                    else{
-                        $this->logger->info('file deleted [' . $path .']');
-                        unlink($path);
-                    }
+                else{
+                    $this->logger->info('Non existant file : ' .$path . 'skipping.');
                 }
             }
             
@@ -1584,11 +1591,14 @@ class VarcaveCave extends Varcave
             
             $this->logger->info('*** cave deleted ***');
             //send back to user success status
+            $msg = 'var dump : ' . print_r($unWrFiles, true);
+            $this->logger->debug($msg);
             if($unWrFiles === false){
                 return true;
             }
             else{
-                $this->logger->info('Some files where not deleted');
+                $this->logger->warning('Some files where not deleted');
+                $this->logger->warning('Files : ' . print_r($unWrFiles, true) );
                 return $unWrFiles;
             }
          }
