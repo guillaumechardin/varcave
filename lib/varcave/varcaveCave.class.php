@@ -747,7 +747,6 @@ class VarcaveCave extends Varcave
             $qUpdate = 'UPDATE ' . $this->getTablePrefix() . 'caves SET `' . $colname . '`=' . $this->PDO->quote($value) . ' WHERE guidv4=' . $this->PDO->quote($guid);
             $this->logger->debug('Query : ' . $qUpdate);
             $this->PDO->query($qUpdate);
-            return true;
         }
         catch(exception $e)
         {
@@ -755,7 +754,7 @@ class VarcaveCave extends Varcave
             $this->logger->debug('Query : ' . $qUpdate);
             throw new exception('cave update fail');
         }
-        return false;
+        return true;
      }
          
     
@@ -1117,7 +1116,7 @@ class VarcaveCave extends Varcave
 			}
 			catch (exception $e)
 			{
-				$this->logger->error('Fail to update stats for cave : ' .$caveid . $e->getMessage() );
+				$this->logger->error('Fail to update stats for cave : ' . $caveid . $e->getMessage() );
 				$this->logger->debug('full query : ' . $q);
 				return false;
 			}
@@ -1129,7 +1128,7 @@ class VarcaveCave extends Varcave
 	 * most viewed caves
 	 * @param  $limit max line to get from db
 	 * @return array on success, false on error
-	           
+	 *          
 	 */
 	function getStats()
 	{
