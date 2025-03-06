@@ -22,7 +22,7 @@ catch (Exception $e)
 
 class Varcave {
 	//varcave engine version
-	public const version = '3.7.0';
+	public const version = '3.7.1';
 
     //global versions db and php engine
     public $versions = false;
@@ -1108,5 +1108,50 @@ class Varcave {
         }
         return false;
     }
+
+    /*
+     * Get about page content.
+     * @param $id : id of page content, default 1
+     * return array()  on success
+     */
+    public function getAboutPage($id = 1) {
+        $this->logger->info(__METHOD__ . ' Get content of about page');
+        $q = 'SELECT indexid,html_content,edit_date FROM `' . $this->getTablePrefix() .'about_page` WHERE indexid=' . $this->PDO->quote($id);
+        try
+        {
+            $pdostmt = $this->PDO->query($q);
+            $results = $pdostmt->fetch(PDO::FETCH_ASSOC);
+            return  $results;
+        }
+        catch(exception $e)
+        {
+            $this->logger->error("error : " . $e->getmessage() );
+            $this->logger->debug('full query : ' . $q );
+            return false;
+        }
+    }
+
+    /*
+     * Set 'About page' content.
+     * @param $content : page content, HTML formated
+     * @param $id : id of page content, default 1
+     * return true on success
+     */
+    public function setAboutPage($content, $id = 1) {
+        $this->logger->info(__METHOD__ . ' Set content of about page');
+        try
+        {
+            $q = 'UPDATE `' . $this->getTablePrefix() .'`about_page` SET  html_content=' . $this->PDO->quote($content) . ',edit_date=' . time() . ' WHERE indexid=1 ';
+            $pdostmt = $this->PDO->query($q);
+            return  true;
+        }
+        catch(Exception $e)
+        {
+            $this->logger->error("error : " . $e->getmessage() );
+            $this->logger->debug('full query : ' . $q );
+            return false;
+        }
+    }
+
 }
 ?>

@@ -1468,4 +1468,13 @@ div [id^="olconfigplugins-plg"] {
 
 #usermgmt-dialogFormUser fieldset  input[type="checkbox"] {
 	max-width: 30%;
-  }
+}
+
+#about_edit_content, #about_page_content{
+	margin: 1em 1em 1em 2em;
+	max-width: 75%;
+}
+
+#about_contenthtml{
+	height: 500px;
+}
