@@ -1338,8 +1338,9 @@ class VarcaveCave extends Varcave
                 $i=0;
                 foreach($coordsList as $key => $value)
                 {
-                    $lat = $value->geometry->coordinates[1];
-                    $long = $value->geometry->coordinates[0];
+                    $long = $value->geometry->coordinates[1];
+					$lat  = $value->geometry->coordinates[0];
+                    
                     $elev = $value->geometry->coordinates[2];
                     
                     $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
@@ -1357,8 +1358,9 @@ class VarcaveCave extends Varcave
             else
             {
                 $long = $coordsList[0]->geometry->coordinates[1];
-                $lat = $coordsList[0]->geometry->coordinates[0];
-                $elev = $coordsList[0]->geometry->coordinates[2];
+                $lat  = $coordsList[0]->geometry->coordinates[0];
+                
+				$elev = $coordsList[0]->geometry->coordinates[2];
                 
                 $this->logger->debug('add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
                 $point                 = new Point(Point::WAYPOINT);
