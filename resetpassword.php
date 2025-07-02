@@ -209,7 +209,7 @@ else{
     {
         $username = $_GET['username'];
     }
-    $htmlstr .= '    <input type="text" id="resetpassword-username" value="' . $username . '">';
+    $htmlstr .= '    <input type="text" placeholder="' .  $html->getConfigElement('user_login_tip')  . '" id="resetpassword-username" value="' . $username . '">';
     $htmlstr .= '    <div id="resetpassword-wrapcaptcha">';
     $htmlstr .= '      <div class="g-recaptcha" data-sitekey="' . $auth->getConfigElement('captcha_public_key') .'"></div>';
     $htmlstr .= '      <br/>';
