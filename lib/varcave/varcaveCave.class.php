@@ -258,8 +258,12 @@ class VarcaveCave extends Varcave
 		$betweenFound = false;
 		foreach($searchInput as $key=>$value)
 		{
-			
-			if ( in_array( $value['field'], $this->getBooleanEndUserType() ) ){
+			//rewrite sql query on the flight, with user given search
+			if($value['field'] == 'searchWithCoords'){
+				$baseQuery = '';
+				
+			}
+			elseif ( in_array( $value['field'], $this->getBooleanEndUserType() ) ){
                 //depending field type, adapt query
                 if( $value['type'] == '=' ){
                         $req .= ' ' . $value['field'] . ' = 1 ';
@@ -274,7 +278,6 @@ class VarcaveCave extends Varcave
                     return false;
                     throw new Exception($msg,0);
                 }
-                
             }
             elseif ( in_array( $value['field'], $this->getFileEndUserType() ) ){
                 //depending field type, adapt query
