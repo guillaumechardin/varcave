@@ -104,13 +104,20 @@ function jsonWrite($json, $httpStatusCode = 200, $httpStatusStr = 'OK')
 /*
  * find string from array in a string
  */
- function strstr_from_arr($needles, $haystack)
+ function strstr_from_arr($needles, $haystack, $case_insensitive = false)
 {
     foreach($needles as $needle){
-        if (strpos($haystack, $needle) !== false) {
-            return true;
+        if($case_insensitive)
+        {
+            if (stripos($haystack, $needle) !== false) {
+                return true;
+            }
+        }else{
+            if (strpos($haystack, $needle) !== false) {
+                return true;
+            }
         }
-    }
+    }   
     return false;
 }
 
@@ -154,14 +161,14 @@ function getFaIcon($fileExt, $faStyle = 'fas')
 	//bad arg
 	if(empty($fileExt) )
 	{
-		return false;
+		return $faStyle . ' fa-file';
 	}
 	
 	$fileExt = strtolower($fileExt);
 	
 	switch($fileExt)
 	{
-		case 'pdf':
+		case 'pdf ':
 			return $faStyle . ' fa-file-pdf';
 			break;
 		

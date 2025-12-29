@@ -283,7 +283,7 @@ if (isset($_GET['guid']) )
 
                 if ( isset( $subArray['type'] ) && strstr( $subArray['type'] , 'list_select') )
                 {
-                    $str = 'table_cave_field_pollution_lst' . $caveDataCpy[ $subArray['field'] ]; 
+                    $str = 'table_cave_field_' . $subArray['field'] . '_lst' . $caveDataCpy[ $subArray['field'] ]; 
                     $caveDataCpy[ $subArray['field'] ] = constant('L::'. $str);
                 }
                 

@@ -75,8 +75,6 @@ if( isset($_GET['guid']) ){
 
         //build cave `files` from json
 		$filesObj = $caveObj->getCaveFileList($cave['guidv4'], 'all');
-		
-        //exit(print_r($fieldList));
 
 		foreach($fieldList as $fieldInfo)
 		{   
@@ -115,7 +113,7 @@ if( isset($_GET['guid']) ){
                 $listsSelect .= '<div class="edit-flexItem"><span class="editDisplayName-Title">';
                 $listsSelect .= $fieldInfo['display_name'] . '</span>' ;
                 $listsSelect .= '<select name="' . $fieldInfo['field'] . '">';
-                $lists = $caveObj->getListElements('pollution');
+                $lists = $caveObj->getListElements($fieldInfo['field']);
                 
                 foreach($lists as $list)
                 { 
@@ -235,13 +233,13 @@ if( isset($_GET['guid']) ){
                        
                         $fileType = pathinfo($value['file_path']);
                         $fileName = $value['file_path'];
-
-
-						
+                        $extension = strtolower($fileType['extension']);
+                        
 						$logger->debug('editcave.php : tring to find filetype for:' . $fileType['extension'] . '('. $fileType['basename'] .')' ) ;
-                        if ($fileType['extension']  != 'jpg')
+
+                        if ( !in_array($extension, ['jpg', 'png', 'jpeg']) ) //check if image file to show rotate tools
                         {
-                                $curHtml .= '<i class="' . getFaIcon($fileType['extension'],'far') . ' fa-2x"></i> ' . $fileType['basename'] ;
+                                $curHtml .= '<i class="' . getFaIcon($extension,'far') . ' fa-2x"></i> ' . $fileType['basename'] ;
                         }
 						else
                         {
@@ -485,19 +483,10 @@ elseif( isset($_POST['update'] ) ){
                     $fileInfo = pathinfo($_FILES['file']['name']);
 
                     //check if file is authorized
-                    $permitedFileTypes = array(
-                            'jpg', 'jpeg',
-                            'pdf',
-                            'doc', 'docx',
-                            'xls', 'xlsx',
-                            'png',
-                            'zip',
-                            'txt','csv',
-                            'gpx',
-                    );
+                    $permitedFileTypes = $caveObj->getConfigElement('authorized_file_types');
                             
                     $logger->debug('check if filetype [' . $fileInfo['extension'] . '] is ok  on ' . print_r($permitedFileTypes, true));
-                    if ( !  strstr_from_arr($permitedFileTypes, $fileInfo['extension'] ) )
+                    if ( ! strstr_from_arr($permitedFileTypes, $fileInfo['extension'], true ) )
                     {
                         $return = array(
                             'title' => L::errors_ERROR,

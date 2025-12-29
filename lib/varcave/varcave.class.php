@@ -322,6 +322,11 @@ class Varcave {
 			//removing 1st level of array
 			foreach ( $results as $key => $value)
 			{
+                if($value['configItem'] == 'authorized_file_types')
+                {
+                    $this->config[ $value['configItem'] ] = array_map('trim', explode(',', $value['configItemValue']) );
+                    continue;
+                }
 				$this->config[ $value['configItem'] ] = $value['configItemValue'];
 			}
 			
@@ -387,6 +392,14 @@ class Varcave {
             }
 		}
 		return false;
+	}
+
+    /*
+	 * This function retreive all store configuration settings
+	 * @return : array
+	 */
+    public function getConfig(){
+		return $this->config;
 	}
 
     /* This function add a new config element in varcave  database
