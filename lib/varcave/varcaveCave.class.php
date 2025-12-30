@@ -804,7 +804,8 @@ class VarcaveCave extends Varcave
 	 * @return on success  : new id on add or true
 	 * 		   on error  :  return false  or throw exception
      */
-    function updateCaveCoords($guidv4, $actionType, $targetCoordsetId = false, $values = false){
+    function updateCaveCoords($guidv4, $actionType, $targetCoordsetId = false, $values = false)
+    {
          //CHECK cave existence
         $this->logger->info('caveClass::updateCaveCoords try to update coords of : ' . $guidv4);
         $cavedata = $this->selectByGUID($guidv4);
@@ -1220,7 +1221,7 @@ class VarcaveCave extends Varcave
                 $elev = $value->geometry->coordinates[2];
                 
                 $this->logger->debug('  add point with : lat:'. substr_replace($lat ,"*",-5).' long:'.substr_replace($long ,"*",-5).'elev:'.$elev );
-                $point                 = new Point(Point::WAYPOINT);
+                $point = new Point(Point::WAYPOINT);
 
                 $point->name           = $namePrefix  ;
                 if($multipleCaveCoord)
@@ -1234,7 +1235,17 @@ class VarcaveCave extends Varcave
 
                 $url = $this->config['httpdomain'] . '/' . $this->config['httpwebroot'] . '/display.php?guid=' . $cavedata['guidv4'];
                 
-                $point->description = $url;
+                $description = $url;
+                if( $this->getConfigElement('include_GPX_details') )
+                {
+                    $hasPict = $this->getCaveFileList($cavedata['guidv4'], 'photos');
+                    $description .= "\n"; 
+                    $description .= L::table_cave_field_length . " : " . $cavedata['length'] . "\n";
+                    $description .= L::table_cave_field_maxDepth . " : " . $cavedata['maxDepth'] . "\n";
+                    $description .= L::table_cave_field_maxDepth . " : " . ($hasPict ? L::_yes : L::_no) . "\n";
+                }
+                $point->description = $description;
+
                 $link 		 = new Link();
                 $link->href  = $url ;
                 $point->links[] = $link;
@@ -1335,6 +1346,17 @@ class VarcaveCave extends Varcave
                 $pointName = $cavedata['caveRef'];
             }
             
+            $description = '';
+            if( $this->getConfigElement('include_GPX_details') )
+            {
+                $hasPict = $this->getCaveFileList($cavedata['guidv4'], 'photos');
+                $description .= "\n"; 
+                $description .= L::table_cave_field_length . " : " . $cavedata['length'] . "\n";
+                $description .= L::table_cave_field_maxDepth . " : " . $cavedata['maxDepth'] . "\n";
+                $description .= L::table_cave_field_maxDepth . " : " . ($hasPict ? L::_yes : L::_no) . "\n";
+            }
+            
+
             // Creating points
             if( count($coordsList) > 1)
             {
@@ -1352,7 +1374,8 @@ class VarcaveCave extends Varcave
                     $point->latitude       = $lat;
                     $point->longitude      = $long;
                     $point->elevation      = $elev;
-                    $point->links[]          = $caveLink;
+                    $point->links[]        = $caveLink;
+                    $point->description    = $description;
                     $gpx_file->waypoints[] = $point;
                     
                     $i++;
@@ -1371,7 +1394,8 @@ class VarcaveCave extends Varcave
                 $point->latitude       = $lat;
                 $point->longitude      = $long;
                 $point->elevation      = $elev;
-                $point->links[]          = $caveLink;
+                $point->links[]        = $caveLink;
+                $point->description    = $description;
                 $gpx_file->waypoints[] = $point;
                 
             }

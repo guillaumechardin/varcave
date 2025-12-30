@@ -281,7 +281,7 @@ class VarcaveAuth extends Varcave
 					}
 				}
 			}
-            $this->logger->error('failed: user is NOT member');
+            $this->logger->debug('failed: user is NOT member');
 			return false;
 		}
 		catch (exception $e)

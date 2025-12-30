@@ -503,7 +503,7 @@ if (isset($_GET['guid']) )
             }
             
             
-            if ( ! isNullOrEmptyArray($photosArr['photos']) )
+            if ( ! isNullOrEmptyArray($photosArr) )
             {   
                 $htmlstr .= '<h2>' .  L::display_cavePhotos . '</h2>';
                 $htmlstr .= '<div class="displayPhotos">';

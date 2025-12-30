@@ -260,9 +260,11 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
 		}
 		elseif($_POST['action'] == 'buildgpx')
 		{
-            ini_set('max_execution_time', 120);
+
+            ini_set('max_execution_time', 360);
             try{
                 $cave = new varcaveCave();
+                $cave->logger->debug('ressources.php : Start build gpx.');
                 $gpxdata = $cave->createAllGPXKML('gpx');
                 $date = date_create();
                 $prefix = date_format($date, 'Y-m-d_His');
@@ -274,6 +276,7 @@ elseif( strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['action
                 
                 //update Database
                 $lastInsert = $cave->addFilesRessources(L::ressources_gpxFile, 'SIG', $filepath, L::ressources_gpxCavesFile, $_SESSION['uid'], 'users');
+                $cave->logger->debug('End building file');
                 
                 //send back to browser OK state
                 $return = array(
